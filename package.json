@@ -27,6 +27,7 @@
     "supabase:check": "node --use-system-ca scripts/check-supabase.mjs",
     "supabase:probe": "node --use-system-ca scripts/probe-supabase.mjs",
     "api:probe": "node --use-system-ca --import tsx scripts/probe-api.mts",
+    "hosted:probe": "node --use-system-ca scripts/probe-hosted.mjs",
     "seed:dev": "tsx supabase/seed/development.ts",
     "test:e2e": "playwright test",
     "format": "prettier --write .",

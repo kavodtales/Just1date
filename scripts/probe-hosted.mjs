@@ -105,6 +105,24 @@ try {
     .update({ visible: false, paused: true })
     .eq("user_id", userId);
   if (marked.error || hidden.error) throw new Error("TEST_ISOLATION_FAILED");
+  const passwordProbe = createClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_ANON_KEY,
+    { auth: { persistSession: false, autoRefreshToken: false } },
+  );
+  const passwordLogin = await passwordProbe.auth.signInWithPassword({
+    email,
+    password,
+  });
+  if (passwordLogin.error) throw new Error("TEST_PASSWORD_LOGIN_FAILED");
+  const weakPassword = await passwordProbe.auth.updateUser({
+    password: "Aa1!weak",
+  });
+  add(
+    "hosted_auth_rejects_short_password",
+    weakPassword.error?.code === "weak_password",
+  );
+  await passwordProbe.auth.signOut({ scope: "local" });
   for (const site of ["member", "staff"]) {
     const login = await call(site, "/api/auth", {
       mode: "login",

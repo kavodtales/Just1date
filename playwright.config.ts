@@ -23,9 +23,10 @@ export default defineConfig({
   webServer: process.env.E2E_BASE_URL
     ? undefined
     : {
-        command: "npm run dev:web",
+        command:
+          "npm run build -w @just1date/web && npm run start -w @just1date/web",
         url: "http://localhost:3000",
-        reuseExistingServer: true,
-        timeout: 120000,
+        reuseExistingServer: false,
+        timeout: 180000,
       },
 });
