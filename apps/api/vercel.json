@@ -5,6 +5,6 @@
   "installCommand": "cd ../.. && npm ci --include=dev",
   "buildCommand": "npm run build",
   "functions": {
-    "src/app.ts": { "maxDuration": 60 }
+    "app.mjs": { "maxDuration": 60 }
   }
 }
