@@ -1,6 +1,6 @@
 import { defineConfig } from "tsup";
 export default defineConfig({
-  entry: ["src/server.ts", "src/worker.ts"],
+  entry: ["src/server.ts", "src/worker.ts", "src/app.ts"],
   format: ["esm"],
   platform: "node",
   target: "node24",

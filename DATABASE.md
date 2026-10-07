@@ -43,4 +43,7 @@ selects the latest bounded message preview, and counts incoming unread messages
 after the actor's `last_read_at`. A partial index accelerates unread-message
 selection. Client roles have no execution grant. Additional interest catalog rows
 support the supplied onboarding design without creating member accounts. All seven
-migrations execute in the embedded SQL/REST integration suites.
+migrations execute in the embedded SQL/REST integration suites. Migration 008
+protects the custom migration ledger with RLS and revoked client privileges and
+enforces private photo/evidence bucket configuration. The SQL Editor installer
+adds all eight migrations with canonical LF checksums shared with the runner.

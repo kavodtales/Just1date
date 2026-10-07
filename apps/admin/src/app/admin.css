@@ -164,3 +164,21 @@
     font-size: 32px;
   }
 }
+.staff-mfa {
+  max-width: 520px;
+  margin: 60px auto;
+  padding: 24px;
+}
+.staff-mfa form,
+.staff-mfa label {
+  display: grid;
+  gap: 16px;
+  margin: 24px 0;
+}
+.staff-mfa input,
+.staff-mfa select {
+  padding: 12px;
+}
+.staff-mfa code {
+  overflow-wrap: anywhere;
+}

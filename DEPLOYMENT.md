@@ -1,5 +1,11 @@
 # Deployment
 
+For the requested `kavodtales/Just1date` repository and Vercel hosting, follow
+[the Vercel/Supabase setup guide](docs/VERCEL_SUPABASE_SETUP.md). It includes the
+repeat-safe SQL Editor installer, verification/admin bootstrap SQL, three Vercel
+projects, credential locations and launch blockers. No hosted upload/deployment
+or database application is confirmed merely by adding these files.
+
 Install Node 24 and run `npm ci`. Copy `.env.example` to ignored `.env.local` and configure a development Supabase project. Run ordered migrations using `npm run db:migrate` against a direct migration connection (never through transaction poolers for schema operations). Never run the development-account seeder against production.
 
 Local: `npm run dev:api`, `npm run dev:web`, `npm run dev:admin`, `npm run dev:mobile` in separate terminals. Web 3000, admin 3001, API 4000. Mobile API URL must be reachable from the device. Supabase local CLI requires Docker; neither is available in this initial workstation. Embedded SQL tests run without Docker.

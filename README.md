@@ -32,6 +32,8 @@ On memory-constrained development machines, `npm run test:low-memory` executes t
 
 ## Read before deployment
 
+- [GitHub, Vercel and Supabase setup, SQL installer and credential mapping](docs/VERCEL_SUPABASE_SETUP.md).
+
 - [Architecture](ARCHITECTURE.md), [database/ERD](DATABASE.md), [API](API.md), [security](SECURITY.md), [deployment](DEPLOYMENT.md).
 - [Current implementation and verification status](docs/STATUS.md).
 - [Phase delivery reports](docs/PHASE_REPORTS.md).

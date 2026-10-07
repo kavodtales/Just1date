@@ -1,5 +1,6 @@
 import pg from "pg";
 export interface Database {
+  close?(): Promise<void>;
   query<T = Record<string, unknown>>(
     sql: string,
     params?: unknown[],
@@ -9,15 +10,18 @@ export interface Database {
     work: (db: Database) => Promise<T>,
   ): Promise<T>;
 }
-export function createDatabase(url: string, ssl = true): Database {
+export function createDatabase(url: string, ssl = true, max = 3): Database {
   const pool = new pg.Pool({
     connectionString: url,
-    max: 15,
+    max,
+    idleTimeoutMillis: 10000,
+    allowExitOnIdle: true,
     ssl: ssl ? { rejectUnauthorized: true } : false,
     connectionTimeoutMillis: 5000,
     statement_timeout: 10000,
   });
   const wrap = (client: pg.Pool | pg.PoolClient): Database => ({
+    close: () => pool.end(),
     query: async <T>(sql: string, params?: unknown[]) => {
       const r = await client.query(sql, params);
       return { rows: r.rows as T[] };

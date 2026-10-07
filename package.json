@@ -23,6 +23,7 @@
     "test:integration": "vitest run tests/integration",
     "build": "turbo run build --filter=!@just1date/mobile --concurrency=1",
     "db:migrate": "tsx packages/database/src/migrate.ts",
+    "db:bundle": "node scripts/build-supabase-setup.mjs",
     "seed:dev": "tsx supabase/seed/development.ts",
     "test:e2e": "playwright test",
     "format": "prettier --write .",

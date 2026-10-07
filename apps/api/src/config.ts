@@ -6,6 +6,7 @@ export const envSchema = z.object({
   PORT: z.coerce.number().default(4000),
   DATABASE_URL: z.string().min(1),
   DATABASE_SSL: z.string().default("true"),
+  DATABASE_POOL_MAX: z.coerce.number().int().min(1).max(15).default(3),
   SUPABASE_URL: z.url(),
   SUPABASE_ANON_KEY: z.string().min(1),
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),

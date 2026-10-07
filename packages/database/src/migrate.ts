@@ -19,7 +19,10 @@ try {
   for (const name of (await readdir("supabase/migrations"))
     .filter((n) => n.endsWith(".sql"))
     .sort()) {
-    const sql = await readFile(`supabase/migrations/${name}`, "utf8"),
+    const sql = (await readFile(`supabase/migrations/${name}`, "utf8")).replace(
+        /\r\n/g,
+        "\n",
+      ),
       hash = createHash("sha256").update(sql).digest("hex");
     const old = await c.query(
       "select checksum from public.schema_migrations where name=$1",

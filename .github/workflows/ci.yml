@@ -16,6 +16,8 @@ jobs:
       - run: npm ci
       - run: npm run lint
       - run: npm run typecheck
+      - run: npm run db:bundle
+      - run: git diff --exit-code -- supabase/setup/production.sql
       - run: npm test
       - run: npm run build
       - run: npm run export -w @just1date/mobile

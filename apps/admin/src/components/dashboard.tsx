@@ -5,7 +5,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ShieldCheck, Activity, Flag, Camera, LogOut } from "lucide-react";
 import { can, type AdminRole } from "@just1date/config";
 import { Button } from "@just1date/ui";
-import { api, json } from "../../../web/src/lib/client";
+import { api, json, ClientError } from "../../../web/src/lib/client";
 import { QueryState } from "../../../web/src/components/query-state";
 export function Dashboard() {
   const [section, setSection] = useState("overview"),
@@ -90,6 +90,13 @@ export function Dashboard() {
         </Button>
       </aside>
       <main>
+        {identity.error instanceof ClientError &&
+          identity.error.code === "MFA_REQUIRED" && (
+            <p role="alert">
+              Verify your authenticator to continue.{" "}
+              <Link href="/auth/mfa">Staff authentication</Link>
+            </p>
+          )}
         <div className="page-heading">
           <div>
             <p className="eyebrow">JUST1DATE OPERATIONS</p>
