@@ -1,0 +1,23 @@
+{
+  "name": "@just1date/web",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev -p 3000",
+    "typecheck": "tsc -p tsconfig.json",
+    "build": "next build",
+    "start": "node ../../scripts/start-next.mjs web"
+  },
+  "dependencies": {
+    "next": "16.3.8",
+    "@supabase/ssr": "0.12.7",
+    "@just1date/types": "*",
+    "@just1date/validation": "*",
+    "@just1date/config": "*",
+    "@just1date/ui": "*",
+    "lucide-react": "1.52.0",
+    "tailwindcss": "4.3.3",
+    "@tailwindcss/postcss": "4.3.3"
+  }
+}

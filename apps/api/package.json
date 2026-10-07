@@ -1,0 +1,30 @@
+{
+  "name": "@just1date/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "start": "node dist/server.js",
+    "typecheck": "tsc -p tsconfig.json",
+    "build": "tsup"
+  },
+  "dependencies": {
+    "@just1date/database": "*",
+    "@just1date/types": "*",
+    "@just1date/validation": "*",
+    "@just1date/utils": "*",
+    "@just1date/config": "*",
+    "express": "^5.0.0",
+    "cors": "2.8.6",
+    "helmet": "8.3.0",
+    "express-rate-limit": "8.7.1",
+    "rate-limit-redis": "6.0.1",
+    "redis": "6.3.0",
+    "pino": "10.4.0",
+    "dotenv": "18.0.5",
+    "sharp": "0.35.5",
+    "@asteasolutions/zod-to-openapi": "9.1.0",
+    "tsup": "8.5.1"
+  }
+}

@@ -1,0 +1,13 @@
+# Provider contracts and pending integrations
+
+Paystack implements `PaymentProvider` for initialization, authoritative verification and raw signature validation. Current paid periods renew manually. Refund events, disputes and recurring lifecycle events are acknowledged but do not change records yet; do not enable automatic renewal/refunds until reconciliation is implemented. Apple/Google digital subscriptions must use store billing and signed server notification validation before mobile sales launch. Stripe may implement the same transaction interface with its own signature verifier. A shared settlement service must preserve unique reference/event/period constraints and route all entitlement changes through PostgreSQL.
+
+Verification vendor contract: create consent-bound session, validate signed vendor callback, require explicit match result, store no unnecessary biometric data, allow human review, enforce unique request result, append audit, issue method-specific badge, purge evidence at the approved deadline. No vendor or fake identity badge is currently enabled.
+
+Media contract: decode and limit bytes/pixels; strip metadata; private quarantine; moderator approval; signed read URLs. Profile JPEG upload is implemented. Chat media/voice/GIF need attachment membership checks, safe transcoding, malware scanning, quota and private signing before activation. They are not represented by send buttons yet.
+
+Notifications: in-app transactions/outbox and Expo push worker are implemented. Push tickets must be persisted and receipts reconciled, invalid devices retired and partial failures retried per device. Email requires a configured provider and explicit opt-in. Safety contact alerts need verified contact consent, delivery receipts, explicit scheduling and missed-check-in escalation; recording a check-in does not imply help has been contacted.
+
+AI: optional Responses adapter sends explicit interests/goals/communication only, disables response storage and never sends a message or changes moderation status. Configure an approved model in OPENAI_MODEL and review provider retention/consent, budgets and output safety. Profile coaching and recommendation re-ranking remain pending. No API key was supplied or live AI call made.
+
+Operations: settings/flags/matching weights are database-managed today. A permissioned settings API must validate versioned values and audit old/new changes. Finance refund UI must verify provider acceptance and reconcile settlement before reporting a refund. Retention/DAU/MAU/churn need a vetted event pipeline and coherent cohort definitions; counts alone are not retention analytics. Full staff user management, verification vendor cases, reported-message evidence and audit browsing require further UI/API work.

@@ -1,0 +1,10 @@
+.git
+node_modules
+.npm-cache
+.turbo
+**/.next
+**/dist
+.env*
+!.env.example
+test-results
+playwright-report

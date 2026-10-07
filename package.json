@@ -1,0 +1,63 @@
+{
+  "name": "just1date",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "npm@11.6.1",
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:api": "npm run dev -w @just1date/api",
+    "dev:web": "npm run dev -w @just1date/web",
+    "dev:admin": "npm run dev -w @just1date/admin",
+    "dev:mobile": "npm run start -w @just1date/mobile",
+    "lint": "eslint .",
+    "typecheck": "turbo run typecheck --concurrency=2",
+    "test": "vitest run",
+    "test:low-memory": "node --liftoff-only --no-wasm-tier-up node_modules/vitest/vitest.mjs run",
+    "test:integration": "vitest run tests/integration",
+    "build": "turbo run build --filter=!@just1date/mobile --concurrency=1",
+    "db:migrate": "tsx packages/database/src/migrate.ts",
+    "seed:dev": "tsx supabase/seed/development.ts",
+    "test:e2e": "playwright test",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "0.5.8",
+    "@eslint/js": "^9.39.0",
+    "@playwright/test": "1.63.0",
+    "@types/cors": "2.8.19",
+    "@types/express": "5.0.6",
+    "@types/node": "26.6.4",
+    "@types/pg": "8.23.1",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@types/supertest": "7.2.1",
+    "eslint": "^9.0.0",
+    "prettier": "^3.9.9",
+    "supertest": "7.3.1",
+    "tsx": "4.23.15",
+    "turbo": "2.11.7",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.71.1",
+    "vitest": "5.0.3"
+  },
+  "dependencies": {
+    "@hookform/resolvers": "5.9.1",
+    "@supabase/supabase-js": "2.117.2",
+    "@tanstack/react-query": "5.104.1",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "react-hook-form": "7.89.0",
+    "zod": "^4.0.0"
+  },
+  "overrides": {
+    "esbuild": "^0.28.2"
+  }
+}
