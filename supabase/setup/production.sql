@@ -690,4 +690,33 @@ $j1d_source$;
 end
 $j1d_apply$;
 
+-- 202610070009_rate_limits.sql
+do $j1d_apply$
+declare previous text;
+begin
+  select checksum into previous from public.schema_migrations where name='202610070009_rate_limits.sql';
+  if found then
+    if previous <> '682ed5a0cf2f1a935e7b965b8dbd66ded3e9aa32268db6c957e140d458cf871a' then
+      raise exception 'Applied migration checksum mismatch: 202610070009_rate_limits.sql';
+    end if;
+  else
+    execute $j1d_source$-- Shared counters survive serverless instance changes. No Redis service is required.
+-- Keys are HMAC digests; raw client IP addresses are not stored here.
+create table public.request_rate_limits (
+ namespace text not null check(namespace in ('api','auth')),
+ key text not null check(length(key)=64),
+ total_hits bigint not null check(total_hits>=0),
+ reset_at timestamptz not null,
+ primary key(namespace,key)
+);
+create index request_rate_limits_expiry_idx on public.request_rate_limits(reset_at);
+alter table public.request_rate_limits enable row level security;
+revoke all on public.request_rate_limits from public,anon,authenticated;
+grant all on public.request_rate_limits to service_role;
+$j1d_source$;
+    insert into public.schema_migrations(name,checksum) values('202610070009_rate_limits.sql','682ed5a0cf2f1a935e7b965b8dbd66ded3e9aa32268db6c957e140d458cf871a');
+  end if;
+end
+$j1d_apply$;
+
 commit;

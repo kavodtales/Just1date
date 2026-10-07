@@ -10,14 +10,19 @@ export interface Database {
     work: (db: Database) => Promise<T>,
   ): Promise<T>;
 }
-export function createDatabase(url: string, ssl = true, max = 3): Database {
+export function createDatabase(
+  url: string,
+  ssl = true,
+  max = 3,
+  ca = process.env.DATABASE_SSL_CA?.replace(/\\n/g, "\n"),
+): Database {
   const pool = new pg.Pool({
     connectionString: url,
     max,
     idleTimeoutMillis: 10000,
     allowExitOnIdle: true,
-    ssl: ssl ? { rejectUnauthorized: true } : false,
-    connectionTimeoutMillis: 5000,
+    ssl: ssl ? { rejectUnauthorized: true, ...(ca ? { ca } : {}) } : false,
+    connectionTimeoutMillis: 15000,
     statement_timeout: 10000,
   });
   const wrap = (client: pg.Pool | pg.PoolClient): Database => ({

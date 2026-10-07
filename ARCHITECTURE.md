@@ -18,7 +18,7 @@ Like: canonical pair advisory lock → validate both active accounts and both bl
 
 ## Scaling
 
-Cursor pagination, bounded payloads, pooled PostgreSQL connections, indexes on membership, actor/time and active discovery filters. Redis distributed rate limits are required for multi-replica production. Notification outbox is durable and claimed with SKIP LOCKED; worker retries with exponential backoff. Scale Realtime on measured connections; private presence channels require membership policies. Archive and partition high-volume message/event tables after measured growth. Avoid profile/message body logging. Structured request IDs, redacted logs and health/readiness endpoints support operations.
+Cursor pagination, bounded payloads, pooled PostgreSQL connections, indexes on membership, actor/time and active discovery filters. Atomic PostgreSQL rate-limit counters share limits across serverless instances by default. HMAC keys avoid storing raw client IPs; bounded request-time cleanup removes old counters. Optional TLS Redis remains available for measured higher-throughput deployments. Store failures fail closed; benchmark database capacity before increasing cohorts. Notification outbox is durable and claimed with SKIP LOCKED; worker retries with exponential backoff. Scale Realtime on measured connections; private presence channels require membership policies. Archive and partition high-volume message/event tables after measured growth. Avoid profile/message body logging. Structured request IDs, redacted logs and health/readiness endpoints support operations.
 
 ## Data, AI and media
 

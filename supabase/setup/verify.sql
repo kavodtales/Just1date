@@ -1,6 +1,6 @@
 -- Read-only checks after production.sql. Run as database owner.
 select name,checksum,applied_at from public.schema_migrations order by name;
--- Expected: 56 public tables (55 app tables and the migration ledger); zero without RLS.
+-- Expected: 57 public tables (56 app/support tables and the migration ledger); zero without RLS.
 select count(*) as public_tables, count(*) filter(where not rowsecurity) as missing_rls
 from pg_tables where schemaname='public';
 select tablename from pg_tables where schemaname='public' and not rowsecurity;

@@ -5,7 +5,7 @@ Start its introduction at `/welcome`; the member application starts at `/discove
 
 Meet someone worth choosing.
 
-This repository contains a real service-connected implementation in progress. **It is not production-ready and has not been deployed.** No real Supabase/Paystack/AI keys or EAS credentials were supplied. No fabricated profiles, matches, balances or payment outcomes are shipped in clients.
+This repository contains a real service-connected implementation in progress. **Public production launch remains blocked by the release gates in docs/STATUS.md.** Real Supabase credentials and the database connection are configured privately; the hosted schema, Auth/Storage/Realtime and production API runtime are tested. Member and staff apps are deployed to Vercel. Paystack/AI/EAS are not configured. No fabricated profiles, matches, balances or payment outcomes are shipped in clients.
 
 ## Start
 
@@ -24,7 +24,7 @@ An account becomes discoverable after confirmed email, a complete profile and an
 
 SQL tests execute all real migrations on embedded PostgreSQL with Supabase role/auth fixtures. REST tests execute those functions through Express. The test identity and Paystack adapters isolate external boundaries; they do **not** establish that hosted Auth or Paystack works. Those need live staging tests.
 
-On memory-constrained development machines, `npm run test:low-memory` executes the same assertions with baseline WebAssembly compilation. This is a test-runner option; production runtime settings remain unchanged. The final local full suite passed all 31 tests using this command. Browser tests exercise desktop, mobile browser and the 375-pixel reference composition; service fixtures are confined to test network boundaries. See [verification status](docs/STATUS.md) for results and release limitations.
+On memory-constrained development machines, `npm run test:low-memory` executes the same assertions with baseline WebAssembly compilation. This is a test-runner option; production runtime settings remain unchanged. See docs/STATUS.md for the current full-suite result. Browser tests exercise desktop, mobile browser and the 375-pixel reference composition; service fixtures are confined to test network boundaries. See [verification status](docs/STATUS.md) for results and release limitations.
 
 ## Structure
 

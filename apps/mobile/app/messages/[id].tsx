@@ -42,7 +42,9 @@ export default function Chat() {
         await auth.realtime.setAuth(data.session.access_token);
         if (cancelled) return;
         channel = auth
-          .channel(`mobile-chat:${id}`)
+          .channel(`mobile-chat:${id}`, {
+            config: { postgres_changes_options: { wait: true } },
+          })
           .on(
             "postgres_changes",
             {

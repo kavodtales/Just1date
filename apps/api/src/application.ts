@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
-import { rateLimit, type Store } from "express-rate-limit";
+import { ipKeyGenerator, rateLimit, type Store } from "express-rate-limit";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { RequestHandler } from "express";
 import type { Database } from "@just1date/database";
@@ -55,27 +55,29 @@ export function createApp(deps: {
   app.get("/openapi.json", (_req, res) => res.json(openapi()));
   app.use("/v1", webhookRoutes(repo, deps.payments));
   app.use(express.json({ limit: "64kb" }));
-  app.use(
-    "/v1",
-    rateLimit({
-      windowMs: 60000,
-      limit: 120,
-      standardHeaders: "draft-8",
-      legacyHeaders: false,
-      store: deps.rateStore,
-      handler: (req, res) =>
-        res.status(429).json({
-          error: {
-            code: "RATE_LIMITED",
-            message: "Please wait a moment and try again.",
-            status: 429,
-            request_id: req.requestId,
-          },
-        }),
-    }),
-  );
+  const apiLimiter = rateLimit({
+    windowMs: 60000,
+    limit: 120,
+    standardHeaders: "draft-8",
+    legacyHeaders: false,
+    store: deps.rateStore,
+    // Authenticated members may share a Vercel BFF's outbound IP.
+    // Only use the identity set by the validated Auth middleware.
+    keyGenerator: (req) =>
+      req.actor ? `user:${req.actor.id}` : ipKeyGenerator(req.ip ?? ""),
+    handler: (req, res) =>
+      res.status(429).json({
+        error: {
+          code: "RATE_LIMITED",
+          message: "Please wait a moment and try again.",
+          status: 429,
+          request_id: req.requestId,
+        },
+      }),
+  });
   app.use(
     "/v1/auth",
+    apiLimiter,
     rateLimit({
       windowMs: 15 * 60000,
       limit: 15,
@@ -85,7 +87,7 @@ export function createApp(deps: {
     }),
     authRoutes(config),
   );
-  app.get("/v1/catalog/interests", async (_req, res) => {
+  app.get("/v1/catalog/interests", apiLimiter, async (_req, res) => {
     const rows = await deps.db.transaction(null, async (db) => {
       await db.query("set local role anon");
       return (
@@ -97,6 +99,7 @@ export function createApp(deps: {
     ok(res, rows);
   });
   app.use("/v1", deps.authenticate ?? authenticate(deps.auth));
+  app.use("/v1", apiLimiter);
   app.use("/v1/profiles", profilesRoutes(repo, deps.auth));
   app.use(
     "/v1",

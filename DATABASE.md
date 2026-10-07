@@ -46,4 +46,4 @@ support the supplied onboarding design without creating member accounts. All sev
 migrations execute in the embedded SQL/REST integration suites. Migration 008
 protects the custom migration ledger with RLS and revoked client privileges and
 enforces private photo/evidence bucket configuration. The SQL Editor installer
-adds all eight migrations with canonical LF checksums shared with the runner.
+adds all nine migrations with canonical LF checksums shared with the runner.

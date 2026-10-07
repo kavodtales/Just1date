@@ -7,6 +7,8 @@ export default ts.config(
       "**/.next/**",
       "**/dist/**",
       "**/.expo/**",
+      "test-results/**",
+      "playwright-report/**",
       ".npm-cache/**",
       "**/next-env.d.ts",
     ],
@@ -17,7 +19,10 @@ export default ts.config(
     files: ["**/*.{ts,tsx}"],
     rules: {
       "@typescript-eslint/no-explicit-any": "off",
-      "@typescript-eslint/no-require-imports": ["error", { "allow": ["\\.(png|jpe?g|ttf)$"] }],
+      "@typescript-eslint/no-require-imports": [
+        "error",
+        { allow: ["\\.(png|jpe?g|ttf)$"] },
+      ],
       "@typescript-eslint/no-unused-vars": [
         "error",
         { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },

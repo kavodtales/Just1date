@@ -45,7 +45,7 @@ it("installs the complete schema and matches authoritative migration checksums",
   const tables = await db.query(
     "select tablename from pg_tables where schemaname='public'",
   );
-  expect(tables.rows).toHaveLength(56);
+  expect(tables.rows).toHaveLength(57);
   expect(
     (
       await db.query(
@@ -62,7 +62,7 @@ it("is safe to run twice without duplicate seed rows or migrations", async () =>
   ).toEqual(before.rows);
   expect(
     (await db.query("select name from public.schema_migrations")).rows,
-  ).toHaveLength(8);
+  ).toHaveLength(9);
 });
 it("configures private storage, realtime publication, and private broadcast policies", async () => {
   const buckets = await db.query<{

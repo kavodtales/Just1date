@@ -93,6 +93,7 @@ beforeAll(async () => {
 afterAll(async () => {
   await sql?.close();
 });
+
 it("rejects unauthenticated requests and produces valid OpenAPI without credentials", async () => {
   expect((await request(app).get("/v1/matches")).status).toBe(401);
   const doc = await request(app).get("/openapi.json");
@@ -159,16 +160,37 @@ it("executes discovery → reciprocal likes → one match → chat through REST"
   ).toBe(404);
 });
 it("returns authorized inbox previews and counts unread messages until acknowledged", async () => {
-  const inbox = await request(app).get("/v1/conversations").auth(b, { type: "bearer" });
+  const inbox = await request(app)
+    .get("/v1/conversations")
+    .auth(b, { type: "bearer" });
   expect(inbox.status).toBe(200);
   expect(inbox.body.data).toHaveLength(1);
-  expect(inbox.body.data[0].last_message.body).toBe("Hello, what are you reading lately?");
+  expect(inbox.body.data[0].last_message.body).toBe(
+    "Hello, what are you reading lately?",
+  );
   expect(inbox.body.data[0].unread_count).toBe(1);
   expect(inbox.body.data[0].profile.photo_keys).toBeUndefined();
-  expect((await request(app).get("/v1/conversations").auth(stranger, { type: "bearer" })).body.data).toEqual([]);
-  await request(app).post(`/v1/conversations/${cid}/read`).auth(b, { type: "bearer" });
-  expect((await request(app).get("/v1/conversations").auth(b, { type: "bearer" })).body.data[0].unread_count).toBe(0);
-  expect((await request(app).get("/v1/conversations?before=2026-10-06T10:00:00Z").auth(b, { type: "bearer" })).status).toBe(400);
+  expect(
+    (
+      await request(app)
+        .get("/v1/conversations")
+        .auth(stranger, { type: "bearer" })
+    ).body.data,
+  ).toEqual([]);
+  await request(app)
+    .post(`/v1/conversations/${cid}/read`)
+    .auth(b, { type: "bearer" });
+  expect(
+    (await request(app).get("/v1/conversations").auth(b, { type: "bearer" }))
+      .body.data[0].unread_count,
+  ).toBe(0);
+  expect(
+    (
+      await request(app)
+        .get("/v1/conversations?before=2026-10-06T10:00:00Z")
+        .auth(b, { type: "bearer" })
+    ).status,
+  ).toBe(400);
 });
 it("rejects spoofed payment webhooks and deduplicates a verified payment", async () => {
   await sql.exec(
@@ -248,7 +270,14 @@ it("reports and blocks through REST, then revokes chat access", async () => {
   ).toBe(404);
 });
 it("excludes blocked matches and message previews from both members' inboxes", async () => {
-  for (const member of [a,b]) expect((await request(app).get("/v1/conversations").auth(member, { type: "bearer" })).body.data).toEqual([]);
+  for (const member of [a, b])
+    expect(
+      (
+        await request(app)
+          .get("/v1/conversations")
+          .auth(member, { type: "bearer" })
+      ).body.data,
+    ).toEqual([]);
 });
 it("records date sessions but rejects unsupported emergency or location promises", async () => {
   const input = {
@@ -278,4 +307,20 @@ it("records date sessions but rejects unsupported emergency or location promises
         .send({ ...input, location_consent: true })
     ).status,
   ).toBe(503);
+});
+
+it("limits validated members independently behind the same proxy", async () => {
+  const results = await Promise.all(
+    Array.from({ length: 121 }, () =>
+      request(app).get("/v1/profiles/me").auth(stranger, { type: "bearer" }),
+    ),
+  );
+  expect(results.some((result) => result.status === 429)).toBe(true);
+  expect(results.every((result) => [200, 429].includes(result.status))).toBe(
+    true,
+  );
+  const other = await request(app)
+    .get("/v1/profiles/me")
+    .auth(a, { type: "bearer" });
+  expect(other.status).toBe(200);
 });

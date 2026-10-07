@@ -2,6 +2,8 @@ import { config as load } from "dotenv";
 import { createClient } from "@supabase/supabase-js";
 import { createClient as createRedis } from "redis";
 import { RedisStore } from "rate-limit-redis";
+import type { Store } from "express-rate-limit";
+import { PostgresRateStore } from "./lib/postgres-rate-store";
 import { createDatabase } from "@just1date/database";
 import { envSchema } from "./config";
 import { createApp } from "./application";
@@ -19,14 +21,11 @@ export async function createRuntime() {
     throw new Error("API_CONFIGURATION_INVALID");
   }
   const config = parsed.data;
-  if (config.NODE_ENV === "production" && !config.REDIS_URL)
-    throw new Error(
-      "Production requires REDIS_URL for distributed rate limiting.",
-    );
   const db = createDatabase(
     config.DATABASE_URL,
     config.DATABASE_SSL !== "false",
     config.DATABASE_POOL_MAX,
+    config.DATABASE_SSL_CA?.replace(/\\n/g, "\n"),
   );
   let redis: ReturnType<typeof createRedis> | undefined;
   try {
@@ -48,10 +47,30 @@ export async function createRuntime() {
       config.SUPABASE_SERVICE_ROLE_KEY,
       { auth: { persistSession: false, autoRefreshToken: false } },
     );
-    let rateStore: RedisStore | undefined;
-    let authRateStore: RedisStore | undefined;
+    let rateStore: Store = new PostgresRateStore(
+      db,
+      "api",
+      config.SUPABASE_SERVICE_ROLE_KEY,
+    );
+    let authRateStore: Store = new PostgresRateStore(
+      db,
+      "auth",
+      config.SUPABASE_SERVICE_ROLE_KEY,
+    );
+    if (!config.REDIS_URL)
+      await db.query(
+        "select namespace from public.request_rate_limits limit 0",
+      );
     if (config.REDIS_URL) {
-      redis = createRedis({ url: config.REDIS_URL });
+      redis = createRedis({
+        url: config.REDIS_URL,
+        socket: {
+          connectTimeout: 5000,
+          // Bound cold-start retries so an unavailable limiter returns 503.
+          reconnectStrategy: (retries) =>
+            retries < 2 ? 250 * (retries + 1) : false,
+        },
+      });
       redis.on("error", () =>
         log.error({ code: "REDIS_UNAVAILABLE" }, "rate_limit_backend_failed"),
       );

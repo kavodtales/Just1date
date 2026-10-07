@@ -117,7 +117,7 @@ export function PhoneAuth() {
                 <button
                   type="button"
                   disabled={busy}
-                  key={n}
+                  key={`digit-${n}`}
                   aria-label={n === "delete" ? "Delete last digit" : n}
                   onClick={() =>
                     setCode((x) =>
@@ -128,7 +128,7 @@ export function PhoneAuth() {
                   {n === "delete" ? <Delete size={24} /> : n}
                 </button>
               ) : (
-                <span key={i} />
+                <span key={`space-${i}`} />
               ),
             )}
           </div>

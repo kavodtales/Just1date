@@ -8,7 +8,15 @@ if (!process.env.DATABASE_URL) throw new Error("DATABASE_URL is required.");
 const c = new pg.Client({
   connectionString: process.env.DATABASE_URL,
   ssl:
-    process.env.DATABASE_SSL === "false" ? false : { rejectUnauthorized: true },
+    process.env.DATABASE_SSL === "false"
+      ? false
+      : {
+          rejectUnauthorized: true,
+          ...(process.env.DATABASE_SSL_CA
+            ? { ca: process.env.DATABASE_SSL_CA.replace(/\\n/g, "\n") }
+            : {}),
+        },
+  connectionTimeoutMillis: 15000,
 });
 await c.connect();
 try {

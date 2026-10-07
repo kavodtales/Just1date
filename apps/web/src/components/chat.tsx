@@ -56,44 +56,57 @@ export function Chat({ id }: { id: string }) {
     let cancelled = false;
     let cleanup = () => {};
     let timeout: ReturnType<typeof setTimeout>;
-    realtimeClient().then((session) => {
-      if (!session || cancelled) return;
-      const c = session.client
-        .channel(`chat:${id}`)
-        .on(
-          "postgres_changes",
-          {
-            event: "*",
-            schema: "public",
-            table: "messages",
-            filter: `conversation_id=eq.${id}`,
-          },
-          () => qc.invalidateQueries({ queryKey: ["messages", id] }),
-        )
-        .subscribe((status) => setRealtime(status === "SUBSCRIBED"));
-      const presence = session.client
-        .channel(`conversation:${id}`, {
-          config: { private: true, broadcast: { self: false } },
-        })
-        .on("broadcast", { event: "typing" }, () => {
-          setTyping(true);
+    realtimeClient()
+      .then((session) => {
+        if (!session || cancelled) return;
+        const c = session.client
+          .channel(`chat:${id}`, {
+            config: { postgres_changes_options: { wait: true } },
+          })
+          .on(
+            "postgres_changes",
+            {
+              event: "*",
+              schema: "public",
+              table: "messages",
+              filter: `conversation_id=eq.${id}`,
+            },
+            () => qc.invalidateQueries({ queryKey: ["messages", id] }),
+          )
+          .subscribe((status) => {
+            const subscribed = status === "SUBSCRIBED";
+            setRealtime(subscribed);
+            if (subscribed)
+              qc.invalidateQueries({ queryKey: ["messages", id] });
+          });
+        const presence = session.client
+          .channel(`conversation:${id}`, {
+            config: { private: true, broadcast: { self: false } },
+          })
+          .on("broadcast", { event: "typing" }, () => {
+            setTyping(true);
+            clearTimeout(timeout);
+            timeout = setTimeout(() => setTyping(false), 3000);
+          })
+          .subscribe();
+        channel.current = presence;
+        const refresh = setInterval(async () => {
+          const r = await fetch("/api/session");
+          if (r.ok)
+            await session.client.realtime.setAuth(
+              (await r.json()).access_token,
+            );
+        }, 240000);
+        cleanup = () => {
+          clearInterval(refresh);
           clearTimeout(timeout);
-          timeout = setTimeout(() => setTyping(false), 3000);
-        })
-        .subscribe();
-      channel.current = presence;
-      const refresh = setInterval(async () => {
-        const r = await fetch("/api/session");
-        if (r.ok)
-          await session.client.realtime.setAuth((await r.json()).access_token);
-      }, 240000);
-      cleanup = () => {
-        clearInterval(refresh);
-        clearTimeout(timeout);
-        session.client.removeChannel(c);
-        session.client.removeChannel(presence);
-      };
-    });
+          session.client.removeChannel(c);
+          session.client.removeChannel(presence);
+        };
+      })
+      .catch(() => {
+        if (!cancelled) setRealtime(false);
+      });
     return () => {
       cancelled = true;
       cleanup();
