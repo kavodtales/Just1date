@@ -19,6 +19,7 @@ import { accountRoutes } from "./modules/account";
 import { adminRoutes } from "./modules/admin";
 import { aiRoutes } from "./modules/ai";
 import { openapi } from "./openapi";
+import { DemoService, demoRoutes } from "./modules/demo";
 export function createApp(deps: {
   db: Database;
   auth: SupabaseClient;
@@ -64,7 +65,11 @@ export function createApp(deps: {
     // Authenticated members may share a Vercel BFF's outbound IP.
     // Only use the identity set by the validated Auth middleware.
     keyGenerator: (req) =>
-      req.actor ? `user:${req.actor.id}` : ipKeyGenerator(req.ip ?? ""),
+      req.actor
+        ? `user:${req.actor.id}`
+        : req.demoSession
+          ? `demo:${req.demoSession}`
+          : ipKeyGenerator(req.ip ?? ""),
     handler: (req, res) =>
       res.status(429).json({
         error: {
@@ -98,6 +103,8 @@ export function createApp(deps: {
     });
     ok(res, rows);
   });
+  const demo = new DemoService(deps.db, config.SUPABASE_SERVICE_ROLE_KEY);
+  app.use("/v1/demo", demo.middleware, apiLimiter, demoRoutes(demo));
   app.use("/v1", deps.authenticate ?? authenticate(deps.auth));
   app.use("/v1", apiLimiter);
   app.use("/v1/profiles", profilesRoutes(repo, deps.auth));
@@ -111,7 +118,7 @@ export function createApp(deps: {
   app.use("/v1/safety", safetyRoutes(repo));
   app.use(
     "/v1/admin",
-    adminRoutes(repo, deps.auth, config.NODE_ENV === "production"),
+    adminRoutes(repo, deps.auth, config.NODE_ENV === "production", demo),
   );
   app.use((_req, _res, next) =>
     next(new AppError("NOT_FOUND", 404, "This route does not exist.")),

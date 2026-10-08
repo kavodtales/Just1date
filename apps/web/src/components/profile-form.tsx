@@ -6,24 +6,12 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { profileSchema } from "@just1date/validation";
-import { onboardingSteps } from "@just1date/config";
-import { Button } from "@just1date/ui";
+import { Camera, Check, Heart, ArrowRight, ShieldCheck } from "lucide-react";
+import { Brand } from "./brand";
 import { QueryState } from "./query-state";
 import { api, json } from "../lib/client";
-import { BirthdayPicker } from "./birthday-picker";
-import {
-  Check,
-  Camera,
-  Music,
-  Plane,
-  ShoppingBag,
-  Dumbbell,
-  Heart,
-  UserRound,
-  ChevronLeft,
-} from "lucide-react";
 type Fields = z.infer<typeof profileSchema>;
-const initial: Fields = {
+const defaults: Fields = {
   display_name: "",
   gender: "self_described",
   city: "",
@@ -38,490 +26,405 @@ const initial: Fields = {
   personality: [],
   prompts: [],
 };
+const goals = [
+  ["serious", "Something meaningful"],
+  ["marriage", "Marriage"],
+  ["long_term", "A long-term relationship"],
+  ["dating", "Dating"],
+  ["friendship", "Friendship"],
+  ["exploring", "Figuring it out"],
+];
 export function ProfileForm() {
-  const client = useQueryClient();
   const q = useQuery({ queryKey: ["me"], queryFn: () => api("profiles/me") });
   return (
-    <main className="onboarding-screen">
-      <header className="onboarding-header"><Link className="square-control" href="/profile" aria-label="Back to profile"><ChevronLeft size={23} /></Link><Link className="pink-link" href="/profile">Skip</Link></header>
-      <QueryState pending={q.isPending} error={q.error} retry={q.refetch} />
-      {q.data && (
-        <Editor
-          key={q.data.user_id}
-          own={q.data}
-          done={() => client.invalidateQueries({ queryKey: ["me"] })}
-        />
-      )}
-    </main>
+    <div className="profile-editor-page">
+      <header>
+        <Brand />
+        <Link href="/profile" className="quiet-link">
+          Back to my profile
+        </Link>
+      </header>
+      <main>
+        <p className="premium-kicker">LET YOUR PERSONALITY THROUGH</p>
+        <h1>Tell us your story.</h1>
+        <p className="editor-intro">
+          A thoughtful profile makes a better beginning. Start with the
+          essentials and add a little of what makes you, you.
+        </p>
+        <QueryState pending={q.isPending} error={q.error} retry={q.refetch} />
+        {q.data && <Editor key={q.data.user_id} own={q.data} />}
+      </main>
+    </div>
   );
 }
-function Editor({ own, done }: { own: any; done: () => unknown }) {
-  const [step, setStep] = useState(0),
+function Editor({ own }: { own: any }) {
+  const qc = useQueryClient(),
     [error, setError] = useState(""),
     [message, setMessage] = useState(""),
-    [busy, setBusy] = useState(false);
+    [uploading, setUploading] = useState(false);
   const {
     register,
     watch,
     setValue,
-    getValues,
-    trigger,
-    formState: { errors },
+    handleSubmit,
+    formState: { errors, isSubmitting },
   } = useForm<Fields>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
-      ...initial,
+      ...defaults,
       ...Object.fromEntries(
-        Object.keys(initial).map((k) => [
+        Object.keys(defaults).map((k) => [
           k,
-          own[k] ?? initial[k as keyof Fields],
+          own[k] ?? defaults[k as keyof Fields],
         ]),
       ),
     },
   });
-  const [prefs, setPrefs] = useState(own.preferences);
-  const [firstName,setFirstName] = useState((own.display_name ?? "").split(/\s+/)[0]);
-  const [lastName,setLastName] = useState((own.display_name ?? "").split(/\s+/).slice(1).join(" "));
-  const interests = useQuery({
+  const catalog = useQuery({
     queryKey: ["interests"],
-    queryFn: () => api<{ code: string; name: string }[]>("catalog/interests"),
+    queryFn: () =>
+      api<Array<{ code: string; name: string }>>("catalog/interests"),
   });
-  const selected = watch("interests");
-  const field = (key: keyof Fields, label: string, type = "text") => (
-    <label>
-      {label}
-      {key === "bio" ? (
-        <textarea rows={4} maxLength={1000} {...register("bio")} />
-      ) : (
-        <input type={type} {...register(key as any)} />
-      )}
-      <small className="field-error">{errors[key]?.message as string}</small>
-    </label>
+  const selected = watch("interests"),
+    selectedValues = watch("values");
+  const reviews = own.photo_review ?? [],
+    occupied = new Set<number>(reviews.map((p: any) => p.position));
+  const available = [0, 1, 2, 3, 4, 5].find(
+    (position) => !occupied.has(position),
   );
-  async function save() {
-    setBusy(true);
-    setError("");
-    try {
-      if (!(await trigger())) {
-        setError("Check your profile details before saving.");
-        return;
-      }
-      await api("profiles/me", { method: "PATCH", body: json(getValues()) });
-      await api("profiles/me/preferences", {
-        method: "PATCH",
-        body: json({
-          age_min: Number(prefs.age_min),
-          age_max: Number(prefs.age_max),
-          distance_km: Number(prefs.distance_km),
-          genders: prefs.genders,
-          goals: prefs.goals,
-          deal_breakers: prefs.deal_breakers ?? {},
-        }),
-      });
-      setMessage(
-        "Profile and preferences saved. Photos need moderation before discovery.",
-      );
-      done();
-    } catch (e) {
-      setError((e as Error).message);
-    } finally {
-      setBusy(false);
-    }
-  }
-  const stepFields: Partial<Record<number, (keyof Fields)[]>> = {
-    1: ["display_name"],
-    3: ["gender"],
-    5: ["goal"],
-    6: ["city"],
-    7: ["interests"],
-    8: ["lifestyle"],
-    9: ["profession", "education"],
-    10: ["bio", "prompts"],
-  };
+  const approved = reviews
+    .filter((p: any) => p.status === "approved")
+    .sort((a: any, b: any) => a.position - b.position);
   return (
-    <div className="form-card">
-      <div className="onboarding-top">
-        <p className="eyebrow">STEP {step + 1} OF 15</p>
-        <span>{own.completion}% complete</span>
-      </div>
-      <div className="progress-track">
-        <div style={{ width: `${((step + 1) / 15) * 100}%` }} />
-      </div>
-      <h1>
-        {step === 3
-          ? "I am a"
-          : step === 1 ? "Profile details" : step === 7
-            ? "Your interests"
-            : onboardingSteps[step]}
-      </h1>
-      <div className="form-grid">
-        {step === 0 && (
-          <p>
-            Bring your whole self. Your intentions, interests and everyday life
-            help us introduce people worth getting to know.
-          </p>
-        )}
-        {step === 1 && <div className="onboarding-name"><div className="onboarding-avatar">{own.photos?.[0] ? <img src={own.photos[0]} alt="Your profile" /> : <UserRound size={44} />}<button type="button" aria-label="Add a profile photo" onClick={() => setStep(11)}><Camera size={17} /></button></div><label className="floating-label">First name<input autoComplete="given-name" value={firstName} onChange={e => { setFirstName(e.target.value); setValue("display_name", [e.target.value,lastName].filter(Boolean).join(" ")); }} /></label><label className="floating-label">Last name<input autoComplete="family-name" value={lastName} onChange={e => { setLastName(e.target.value); setValue("display_name", [firstName,e.target.value].filter(Boolean).join(" ")); }} /></label><BirthdayPicker value={own.date_of_birth ?? ""} readOnly /><small className="field-error">{errors.display_name?.message}</small></div>}
-        {step === 2 && (
+    <form
+      className="premium-profile-editor"
+      onSubmit={handleSubmit(
+        async (fields) => {
+          setError("");
+          setMessage("");
+          try {
+            await api("profiles/me", { method: "PATCH", body: json(fields) });
+            await qc.invalidateQueries({ queryKey: ["me"] });
+            setMessage(
+              "Your profile is saved. Once your email is confirmed and a photo is approved, you can discover real members.",
+            );
+          } catch (e) {
+            setError((e as Error).message);
+          }
+        },
+        () =>
+          setError(
+            "Check the highlighted fields. Add a short bio and at least three interests.",
+          ),
+      )}
+    >
+      <section className="editor-card editor-photos">
+        <div className="editor-section-title">
+          <span>01</span>
           <div>
-            <label>
-              Date of birth
-              <BirthdayPicker value={own.date_of_birth ?? ""} readOnly />
-            </label>
-            <p>
-              Your registration date of birth determines your age. Contact
-              support if it is incorrect.
-            </p>
+            <h2>A face to your story.</h2>
+            <p>Add a clear photo of yourself. Keep it natural.</p>
           </div>
-        )}
-        {step === 3 && (
-          <div className="gender-options">
-            {[
-              ["woman", "Woman"],
-              ["man", "Man"],
-              ["nonbinary", "Nonbinary"],
-              ["self_described", "Choose another"],
-            ].map(([value, label]) => (
-              <button
-                type="button"
-                key={value}
-                aria-pressed={watch("gender") === value}
-                className={watch("gender") === value ? "selected" : ""}
-                onClick={() => setValue("gender", value as Fields["gender"])}
+        </div>
+        <div className="editor-photo-grid">
+          {[0, 1, 2, 3, 4, 5].map((position) => {
+            const review = reviews.find((p: any) => p.position === position),
+              url =
+                own.photos?.[
+                  approved.findIndex((p: any) => p.position === position)
+                ];
+            return (
+              <div
+                className={`editor-photo ${review ? "occupied" : ""}`}
+                key={position}
               >
-                {label}
-                <Check size={20} />
-              </button>
-            ))}
+                {url ? (
+                  <img src={url} alt={`Your approved photo ${position + 1}`} />
+                ) : (
+                  <Camera size={24} />
+                )}
+                <span>
+                  {review
+                    ? review.status === "approved"
+                      ? "Approved"
+                      : review.status === "pending"
+                        ? "In review"
+                        : "Not approved"
+                    : `Photo ${position + 1}`}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+        <label
+          className={`editor-upload ${available === undefined ? "disabled" : ""}`}
+        >
+          <Camera size={16} />
+          {uploading ? "Uploading your photo…" : "Choose a photo"}
+          <input
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            aria-label="Upload your profile photo"
+            disabled={uploading || isSubmitting || available === undefined}
+            onChange={async (e) => {
+              const file = e.target.files?.[0];
+              e.target.value = "";
+              if (!file || available === undefined) return;
+              setUploading(true);
+              setError("");
+              setMessage("");
+              try {
+                if (file.size > 5242880)
+                  throw new Error("Choose a photo smaller than 5 MB.");
+                await api(`profiles/me/photos?position=${available}`, {
+                  method: "POST",
+                  headers: { "Content-Type": file.type },
+                  body: file,
+                });
+                await qc.invalidateQueries({ queryKey: ["me"] });
+                setMessage("Your photo is uploaded and waiting for review.");
+              } catch (e) {
+                setError((e as Error).message);
+              } finally {
+                setUploading(false);
+              }
+            }}
+          />
+        </label>
+        <p className="editor-photo-help">
+          JPG, PNG or WebP · Up to 5 MB · At least 200 × 200 pixels. Photos stay
+          private until approved.
+        </p>
+        <div className="editor-review-note">
+          <ShieldCheck size={18} />
+          <p>
+            A moderator reviews photos before they appear in discovery. Photo
+            approval does not verify someone’s identity.
+          </p>
+        </div>
+      </section>
+      <section className="editor-card">
+        <div className="editor-section-title">
+          <span>02</span>
+          <div>
+            <h2>The essentials.</h2>
+            <p>Help someone get to know the real you.</p>
           </div>
-        )}
-        {step === 4 && (
-          <fieldset>
-            <legend>Who are you interested in?</legend>
-            {["woman", "man", "nonbinary", "self_described"].map((g) => (
-              <label className="check-row" key={g}>
-                <input
-                  type="checkbox"
-                  checked={prefs.genders.includes(g)}
-                  onChange={(e) =>
-                    setPrefs({
-                      ...prefs,
-                      genders: e.target.checked
-                        ? [...prefs.genders, g]
-                        : prefs.genders.filter((x: string) => x !== g),
-                    })
-                  }
-                />
-                {g.replace("_", " ")}
-              </label>
-            ))}
-          </fieldset>
-        )}
-        {step === 5 && (
+        </div>
+        <div className="editor-field-grid">
           <label>
-            Relationship intention
-            <select {...register("goal")}>
-              <option value="serious">Serious relationship</option>
-              <option value="marriage">Marriage</option>
-              <option value="long_term">Long-term dating</option>
-              <option value="dating">Dating</option>
-              <option value="friendship">Friendship</option>
-              <option value="exploring">Still figuring it out</option>
+            Display name
+            <input
+              autoComplete="nickname"
+              maxLength={50}
+              {...register("display_name")}
+            />
+            <small className="field-error">
+              {errors.display_name?.message}
+            </small>
+          </label>
+          <label>
+            City
+            <input
+              autoComplete="address-level2"
+              maxLength={100}
+              placeholder="e.g. Lagos"
+              {...register("city")}
+            />
+            <small className="field-error">{errors.city?.message}</small>
+          </label>
+          <label>
+            I identify as
+            <select {...register("gender")}>
+              <option value="self_described">Self-described</option>
+              <option value="woman">Woman</option>
+              <option value="man">Man</option>
+              <option value="nonbinary">Nonbinary</option>
             </select>
           </label>
-        )}
-        {step === 6 && (
-          <>
-            {field("city", "Your city")}
-            <p>
-              Discovery uses your city. Your home address is never requested or
-              shown.
-            </p>
-          </>
-        )}
-        {step === 7 && (
-          <>
-            <p>Select at least three things that make you, you.</p>
-            {interests.isPending ? (
-              <p role="status">Loading interests…</p>
-            ) : interests.error ? (
-              <p role="alert">{interests.error.message}</p>
-            ) : (
-              <div className="interest-grid">
-                {interests.data?.map((i) => (
-                  <button
-                    type="button"
-                    aria-pressed={selected.includes(i.code)}
-                    className={
-                      selected.includes(i.code) ? "chip selected" : "chip"
-                    }
-                    key={i.code}
-                    onClick={() =>
-                      setValue(
-                        "interests",
-                        selected.includes(i.code)
-                          ? selected.filter((x) => x !== i.code)
-                          : [...selected, i.code],
-                      )
-                    }
-                  >
-                    {(() => {
-                      const Icon =
-                        (
-                          {
-                            photography: Camera,
-                            music: Music,
-                            travel: Plane,
-                            shopping: ShoppingBag,
-                            fitness: Dumbbell,
-                          } as Record<string, typeof Heart>
-                        )[i.code] ?? Heart;
-                      return <Icon size={20} />;
-                    })()}
-                    {i.name}
-                  </button>
-                ))}
-              </div>
-            )}
-            <span className="field-error">{errors.interests?.message}</span>
-          </>
-        )}
-        {step === 8 && (
-          <>
-            {[
-              "smoking",
-              "drinking",
-              "exercise",
-              "children",
-              "pets",
-              "social",
-            ].map((k) => (
-              <label key={k}>
-                {k}
-                <select {...register(`lifestyle.${k}` as any)}>
-                  <option value="">Prefer not to share</option>
-                  <option value="yes">Yes</option>
-                  <option value="no">No</option>
-                  <option value="sometimes">Sometimes</option>
-                </select>
-              </label>
-            ))}
-            <label>
-              Values (comma separated)
-              <input
-                defaultValue={own.values?.join(", ")}
-                onChange={(e) =>
-                  setValue(
-                    "values",
-                    e.target.value
-                      .split(",")
-                      .map((v) => v.trim())
-                      .filter(Boolean)
-                      .slice(0, 10),
-                  )
-                }
-              />
-            </label>
-          </>
-        )}
-        {step === 9 && (
-          <>
-            {field("profession", "Profession")}
-            {field("education", "Education")}
-          </>
-        )}
-        {step === 10 && (
-          <>
-            {field("bio", "About me")}
-            <label>
-              A prompt that says a little more
-              <input
-                placeholder="A perfect Sunday looks like…"
-                {...register("prompts.0.question")}
-              />
-            </label>
-            <label>
-              Your answer
-              <textarea {...register("prompts.0.answer")} />
-            </label>
-            <label>
-              How do you like to communicate?
-              <select {...register("communication")}>
-                <option value="">Choose, if you like</option>
-                <option value="thoughtful">Thoughtful messages</option>
-                <option value="playful">Playful conversation</option>
-                <option value="direct">Direct and open</option>
-                <option value="calls">Prefer a call</option>
-              </select>
-            </label>
-          </>
-        )}
-        {step === 11 && (
-          <>
-            <p>
-              Use a clear photo of yourself. It is checked before other members
-              can see it. A moderated photo is separate from identity
-              verification.
-            </p>
+          <label>
+            I’m looking for
+            <select {...register("goal")}>
+              {goals.map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            Profession <span className="optional">optional</span>
             <input
-              type="file"
-              accept="image/jpeg,image/png,image/webp"
-              disabled={busy}
-              aria-label="Upload profile photo"
-              onChange={async (e) => {
-                const file = e.target.files?.[0];
-                if (!file) return;
-                setBusy(true);
-                setError("");
-                try {
-                  const values = getValues();
-                  if (!(await trigger()))
-                    throw new Error("Complete your profile details first.");
-                  await api("profiles/me", {
-                    method: "PATCH",
-                    body: json(values),
-                  });
-                  const positions = (own.photo_review ?? []).map(
-                    (x: any) => x.position,
-                  );
-                  const position = [0, 1, 2, 3, 4, 5].find(
-                    (v) => !positions.includes(v),
-                  );
-                  if (position === undefined)
-                    throw new Error(
-                      "Your six photo slots are occupied. Photo replacement is pending implementation.",
-                    );
-                  await api(`profiles/me/photos?position=${position}`, {
-                    method: "POST",
-                    body: file,
-                    headers: { "Content-Type": file.type },
-                  });
-                  setMessage("Photo uploaded and awaiting review.");
-                  done();
-                } catch (e) {
-                  setError((e as Error).message);
-                } finally {
-                  setBusy(false);
-                }
-              }}
+              placeholder="What keeps you inspired?"
+              maxLength={100}
+              {...register("profession")}
             />
-            {own.photo_review?.map((p: any) => (
-              <p key={p.id}>
-                Photo {p.position + 1}: {p.status}
-              </p>
-            ))}
-          </>
-        )}
-        {step === 12 && (
-          <>
-            <label>
-              Minimum age
-              <input
-                type="number"
-                min={18}
-                max={100}
-                value={prefs.age_min}
-                onChange={(e) =>
-                  setPrefs({ ...prefs, age_min: e.target.value })
-                }
-              />
-            </label>
-            <label>
-              Maximum age
-              <input
-                type="number"
-                min={18}
-                max={100}
-                value={prefs.age_max}
-                onChange={(e) =>
-                  setPrefs({ ...prefs, age_max: e.target.value })
-                }
-              />
-            </label>
-            <label>
-              Distance preference (km)
-              <input
-                type="number"
-                min={1}
-                max={500}
-                value={prefs.distance_km}
-                onChange={(e) =>
-                  setPrefs({ ...prefs, distance_km: e.target.value })
-                }
-              />
-            </label>
+          </label>
+          <label>
+            Education <span className="optional">optional</span>
+            <input maxLength={100} {...register("education")} />
+          </label>
+        </div>
+        <label>
+          A little about me
+          <textarea
+            aria-label="A little about me"
+            aria-describedby="profile-bio-help profile-bio-error"
+            aria-invalid={Boolean(errors.bio)}
+            rows={4}
+            placeholder="Your everyday joys, your kind of connection, or a story worth sharing…"
+            minLength={20}
+            maxLength={1000}
+            {...register("bio")}
+          />
+          <small id="profile-bio-error" className="field-error">
+            {errors.bio?.message}
+          </small>
+          <small id="profile-bio-help">
+            {watch("bio").length}/1000 · At least 20 characters
+          </small>
+        </label>
+        <p className="editor-private-note">
+          Your date of birth stays private. Only your age appears on your
+          profile.
+        </p>
+      </section>
+      <section className="editor-card">
+        <div className="editor-section-title">
+          <span>03</span>
+          <div>
+            <h2>A little common ground.</h2>
             <p>
-              Until optional approximate coordinates are configured, matching
-              uses your city.
+              Choose at least 3 interests and the values that matter to you.
             </p>
-          </>
-        )}
-        {step === 13 && (
-          <>
-            <p>
-              Email verification happens through your confirmation email. Photos
-              are reviewed by a moderator. Selfie identity verification is not
-              yet connected and no identity badge is granted without that
-              process.
-            </p>
-            <Link className="text-link" href="/verification">
-              See verification status
-            </Link>
-          </>
-        )}
-        {step === 14 && (
-          <>
-            <p>
-              You’re ready to save your story. Discovery becomes available after
-              email confirmation and approval of at least one photo.
-            </p>
-            <Button disabled={busy} onClick={save}>
-              {busy ? "Saving…" : "Save my profile"}
-            </Button>
-            <Link className="text-link" href="/discover">
-              Go to discovery
-            </Link>
-          </>
-        )}
-      </div>
+          </div>
+        </div>
+        <QueryState
+          pending={catalog.isPending}
+          error={catalog.error}
+          retry={catalog.refetch}
+        />
+        <div className="editor-interest-grid">
+          {catalog.data?.map((i) => (
+            <button
+              type="button"
+              key={i.code}
+              aria-pressed={selected.includes(i.code)}
+              className={selected.includes(i.code) ? "selected" : ""}
+              onClick={() =>
+                setValue(
+                  "interests",
+                  selected.includes(i.code)
+                    ? selected.filter((c) => c !== i.code)
+                    : selected.length < 20
+                      ? [...selected, i.code]
+                      : selected,
+                  { shouldValidate: true },
+                )
+              }
+            >
+              {i.name}
+              {selected.includes(i.code) && <Check size={13} />}
+            </button>
+          ))}
+        </div>
+        <small className="field-error">{errors.interests?.message}</small>
+        <p className="editor-selected-count">
+          {selected.length} interests selected · Choose 3–20
+        </p>
+        <h3>
+          What matters to me <span className="optional">optional</span>
+        </h3>
+        <div className="editor-interest-grid">
+          {[
+            "Kindness",
+            "Honesty",
+            "Family",
+            "Growth",
+            "Ambition",
+            "Creativity",
+            "Adventure",
+            "Balance",
+          ].map((v) => (
+            <button
+              type="button"
+              key={v}
+              aria-pressed={selectedValues.includes(v)}
+              className={selectedValues.includes(v) ? "selected" : ""}
+              onClick={() =>
+                setValue(
+                  "values",
+                  selectedValues.includes(v)
+                    ? selectedValues.filter((x) => x !== v)
+                    : selectedValues.length < 10
+                      ? [...selectedValues, v]
+                      : selectedValues,
+                )
+              }
+            >
+              {v}
+            </button>
+          ))}
+        </div>
+        <label>
+          My perfect Sunday <span className="optional">optional</span>
+          <textarea
+            rows={2}
+            maxLength={500}
+            placeholder="Give someone a good conversation starter…"
+            defaultValue={
+              own.prompts?.find((p: any) => p.question === "My perfect Sunday")
+                ?.answer ?? ""
+            }
+            onChange={(e) => {
+              const other = watch("prompts").filter(
+                (p) => p.question !== "My perfect Sunday",
+              );
+              setValue(
+                "prompts",
+                e.target.value.trim()
+                  ? [
+                      ...other.slice(0, 2),
+                      { question: "My perfect Sunday", answer: e.target.value },
+                    ]
+                  : other,
+                { shouldValidate: true },
+              );
+            }}
+          />
+          <small className="field-error">
+            {errors.prompts && "Use at least 5 characters for your answer."}
+          </small>
+        </label>
+      </section>
       {error && (
-        <p className="error-inline" role="alert">
+        <p className="premium-error" role="alert">
           {error}
         </p>
       )}
       {message && (
-        <p className="success-inline" role="status">
+        <p className="success-inline editor-success" role="status">
           {message}
         </p>
       )}
-      <div className="form-actions">
-        <Button
-          disabled={step === 0 || busy}
-          onClick={() => {
-            setError("");
-            setStep((s) => s - 1);
-          }}
-        >
-          Back
-        </Button>
-        {step < 14 && (
-          <Button
-            disabled={busy}
-            onClick={async () => {
-              setError("");
-              if (stepFields[step] && !(await trigger(stepFields[step])))
-                return;
-              if (step === 4 && !prefs.genders.length) {
-                setError("Choose at least one preference.");
-                return;
-              }
-              setStep((s) => s + 1);
-            }}
-          >
-            Continue
-          </Button>
-        )}
+      <div className="editor-save-bar">
+        <div>
+          <Heart size={18} />
+          <p>Make room for a real connection.</p>
+        </div>
+        <button className="premium-button" disabled={isSubmitting || uploading}>
+          {isSubmitting ? "Saving…" : "Save my profile"}
+          <ArrowRight size={17} />
+        </button>
       </div>
-    </div>
+      <div className="editor-next-links">
+        <Link className="quiet-link" href="/preferences">
+          Set discovery preferences →
+        </Link>
+        <Link className="quiet-link" href="/discover">
+          Go to discovery →
+        </Link>
+      </div>
+    </form>
   );
 }

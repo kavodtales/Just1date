@@ -1,4 +1,4 @@
-import { Discover } from "../components/discover";
+import { Welcome } from "../components/premium-welcome";
 export default function Home() {
-  return <Discover />;
+  return <Welcome />;
 }

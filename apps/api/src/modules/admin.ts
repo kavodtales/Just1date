@@ -4,10 +4,12 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { moderationSchema, uuid } from "@just1date/validation";
 import { Repository } from "../lib/repository";
 import { AppError, ok } from "../lib/http";
+import { DemoService } from "./demo";
 export function adminRoutes(
   repo: Repository,
   storage: SupabaseClient,
   production: boolean,
+  demo?: DemoService,
 ) {
   const r = Router();
   r.use((req, _res, next) => {
@@ -20,6 +22,14 @@ export function adminRoutes(
         ),
       );
     next();
+  });
+  r.get("/demo", async (req, res) => ok(res, await demo!.admin(req.actor.id)));
+  r.post("/demo", async (req, res) => {
+    const { action } = z
+      .object({ action: z.enum(["remove", "restore"]) })
+      .strict()
+      .parse(req.body);
+    ok(res, await demo!.admin(req.actor.id, action));
   });
   r.get("/me", async (req, res) => {
     const result = await repo.call(req.actor.id, "adminIdentity");

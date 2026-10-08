@@ -30,6 +30,8 @@
     "hosted:probe": "node --use-system-ca scripts/probe-hosted.mjs",
     "seed:dev": "tsx supabase/seed/development.ts",
     "test:e2e": "playwright test",
+    "test:e2e:admin": "playwright test -c playwright.admin.config.ts",
+    "demo:probe": "node --use-system-ca scripts/probe-demo.mjs",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },

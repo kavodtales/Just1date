@@ -45,7 +45,7 @@ it("installs the complete schema and matches authoritative migration checksums",
   const tables = await db.query(
     "select tablename from pg_tables where schemaname='public'",
   );
-  expect(tables.rows).toHaveLength(57);
+  expect(tables.rows).toHaveLength(59);
   expect(
     (
       await db.query(
@@ -62,7 +62,28 @@ it("is safe to run twice without duplicate seed rows or migrations", async () =>
   ).toEqual(before.rows);
   expect(
     (await db.query("select name from public.schema_migrations")).rows,
-  ).toHaveLength(9);
+  ).toHaveLength(10);
+});
+it("seeds only four demo slots and denies direct client access to demo profiles and sessions", async () => {
+  expect(
+    (await db.query("select id from public.demo_profiles")).rows,
+  ).toHaveLength(4);
+  expect((await db.query("select id from auth.users")).rows).toEqual([]);
+  for (const table of ["demo_profiles", "demo_sessions"])
+    for (const role of ["anon", "authenticated"])
+      expect(
+        (
+          await db.query<{ allowed: boolean }>(
+            "select has_table_privilege($1,$2,'select') allowed",
+            [role, `public.${table}`],
+          )
+        ).rows[0].allowed,
+      ).toBe(false);
+  await expect(
+    db.query(
+      "insert into public.demo_profiles select 5,gen_random_uuid(),name,age,gender,city,profession,bio,interests,values_list,prompt,answer,image,sample_reply,removed_at from public.demo_profiles where slot=1",
+    ),
+  ).rejects.toThrow();
 });
 it("configures private storage, realtime publication, and private broadcast policies", async () => {
   const buckets = await db.query<{

@@ -1,8 +1,17 @@
 "use client";
+import Image from "next/image";
 import { useState } from "react";
 import Link from "next/link";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ShieldCheck, Activity, Flag, Camera, LogOut } from "lucide-react";
+import {
+  ShieldCheck,
+  Activity,
+  Flag,
+  Camera,
+  LogOut,
+  Users,
+} from "lucide-react";
+import { Brand } from "../../../web/src/components/brand";
 import { can, type AdminRole } from "@just1date/config";
 import { Button } from "@just1date/ui";
 import { api, json, ClientError } from "../../../web/src/lib/client";
@@ -33,6 +42,23 @@ export function Dashboard() {
     queryFn: () => api<any[]>("admin/photos"),
     enabled: Boolean(permission && can(permission, "verification")),
   });
+  const demos = useQuery({
+    queryKey: ["demo-admin"],
+    queryFn: () =>
+      api<{
+        active: number;
+        profiles: Array<{
+          id: string;
+          name: string;
+          age: number;
+          city: string;
+          image: string;
+          removed_at: string | null;
+        }>;
+      }>("admin/demo"),
+    enabled: Boolean(permission && can(permission, "settings")),
+  });
+  const [confirmDemo, setConfirmDemo] = useState(false);
   async function run(work: () => Promise<unknown>) {
     setBusy(true);
     setError("");
@@ -42,6 +68,8 @@ export function Dashboard() {
       qc.invalidateQueries({ queryKey: ["photos"] });
       qc.invalidateQueries({ queryKey: ["moderation"] });
       qc.invalidateQueries({ queryKey: ["metrics"] });
+      qc.invalidateQueries({ queryKey: ["demo-admin"] });
+      setConfirmDemo(false);
     } catch (e) {
       setError((e as Error).message);
     } finally {
@@ -51,14 +79,13 @@ export function Dashboard() {
   return (
     <div className="admin-layout">
       <aside>
-        <Link className="wordmark" href="/">
-          JUST<span>1</span>DATE<i>✦</i>
-        </Link>
+        <Brand />
         <p className="eyebrow">TRUST & OPERATIONS</p>
         {[
           ["overview", "Overview", Activity],
           ["moderation", "Moderation", Flag],
           ["photos", "Photo review", Camera],
+          ["demo", "Demo profiles", Users],
         ].map(([key, label, Icon]: any) => (
           <button
             key={key}
@@ -72,7 +99,7 @@ export function Dashboard() {
         <div className="staff-status">
           <ShieldCheck size={22} />
           <p>{permission ?? "Staff access required"}</p>
-          <small>Permission checks run on the server and in PostgreSQL.</small>
+          <small>Protected staff workspace</small>
         </div>
         <Button
           onClick={async () => {
@@ -105,12 +132,15 @@ export function Dashboard() {
                 ? "A responsible view."
                 : section === "moderation"
                   ? "Care, with accountability."
-                  : "First impressions, reviewed."}
+                  : section === "demo"
+                    ? "Ready for real connections."
+                    : "First impressions, reviewed."}
             </h1>
           </div>
           <span className="admin-badge">RESTRICTED ACCESS</span>
         </div>
         <QueryState
+          staff
           pending={identity.isPending}
           error={identity.error}
           retry={identity.refetch}
@@ -118,9 +148,7 @@ export function Dashboard() {
         {identity.data && section === "overview" && (
           <>
             <p className="section-description">
-              Operational metrics from live records. Cohort retention, churn,
-              MAU and conversion reporting require the analytics pipeline before
-              launch.
+              Community activity from your live member records.
             </p>
             {can(identity.data.role, "analytics") ? (
               <>
@@ -158,13 +186,17 @@ export function Dashboard() {
               </p>
             )}
             <div className="form-card">
-              <h2>Launch gates</h2>
+              <h2>Community care</h2>
               <p>
-                Refunds, recurring/store billing, settings management,
-                verification vendor review, deletion processing and advanced
-                analytics remain pending. They are not simulated in this
-                dashboard.
+                Review new photos, respond to member reports, and manage the
+                four fictional demo profiles.
               </p>
+              <button
+                className="button secondary"
+                onClick={() => setSection("demo")}
+              >
+                Manage demo profiles
+              </button>
             </div>
           </>
         )}
@@ -268,7 +300,10 @@ export function Dashboard() {
                         );
                       }}
                     >
-                      <img
+                      <Image
+                        sizes="(max-width: 767px) 90vw, 35vw"
+                        width={1024}
+                        height={1536}
                         src={photo.url}
                         alt="Private profile photo submitted for review"
                       />
@@ -300,6 +335,115 @@ export function Dashboard() {
             )}
           </>
         )}
+        {identity.data &&
+          section === "demo" &&
+          (can(identity.data.role, "settings") ? (
+            <>
+              <p className="section-description">
+                Exactly four fictional profiles power the interactive preview.
+                They stay separate from real member accounts, matches and
+                messages.
+              </p>
+              <QueryState
+                pending={demos.isPending}
+                error={demos.error}
+                retry={demos.refetch}
+              />
+              {demos.data && (
+                <>
+                  <div className="admin-demo-grid">
+                    {demos.data.profiles.map((p) => (
+                      <article className="admin-demo-card" key={p.id}>
+                        <Image
+                          sizes="(max-width: 767px) 90vw, 35vw"
+                          width={1024}
+                          height={1536}
+                          src={p.image}
+                          alt={`${p.name}, fictional demo profile`}
+                        />
+                        <div>
+                          <span className="premium-kicker">FICTIONAL DEMO</span>
+                          <h2>
+                            {p.name}, {p.age}
+                          </h2>
+                          <p>
+                            {p.city} ·{" "}
+                            {p.removed_at ? "Removed" : "Visible in preview"}
+                          </p>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                  <div className="form-card">
+                    <h2>
+                      {demos.data.active
+                        ? "Switch to real members"
+                        : "The demo is removed"}
+                    </h2>
+                    <p>
+                      {demos.data.active
+                        ? "Remove all four demo profiles from the public preview when your real accounts are ready. This also clears demo conversations. Real members and their activity are unaffected."
+                        : "The public preview is disabled. Your real community continues normally. Restore the same four profiles if you need another preview."}
+                    </p>
+                    {demos.data.active ? (
+                      confirmDemo ? (
+                        <div className="admin-demo-confirm">
+                          <p>
+                            Remove Amara, Tomi, Zara and Daniel, and clear their
+                            demo sessions? You can restore the four profiles
+                            here later. Cleared demo chats cannot be restored.
+                          </p>
+                          <Button
+                            disabled={busy}
+                            onClick={() =>
+                              run(() =>
+                                api("admin/demo", {
+                                  method: "POST",
+                                  body: json({ action: "remove" }),
+                                }),
+                              )
+                            }
+                          >
+                            Confirm removal of 4 demos
+                          </Button>
+                          <button
+                            className="button secondary"
+                            disabled={busy}
+                            onClick={() => setConfirmDemo(false)}
+                          >
+                            Keep the demo
+                          </button>
+                        </div>
+                      ) : (
+                        <Button
+                          disabled={busy}
+                          onClick={() => setConfirmDemo(true)}
+                        >
+                          Remove all 4 demo profiles
+                        </Button>
+                      )
+                    ) : (
+                      <Button
+                        disabled={busy}
+                        onClick={() =>
+                          run(() =>
+                            api("admin/demo", {
+                              method: "POST",
+                              body: json({ action: "restore" }),
+                            }),
+                          )
+                        }
+                      >
+                        Restore the 4 demo profiles
+                      </Button>
+                    )}
+                  </div>
+                </>
+              )}
+            </>
+          ) : (
+            <p>Your role does not have demo management access.</p>
+          ))}
         {error && (
           <p className="error-inline" role="alert">
             {error}

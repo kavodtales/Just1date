@@ -4,6 +4,7 @@ import { headers } from "next/headers";
 import { Providers } from "../components/providers";
 import "./globals.css";
 import "./reference.css";
+import "./premium.css";
 export const metadata: Metadata = {
   title: "JUST1DATE — Meet someone worth choosing.",
   description:

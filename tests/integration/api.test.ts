@@ -94,6 +94,161 @@ afterAll(async () => {
   await sql?.close();
 });
 
+it("provides exactly four fictional profiles and isolates persistent demo sessions from real members", async () => {
+  const before = (await sql.query("select count(*) from public.users")).rows;
+  const first = await request(app).post("/v1/demo/session");
+  const second = await request(app).post("/v1/demo/session");
+  expect(first.status).toBe(201);
+  expect(first.body.data.profiles).toHaveLength(4);
+  expect(new Set(first.body.data.profiles.map((p: any) => p.id)).size).toBe(4);
+  const token = first.body.data.token,
+    target = first.body.data.profiles[0].id;
+  expect((await request(app).get("/v1/demo/state")).status).toBe(401);
+  expect(
+    (
+      await request(app)
+        .get("/v1/demo/state")
+        .set("X-Demo-Session", token.slice(0, -1) + "!")
+    ).status,
+  ).toBe(401);
+  expect(
+    (await request(app).get("/v1/matches").auth(token, { type: "bearer" }))
+      .status,
+  ).toBe(401);
+  expect(
+    (
+      await request(app)
+        .post("/v1/demo/action")
+        .set("X-Demo-Session", token)
+        .send({
+          action: "message",
+          profile_id: target,
+          client_id: randomUUID(),
+          body: "Hello",
+        })
+    ).status,
+  ).toBe(409);
+  expect(
+    (
+      await request(app)
+        .post("/v1/demo/action")
+        .set("X-Demo-Session", token)
+        .send({ action: "like", profile_id: a })
+    ).status,
+  ).toBe(404);
+  const liked = await request(app)
+    .post("/v1/demo/action")
+    .set("X-Demo-Session", token)
+    .send({ action: "like", profile_id: target });
+  expect(liked.body.data.state.likes).toEqual([target]);
+  const twice = await request(app)
+    .post("/v1/demo/action")
+    .set("X-Demo-Session", token)
+    .send({ action: "like", profile_id: target });
+  expect(twice.body.data.state.messages[target]).toHaveLength(1);
+  const input = {
+    action: "message",
+    profile_id: target,
+    client_id: randomUUID(),
+    body: "A bookshop and coffee sounds great.",
+  };
+  const sent = await request(app)
+    .post("/v1/demo/action")
+    .set("X-Demo-Session", token)
+    .send(input);
+  expect(sent.body.data.state.messages[target]).toHaveLength(3);
+  expect(sent.body.data.state.messages[target][1].body).toBe(input.body);
+  expect(sent.body.data.state.messages[target][2].sender).toBe("sample");
+  const retried = await request(app)
+    .post("/v1/demo/action")
+    .set("X-Demo-Session", token)
+    .send(input);
+  expect(retried.body.data.state.messages[target]).toHaveLength(3);
+  expect(
+    (
+      await request(app)
+        .post("/v1/demo/action")
+        .set("X-Demo-Session", token)
+        .send({ ...input, body: "Different text" })
+    ).status,
+  ).toBe(409);
+  const isolated = await request(app)
+    .get("/v1/demo/state")
+    .set("X-Demo-Session", second.body.data.token);
+  expect(isolated.body.data.state.likes).toEqual([]);
+  expect(isolated.body.data.state.messages).toEqual({});
+  const resumed = await request(app)
+    .post("/v1/demo/session")
+    .set("X-Demo-Session", token);
+  expect(resumed.body.data.state.messages[target]).toHaveLength(3);
+  expect(resumed.body.data.token).toBeUndefined();
+  expect((await sql.query("select count(*) from public.users")).rows).toEqual(
+    before,
+  );
+  await sql.query(
+    "update public.demo_sessions set expires_at=now()-interval '1 second' where id=$1",
+    [token.split(".")[0]],
+  );
+  expect(
+    (await request(app).get("/v1/demo/state").set("X-Demo-Session", token))
+      .status,
+  ).toBe(401);
+});
+
+it("requires staff settings permission to remove only demo data, and restores the same four profiles", async () => {
+  expect(
+    (await request(app).get("/v1/admin/demo").auth(a, { type: "bearer" }))
+      .status,
+  ).toBe(403);
+  await sql.query(
+    "insert into public.admin_users(user_id,role) values($1,'MODERATOR')",
+    [a],
+  );
+  expect(
+    (
+      await request(app)
+        .post("/v1/admin/demo")
+        .auth(a, { type: "bearer" })
+        .send({ action: "remove" })
+    ).status,
+  ).toBe(403);
+  await sql.query(
+    "update public.admin_users set role='ADMIN' where user_id=$1",
+    [a],
+  );
+  const before = (
+    await sql.query("select id,status from public.users order by id")
+  ).rows;
+  const listed = await request(app)
+    .get("/v1/admin/demo")
+    .auth(a, { type: "bearer" });
+  expect(listed.body.data.active).toBe(4);
+  const ids = listed.body.data.profiles.map((p: any) => p.id);
+  const removed = await request(app)
+    .post("/v1/admin/demo")
+    .auth(a, { type: "bearer" })
+    .send({ action: "remove" });
+  expect(removed.body.data.active).toBe(0);
+  expect((await request(app).post("/v1/demo/session")).status).toBe(410);
+  expect(
+    (await sql.query("select id,status from public.users order by id")).rows,
+  ).toEqual(before);
+  const restored = await request(app)
+    .post("/v1/admin/demo")
+    .auth(a, { type: "bearer" })
+    .send({ action: "restore" });
+  expect(restored.body.data.active).toBe(4);
+  expect(restored.body.data.profiles.map((p: any) => p.id)).toEqual(ids);
+  expect(
+    (
+      await sql.query(
+        "select action from public.audit_logs where action in ('demo_remove','demo_restore')",
+      )
+    ).rows,
+  ).toHaveLength(2);
+  await sql.query("delete from public.admin_users where user_id=$1", [a]);
+});
+
 it("rejects unauthenticated requests and produces valid OpenAPI without credentials", async () => {
   expect((await request(app).get("/v1/matches")).status).toBe(401);
   const doc = await request(app).get("/openapi.json");

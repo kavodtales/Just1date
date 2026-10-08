@@ -32,9 +32,7 @@ test("provides accessible authentication and legal review notices", async ({
 }) => {
   await page.goto("/auth/register");
   await expect(page.getByLabel("Email address")).toBeVisible();
-  await expect(
-    page.getByRole("button", { name: "Choose birthday date" }),
-  ).toBeVisible();
+  await expect(page.getByLabel("Date of birth")).toBeVisible();
   await page.getByRole("link", { name: "Terms", exact: true }).click();
   await expect(
     page.getByText("LEGAL REVIEW REQUIRED — NOT FINAL LAUNCH DOCUMENTS"),

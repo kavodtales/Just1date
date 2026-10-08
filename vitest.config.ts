@@ -7,5 +7,9 @@ export default defineConfig({
     fileParallelism: false,
     maxWorkers: 1,
     isolate: true,
+    // Forward low-memory WASM flags to PGlite's worker processes as well.
+    execArgv: process.execArgv.filter((arg) =>
+      ["--liftoff-only", "--no-wasm-tier-up"].includes(arg),
+    ),
   },
 });

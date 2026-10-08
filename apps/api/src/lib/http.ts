@@ -32,6 +32,7 @@ declare global {
     interface Request {
       requestId: string;
       actor: Actor;
+      demoSession?: string;
       rawBody?: Buffer;
     }
   }

@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
+import { Brand } from "./brand";
 import {
   Copy,
   Heart,
@@ -22,7 +23,7 @@ const primary = [
 ] as const;
 const secondary = [
   ["Likes", "/likes", Heart],
-  ["AI Matchmaker", "/matchmaker", Sparkles],
+  ["App preview", "/demo", Sparkles],
   ["Safety Center", "/safety", ShieldCheck],
   ["Settings", "/settings", Settings],
   ["Notifications", "/notifications", Bell],
@@ -64,18 +65,9 @@ export function Shell({
       className={`app-shell reference-shell ${variant ? `view-${variant}` : ""}`}
     >
       <aside className="sidebar">
-        <Link
-          href="/welcome"
-          className="reference-brand"
-          aria-label="Just1date home"
-        >
-          <img
-            src="/images/logo.png"
-            alt="Just1date"
-            width={199}
-            height={122}
-          />
-        </Link>
+        <div className="reference-brand">
+          <Brand />
+        </div>
         <nav aria-label="Main navigation">
           {[...primary, ...secondary].map(([label, href, Icon]) => (
             <Link
@@ -89,8 +81,8 @@ export function Shell({
           ))}
         </nav>
         <div className="sidebar-bottom">
-          <Link className="button" href="/settings/subscription">
-            Explore Premium
+          <Link className="button" href="/preferences">
+            Your preferences
           </Link>
           <p>Meet someone worth choosing.</p>
           <Link href="/legal/privacy">Privacy</Link> ·{" "}

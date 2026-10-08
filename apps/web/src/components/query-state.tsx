@@ -6,10 +6,12 @@ export function QueryState({
   pending,
   error,
   retry,
+  staff = false,
 }: {
   pending: boolean;
   error: Error | null;
   retry: () => unknown;
+  staff?: boolean;
 }) {
   if (pending)
     return (
@@ -21,6 +23,18 @@ export function QueryState({
       </div>
     );
   if (error instanceof ClientError && error.status === 401)
+    if (staff)
+      return (
+        <State title="Sign in to your staff workspace">
+          <p>
+            Use your approved staff account, then verify your authenticator.
+          </p>
+          <Link className="button" href="/auth/login">
+            Staff sign in
+          </Link>
+        </State>
+      );
+  if (error instanceof ClientError && error.status === 401)
     return (
       <State title="Your next chapter starts here">
         <p>Make room for a connection with shared intentions.</p>
@@ -30,6 +44,9 @@ export function QueryState({
           </Link>
           <Link className="text-link" href="/auth/login">
             Already a member? Sign in
+          </Link>
+          <Link className="text-link" href="/demo">
+            Try the app with 4 demo profiles
           </Link>
         </div>
       </State>

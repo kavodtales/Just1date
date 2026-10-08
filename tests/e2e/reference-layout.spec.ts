@@ -112,43 +112,74 @@ async function capture(page: Page, name: string) {
     fullPage: true,
   });
 }
-test("welcome artwork, carousel and signup navigation work", async ({
-  page,
-}) => {
+test("premium welcome and signup navigation work", async ({ page }) => {
   await page.goto("/welcome");
   await expect(
-    page.getByRole("heading", { name: "Algorithm", exact: true }),
+    page.getByRole("heading", { name: /Less swiping/ }),
   ).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "Try the app", exact: true }),
+  ).toHaveAttribute("href", "/demo");
   await capture(page, "welcome");
-  await page.getByRole("button", { name: "Show Matches" }).click();
+  await page
+    .getByRole("link", { name: "Create an account", exact: true })
+    .click();
   await expect(
-    page.getByRole("heading", { name: "Matches", exact: true }),
+    page.getByRole("heading", { name: "Let’s get to know you." }),
   ).toBeVisible();
-  await page.getByRole("button", { name: "Show Premium" }).click();
-  await expect(
-    page.getByRole("heading", { name: "Premium", exact: true }),
-  ).toBeVisible();
-  await page.getByRole("link", { name: "Create an account" }).click();
-  await expect(
-    page.getByRole("heading", { name: "Sign up to continue" }),
-  ).toBeVisible();
+  await expect(page.getByLabel("Email address")).toBeVisible();
+  await expect(page.getByLabel("Date of birth")).toBeVisible();
   await capture(page, "signup");
   await expect(
-    page.getByRole("button", { name: "Google sign-in is not enabled" }),
-  ).toBeDisabled();
-  await page.getByRole("link", { name: "Use phone number" }).click();
-  await expect(page.getByRole("heading", { name: "My mobile" })).toBeVisible();
+    page.getByRole("link", { name: "Use phone number" }),
+  ).toHaveCount(0);
 });
-test("birthday sheet saves an actual registration date", async ({ page }) => {
+test("registration saves a private birth date and offers password visibility", async ({
+  page,
+}) => {
   await page.goto("/auth/register");
-  await page.getByRole("button", { name: "Choose birthday date" }).click();
-  await page.getByLabel("Birth year").selectOption("1995");
-  await page.getByRole("button", { name: "Day 11", exact: true }).click();
-  await capture(page, "birthday");
-  await page.getByRole("button", { name: "Save", exact: true }).click();
-  await expect(page.getByRole("button", { name: /^1995-/ })).toBeVisible();
+  await page.getByLabel("Date of birth").fill("1995-07-11");
   await expect(page.locator('input[name="date_of_birth"]')).toHaveValue(
-    /^1995-\d\d-11$/,
+    "1995-07-11",
+  );
+  await page.getByRole("button", { name: "Show password" }).click();
+  await expect(page.locator('input[name="password"]')).toHaveAttribute(
+    "type",
+    "text",
+  );
+  await page.getByRole("button", { name: "Hide password" }).click();
+  await expect(page.locator('input[name="password"]')).toHaveAttribute(
+    "type",
+    "password",
+  );
+  await expect(page.locator('input[name="password"]')).toHaveAttribute(
+    "minlength",
+    "12",
+  );
+});
+test("the single profile form saves essential details, interests and values", async ({
+  page,
+}) => {
+  await fixture(page);
+  await page.goto("/onboarding");
+  await page.getByLabel("Display name", { exact: true }).fill("A real member");
+  await page.getByLabel("City", { exact: true }).fill("Lagos");
+  await page
+    .getByLabel("A little about me", { exact: true })
+    .fill(
+      "I enjoy thoughtful conversation, a good book and finding new favourite places.",
+    );
+  const sent = page.waitForRequest(
+    (r) => r.url().endsWith("/profiles/me") && r.method() === "PATCH",
+  );
+  await page
+    .getByRole("button", { name: "Save my profile", exact: true })
+    .click();
+  const payload = (await sent).postDataJSON();
+  expect(payload.display_name).toBe("A real member");
+  expect(payload.interests).toHaveLength(3);
+  await expect(page.locator(".editor-success")).toContainText(
+    "Your profile is saved.",
   );
 });
 test("discovery matches the reference dimensions and records a real action request", async ({
