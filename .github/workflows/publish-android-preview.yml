@@ -1,0 +1,68 @@
+name: Publish verified Android preview
+on:
+  workflow_dispatch:
+    inputs:
+      verification_run:
+        description: Successful Android artifact verification run in this repository
+        required: true
+        default: "39245490013"
+        type: string
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: android-preview-release
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - name: Require successful independent verification
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERIFICATION_RUN: ${{ inputs.verification_run }}
+        run: |
+          [[ "$VERIFICATION_RUN" =~ ^[0-9]+$ ]]
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/$VERIFICATION_RUN" > verification-run.json
+          python - <<'PY'
+          import json
+          run=json.load(open('verification-run.json'))
+          assert run['conclusion']=='success'
+          assert run['name']=='Verify signed Android artifact'
+          PY
+      - name: Download and verify the exact preview
+        run: |
+          python - <<'PY'
+          import json,re,os,urllib.parse
+          release=json.load(open('docs/security/android-preview-2026-10-19.json'))
+          url=urllib.parse.urlparse(release['artifact'])
+          assert url.scheme=='https' and url.hostname=='expo.dev' and url.path.startswith('/artifacts/eas/') and url.path.endswith('.apk')
+          assert re.fullmatch('[a-f0-9]{64}',release['sha256'])
+          with open(os.environ['GITHUB_ENV'],'a') as env:
+           env.write('APK_URL='+release['artifact']+'\nAPK_SHA256='+release['sha256']+'\n')
+          PY
+      - name: Check signature and immutable checksum
+        run: |
+          curl --fail --location --proto '=https' --proto-redir '=https' --max-filesize 268435456 "$APK_URL" --output just1date-0.1.0-preview.apk
+          printf '%s  just1date-0.1.0-preview.apk\n' "$APK_SHA256" | sha256sum --check
+          sha256sum --check releases/SHA256SUMS.txt
+          TOOLS=$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -1)
+          "$TOOLS/apksigner" verify just1date-0.1.0-preview.apk
+          "$TOOLS/zipalign" -c -P 16 4 just1date-0.1.0-preview.apk
+          python scripts/verify-apk.py just1date-0.1.0-preview.apk
+      - name: Publish prerelease assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view v0.1.0-preview --repo "$GITHUB_REPOSITORY" || gh release create v0.1.0-preview --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --prerelease --title 'Just1date Android preview 0.1.0' --notes-file releases/NOTES.md
+          gh release upload v0.1.0-preview just1date-0.1.0-preview.apk releases/SHA256SUMS.txt --repo "$GITHUB_REPOSITORY" --clobber
+          gh api "repos/$GITHUB_REPOSITORY/releases/tags/v0.1.0-preview" --jq '{url: .html_url, assets: [.assets[] | {name, size, digest}]}'
