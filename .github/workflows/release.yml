@@ -21,9 +21,20 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Normalize image repository
+        id: metadata
+        run: echo "image=ghcr.io/${GITHUB_REPOSITORY,,}" >> "$GITHUB_OUTPUT"
       - uses: docker/build-push-action@v6
+        id: image
         with:
           context: .
           file: infrastructure/api.Dockerfile
           push: true
-          tags: ghcr.io/${{ github.repository }}:${{ github.sha }}
+          tags: ${{ steps.metadata.outputs.image }}:${{ github.sha }}
+      - name: Validate worker deployment configuration
+        env:
+          JUST1DATE_API_IMAGE: ${{ steps.metadata.outputs.image }}@${{ steps.image.outputs.digest }}
+        run: |
+          cp .env.example .env.worker
+          docker compose -f infrastructure/call-worker.compose.yml config --quiet
+          echo "Verified worker image: $JUST1DATE_API_IMAGE" >> "$GITHUB_STEP_SUMMARY"

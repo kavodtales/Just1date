@@ -1,0 +1,30 @@
+# Requires a real provider and owner-selected worker host; not a deployed service.
+services:
+  call-worker:
+    image: ${JUST1DATE_API_IMAGE:?Set a verified ghcr.io image digest}
+    command: ["node", "apps/api/dist/worker.js"]
+    env_file: ../.env.worker
+    environment:
+      NODE_ENV: production
+      DATABASE_SSL: "true"
+      VIDEO_CALLS_ENABLED: "true"
+    init: true
+    restart: unless-stopped
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    tmpfs: ["/tmp:rw,noexec,nosuid,size=64m"]
+    mem_limit: 512m
+    cpus: 1.0
+    stop_grace_period: 90s
+    healthcheck:
+      test: ["CMD", "node", "scripts/check-call-worker.mjs"]
+      interval: 15s
+      timeout: 15s
+      start_period: 90s
+      retries: 3
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"

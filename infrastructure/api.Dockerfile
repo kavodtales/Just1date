@@ -14,6 +14,7 @@ COPY --from=build /app/apps/mobile/package.json ./apps/mobile/package.json
 COPY --from=build /app/packages ./packages
 RUN npm ci --omit=dev --workspace=@just1date/api --include-workspace-root --ignore-scripts
 COPY --from=build /app/apps/api/dist ./apps/api/dist
+COPY scripts/check-call-worker.mjs ./scripts/check-call-worker.mjs
 USER node
 EXPOSE 4000
 CMD ["node", "apps/api/dist/server.js"]

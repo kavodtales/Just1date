@@ -29,6 +29,15 @@ Do not advertise calling as operational before those checks pass.
    Lease/retry processing survives a worker restart; a running HTTP API does not
    prove this worker is healthy.
 
+The container path is infrastructure/call-worker.compose.yml. Publish a tested
+image through the protected Release API image workflow, pin its actual digest
+in JUST1DATE_API_IMAGE and put the operator's real settings in ignored .env.worker.
+Run `docker compose -f infrastructure/call-worker.compose.yml up -d` on the selected
+host. The process runs as the image's non-root user, without host ports, with a
+read-only filesystem, bounded resources/logs and database-backed heartbeat/cleanup
+health checks. Image publication and Compose validation are separate from actually
+provisioning that host and testing live media; neither is a deployment claim.
+
 Ringing expires after 60 seconds; accepted sessions expire after 30 minutes.
 Each conversation has at most one active session; sorted participant locks also
 prevent overlapping calls across conversations. Invitations enforce daily and
