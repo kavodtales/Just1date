@@ -1,0 +1,124 @@
+.download-page {
+  padding: 30px max(24px, calc((100vw - 1100px) / 2)) 60px;
+}
+.download-page > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+.download-page > header > a:last-child {
+  font-size: 13px;
+}
+.download-intro {
+  text-align: center;
+  padding: 65px 0 40px;
+}
+.download-intro h1 {
+  font-size: clamp(42px, 6vw, 70px);
+  line-height: 1.08;
+  margin: 18px 0;
+}
+.download-intro h1 em {
+  color: #617362;
+}
+.download-intro > p:last-child {
+  color: #747b73;
+}
+.download-card {
+  border: 1px solid #e0e3d6;
+  padding: 38px;
+  border-radius: 24px;
+  background: #fffefb;
+  margin-bottom: 24px;
+}
+.download-platform {
+  font-size: 10px;
+  letter-spacing: 2px;
+  display: block;
+  color: #617362;
+  margin-bottom: 16px;
+}
+.download-card h2 {
+  font-size: 32px;
+  margin: 0 0 15px;
+  line-height: 1.2;
+}
+.download-card > p {
+  max-width: 650px;
+  color: #747b73;
+  font-size: 14px;
+}
+.native-downloads {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+}
+.native-downloads .download-card > svg {
+  color: #884757;
+  margin-bottom: 20px;
+}
+.install-instructions {
+  margin-top: 25px;
+  padding: 20px;
+  background: #eff2e8;
+  border-radius: 16px;
+}
+.install-instructions p {
+  font-size: 13px;
+  margin: 10px 0;
+}
+.release-pending {
+  padding: 16px;
+  background: #f3f1e8;
+  border-radius: 14px;
+}
+.download-card code {
+  overflow-wrap: anywhere;
+  font-size: 11px;
+}
+.download-card details {
+  margin-top: 20px;
+}
+.download-card .premium-button {
+  margin-top: 18px;
+  margin-right: 12px;
+}
+.download-principles {
+  display: grid;
+  gap: 10px;
+  font-size: 12px;
+  color: #617362;
+}
+.download-principles p {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.download-principles svg {
+  flex-shrink: 0;
+}
+.download-page footer {
+  display: flex;
+  gap: 25px;
+  margin-top: 35px;
+  font-size: 12px;
+}
+.install-success {
+  padding: 16px;
+  background: #eff2e8;
+  border-radius: 14px;
+}
+@media (max-width: 700px) {
+  .native-downloads {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  .download-card {
+    padding: 26px;
+  }
+  .download-page > header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

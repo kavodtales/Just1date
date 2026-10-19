@@ -9,6 +9,7 @@ import { Shell } from "./shell";
 import { QueryState } from "./query-state";
 import { api, json } from "../lib/client";
 import { realtimeClient } from "../lib/realtime";
+import { StartVideoCall } from "./call-invitation";
 export function Chat({ id }: { id: string }) {
   const qc = useQueryClient();
   const [text, setText] = useState(""),
@@ -146,6 +147,7 @@ export function Chat({ id }: { id: string }) {
             {realtime ? "Live updates connected" : "Checking for new messages"}
           </span>
         </div>
+        {match && <StartVideoCall conversationId={id} />}
         {match && (
           <Link
             className="square-control"

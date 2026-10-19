@@ -122,6 +122,10 @@ export const safetySchema = z
     "Choose an end within 24 hours after the start.",
   );
 export const paymentSchema = z.object({ plan_id: uuid }).strict();
+export const startCallSchema = z.object({ operation_id: uuid }).strict();
+export const callActionSchema = z
+  .object({ action: z.enum(["accept", "decline", "end"]) })
+  .strict();
 export const moderationSchema = z
   .object({
     user_id: uuid,

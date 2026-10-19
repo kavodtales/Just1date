@@ -109,6 +109,10 @@ const domain: Record<string, [number, string]> = {
   ],
   PLAN_UNAVAILABLE: [409, "This plan is not available for purchase yet."],
   FEATURE_UNAVAILABLE: [503, "This feature is not enabled yet."],
+  CALL_UNAVAILABLE: [404, "This call is no longer available."],
+  CALL_BUSY: [409, "One of you is already in a call. Please try again later."],
+  CALL_LIMIT: [429, "Please wait before inviting someone to another call."],
+  CALL_STATE_CONFLICT: [409, "This call has already changed. Please refresh."],
   AGE_REQUIREMENT: [400, "You must meet the minimum age requirement to join."],
   ALERT_DELIVERY_UNAVAILABLE: [
     503,

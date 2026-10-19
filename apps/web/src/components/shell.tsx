@@ -3,6 +3,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
 import { Brand } from "./brand";
+import { IncomingCall } from "./call-invitation";
 import {
   Copy,
   Heart,
@@ -24,6 +25,7 @@ const primary = [
 const secondary = [
   ["Likes", "/likes", Heart],
   ["App preview", "/demo", Sparkles],
+  ["Get the app", "/download", Copy],
   ["Safety Center", "/safety", ShieldCheck],
   ["Settings", "/settings", Settings],
   ["Notifications", "/notifications", Bell],
@@ -90,6 +92,7 @@ export function Shell({
         </div>
       </aside>
       <div className="workspace">
+        <IncomingCall />
         {offline && (
           <div className="offline" role="status">
             You’re offline. We’ll reconnect automatically.

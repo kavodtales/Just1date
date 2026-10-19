@@ -10,14 +10,15 @@
     "start": "node ../../scripts/start-next.mjs web"
   },
   "dependencies": {
-    "next": "16.3.8",
-    "@supabase/ssr": "0.12.7",
-    "@just1date/types": "*",
-    "@just1date/validation": "*",
     "@just1date/config": "*",
+    "@just1date/types": "*",
     "@just1date/ui": "*",
+    "@just1date/validation": "*",
+    "@supabase/ssr": "0.12.7",
+    "@tailwindcss/postcss": "4.3.3",
+    "livekit-client": "^2.23.0",
     "lucide-react": "1.52.0",
-    "tailwindcss": "4.3.3",
-    "@tailwindcss/postcss": "4.3.3"
+    "next": "16.3.8",
+    "tailwindcss": "4.3.3"
   }
 }

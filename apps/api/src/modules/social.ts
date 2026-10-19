@@ -11,7 +11,11 @@ import { riskSignals } from "@just1date/utils";
 import { Repository } from "../lib/repository";
 import { ok } from "../lib/http";
 import { signProfilePhotos } from "../lib/photos";
-export function socialRoutes(repo: Repository, storage: SupabaseClient) {
+export function socialRoutes(
+  repo: Repository,
+  storage: SupabaseClient,
+  cleanupCalls: () => Promise<void> = async () => {},
+) {
   const r = Router();
   for (const [path, action] of [
     ["likes", "like"],
@@ -61,12 +65,13 @@ export function socialRoutes(repo: Repository, storage: SupabaseClient) {
       );
     });
   }
-  r.delete("/matches/:id", async (req, res) =>
-    ok(
-      res,
-      await repo.call(req.actor.id, "unmatch", [uuid.parse(req.params.id)]),
-    ),
-  );
+  r.delete("/matches/:id", async (req, res) => {
+    const result = await repo.call(req.actor.id, "unmatch", [
+      uuid.parse(req.params.id),
+    ]);
+    await cleanupCalls();
+    ok(res, result);
+  });
   r.get("/conversations/:id/messages", async (req, res) => {
     const cid = uuid.parse(req.params.id);
     const before = req.query.before
@@ -132,7 +137,9 @@ export function socialRoutes(repo: Repository, storage: SupabaseClient) {
       .object({ target_id: uuid })
       .strict()
       .parse(req.body);
-    ok(res, await repo.call(req.actor.id, "block", [target_id]));
+    const result = await repo.call(req.actor.id, "block", [target_id]);
+    await cleanupCalls();
+    ok(res, result);
   });
   r.get("/blocks", async (req, res) =>
     ok(

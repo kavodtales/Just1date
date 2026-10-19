@@ -3,10 +3,10 @@ import { config } from "dotenv";
 import { readFile, readdir } from "node:fs/promises";
 import { createHash } from "node:crypto";
 import pg from "pg";
+import { migrationConnection } from "./migration-url";
 config({ path: ".env.local" });
-if (!process.env.DATABASE_URL) throw new Error("DATABASE_URL is required.");
 const c = new pg.Client({
-  connectionString: process.env.DATABASE_URL,
+  connectionString: migrationConnection(process.env),
   ssl:
     process.env.DATABASE_SSL === "false"
       ? false

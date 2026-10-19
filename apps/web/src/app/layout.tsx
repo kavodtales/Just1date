@@ -1,14 +1,27 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 import { headers } from "next/headers";
 import { Providers } from "../components/providers";
 import "./globals.css";
 import "./reference.css";
 import "./premium.css";
+import "./calls.css";
+import "./distribution.css";
+import { PwaRegistration } from "../components/install-app";
 export const metadata: Metadata = {
   title: "JUST1DATE — Meet someone worth choosing.",
   description:
     "Thoughtful connections, shared intentions and a little possibility.",
+  manifest: "/manifest.webmanifest",
+  appleWebApp: { capable: true, statusBarStyle: "default", title: "Just1date" },
+  icons: { icon: "/icons/icon-192.png", apple: "/icons/apple-touch-icon.png" },
+};
+export const viewport: Viewport = {
+  themeColor: "#293632",
+  colorScheme: "light",
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
 };
 export default async function RootLayout({
   children,
@@ -19,7 +32,10 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body>
-        <Providers>{children}</Providers>
+        <Providers>
+          <PwaRegistration />
+          {children}
+        </Providers>
       </body>
     </html>
   );

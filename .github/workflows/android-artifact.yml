@@ -1,0 +1,82 @@
+name: Verify signed Android artifact
+on:
+  workflow_dispatch:
+    inputs:
+      artifact_url:
+        description: HTTPS URL of the finished Expo APK
+        required: true
+        type: string
+      sha256:
+        description: Expected SHA-256 from the release download
+        required: true
+        type: string
+permissions:
+  contents: read
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - name: Download exact build
+        env:
+          APK_URL: ${{ inputs.artifact_url }}
+          APK_SHA256: ${{ inputs.sha256 }}
+        run: |
+          python - <<'PY'
+          import os, re, urllib.parse
+          url=urllib.parse.urlparse(os.environ['APK_URL'])
+          assert url.scheme=='https' and url.hostname=='expo.dev' and url.path.startswith('/artifacts/eas/') and url.path.endswith('.apk')
+          assert re.fullmatch('[a-fA-F0-9]{64}',os.environ['APK_SHA256'])
+          PY
+          curl --fail --location --proto '=https' --proto-redir '=https' --max-filesize 268435456 "$APK_URL" --output app.apk
+          printf '%s  app.apk\n' "$APK_SHA256" | sha256sum --check
+      - name: Verify signature, API level and page alignment
+        run: |
+          TOOLS=$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -1)
+          "$TOOLS/apksigner" verify --verbose --print-certs app.apk | tee signature.txt
+          "$TOOLS/zipalign" -c -P 16 -v 4 app.apk > zip-alignment.txt
+          "$TOOLS/aapt" dump badging app.apk > badging.txt
+          grep -q "package: name='com.just1date.app'" badging.txt
+          TARGET=$(sed -n "s/targetSdkVersion:'\([0-9]*\)'.*/\1/p" badging.txt)
+          test "$TARGET" -ge 36
+          python scripts/verify-apk.py app.apk | tee apk-verification.json
+      - name: Allow emulator acceleration
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Install and boot the real signed app
+        uses: reactivecircus/android-emulator-runner@4c44018e59b437e86cdfc41da381398f93ed8808
+        with:
+          api-level: 36
+          target: google_apis
+          arch: x86_64
+          disable-animations: true
+          script: |
+            adb install app.apk
+            adb logcat -c
+            adb shell am start -n com.just1date.app/.MainActivity
+            sleep 20
+            adb shell pidof com.just1date.app
+            adb shell uiautomator dump /sdcard/just1date-ui.xml
+            adb pull /sdcard/just1date-ui.xml native-ui.xml
+            grep -q 'Create an account' native-ui.xml
+            adb exec-out screencap -p > android-welcome.png
+            adb logcat -d > android-logcat.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: android-verification
+          path: |
+            signature.txt
+            badging.txt
+            zip-alignment.txt
+            apk-verification.json
+            native-ui.xml
+            android-welcome.png
+            android-logcat.txt

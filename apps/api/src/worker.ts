@@ -1,12 +1,28 @@
 import { config as load } from "dotenv";
 import { createDatabase } from "@just1date/database";
 import { log } from "./lib/http";
+import { envSchema } from "./config";
+import { Repository } from "./lib/repository";
+import { CallService } from "./modules/calls/service";
+import { LiveKitProvider } from "./modules/calls/provider";
 load({ path: "../../.env.local" });
 load({ path: ".env.local" });
 if (!process.env.DATABASE_URL) throw new Error("DATABASE_URL required");
 const db = createDatabase(
   process.env.DATABASE_URL,
   process.env.DATABASE_SSL !== "false",
+);
+const config = envSchema.parse(process.env);
+const calls = new CallService(
+  new Repository(db),
+  config.LIVEKIT_URL && config.LIVEKIT_API_KEY && config.LIVEKIT_API_SECRET
+    ? new LiveKitProvider(
+        config.LIVEKIT_URL!,
+        config.LIVEKIT_API_KEY!,
+        config.LIVEKIT_API_SECRET!,
+      )
+    : undefined,
+  config.VIDEO_CALLS_ENABLED === "true",
 );
 // Durable outbox. Push is at-least-once; provider tickets/receipts must be reconciled before launch.
 async function tick() {
@@ -26,7 +42,7 @@ async function tick() {
         async (tx) =>
           (
             await tx.query<any>(
-              `select n.title,n.kind,n.resource_id,d.token from public.notifications n join public.notification_preferences p on p.user_id=n.user_id join public.device_tokens d on d.user_id=n.user_id join public.users u on u.id=n.user_id where n.id=$1 and p.push_enabled and u.status='ACTIVE' and (n.kind<>'message' or p.messages_enabled) and (n.kind<>'like' or p.likes_enabled)`,
+              `select n.title,n.kind,n.resource_id,d.token from public.notifications n join public.notification_preferences p on p.user_id=n.user_id join public.device_tokens d on d.user_id=n.user_id join public.users u on u.id=n.user_id where n.id=$1 and p.push_enabled and u.status='ACTIVE' and (n.kind not in('message','call') or p.messages_enabled) and (n.kind<>'like' or p.likes_enabled) and (n.kind<>'call' or exists(select 1 from public.call_sessions c where c.id=n.resource_id and c.status='ringing' and c.expires_at>now() and public.can_chat(c.conversation_id,n.user_id)))`,
               [item.notification_id],
             )
           ).rows,
@@ -83,6 +99,11 @@ const timer = setInterval(async () => {
   if (busy) return;
   busy = true;
   try {
+    try {
+      await calls.tick();
+    } catch {
+      log.error({ code: "CALL_WORKER_FAILED" }, "call_worker_tick_failed");
+    }
     await tick();
   } catch {
     log.error({ code: "WORKER_FAILED" }, "outbox_tick_failed");

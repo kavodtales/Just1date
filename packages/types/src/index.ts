@@ -61,3 +61,24 @@ export type Plan = {
   entitlements: Record<string, number | boolean>;
   purchasable: boolean;
 };
+export type VideoCall = {
+  id: string;
+  conversation_id: string;
+  caller_id: string;
+  recipient_id: string;
+  room_name: string;
+  status:
+    "ringing" | "accepted" | "declined" | "cancelled" | "missed" | "ended";
+  created_at: string;
+  expires_at: string;
+  accepted_at: string | null;
+  ended_at: string | null;
+  is_caller: boolean;
+  other_user_id: string;
+  other_name: string;
+};
+export type CallCredentials = {
+  token: string;
+  server_url: string;
+  expires_in: number;
+};

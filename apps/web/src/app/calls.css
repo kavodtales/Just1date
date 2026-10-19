@@ -1,0 +1,227 @@
+.video-date {
+  min-height: 100dvh;
+  background: #192620;
+  color: #f8f7f2;
+  padding: 28px max(24px, calc((100vw - 1040px) / 2));
+}
+.video-date-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  font-size: 12px;
+}
+.video-date-header span {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  letter-spacing: 2px;
+  color: #c2cfbd;
+}
+.video-date-title {
+  text-align: center;
+  padding: 42px 0 25px;
+}
+.video-date-title > p:first-child {
+  font-size: 11px;
+  letter-spacing: 3px;
+  color: #c2cfbd;
+}
+.video-date h1 {
+  color: inherit;
+  font-size: clamp(30px, 4vw, 52px);
+  margin: 12px 0;
+}
+.video-date-title > p:last-child {
+  color: #d1d9ce;
+  font-size: 14px;
+}
+.video-date-stage {
+  position: relative;
+  max-width: 900px;
+  margin: 0 auto;
+}
+.call-video-surface {
+  position: relative;
+  aspect-ratio: 16/9;
+  border-radius: 24px;
+  overflow: hidden;
+  background: #293c30;
+  border: 1px solid #435345;
+}
+.call-video-surface video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.call-avatar {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 14px;
+  color: #c7d6c0;
+}
+.call-video-label {
+  position: absolute;
+  left: 18px;
+  bottom: 14px;
+  background: #152118b3;
+  border-radius: 8px;
+  padding: 3px 9px;
+  color: white;
+  font-size: 12px;
+}
+.call-video-surface.self-view {
+  position: absolute;
+  width: 25%;
+  min-width: 110px;
+  bottom: 18px;
+  right: 18px;
+  background: #354239;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px #0004;
+}
+.self-view video {
+  transform: scaleX(-1);
+}
+.self-view .call-avatar span {
+  display: none;
+}
+.video-date-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin: 28px 0 18px;
+}
+.video-date-controls > button {
+  min-width: 52px;
+  min-height: 52px;
+  border-radius: 16px;
+  border: 1px solid #667263;
+  background: #344538;
+  color: white;
+  display: grid;
+  place-items: center;
+  padding: 12px 18px;
+}
+.video-date-controls > .button {
+  display: block;
+  background: #e7dfcc;
+  color: #25342b;
+  font-weight: 600;
+}
+.video-date .video-date-controls > .button:hover:enabled {
+  background: #d5ccb5;
+  color: #25342b;
+}
+.video-date-controls > .call-hangup {
+  background: #a84959;
+  border-color: #a84959;
+}
+.video-date-controls > button[aria-pressed="true"] {
+  background: #b9c7ab;
+  color: #203028;
+}
+.call-privacy {
+  max-width: 620px;
+  text-align: center;
+  margin: 20px auto;
+  color: #becabd;
+  font-size: 12px;
+  line-height: 1.7;
+}
+.call-report {
+  display: block;
+  width: max-content;
+  margin: 20px auto;
+  color: #e8c1ca;
+  font-size: 12px;
+}
+.call-error {
+  background: #fff2f2;
+  color: #713545;
+  padding: 16px;
+  border-radius: 14px;
+  text-align: center;
+}
+.video-date > .button {
+  display: block;
+  width: max-content;
+  margin: 35px auto;
+}
+.incoming-call {
+  position: fixed;
+  left: 50%;
+  bottom: 96px;
+  transform: translateX(-50%);
+  z-index: 80;
+  width: min(calc(100% - 32px), 600px);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  padding: 18px;
+  background: white;
+  border: 1px solid #d5dccf;
+  border-radius: 20px;
+  box-shadow: 0 10px 45px #20302830;
+  color: #293632;
+}
+.incoming-call > div {
+  flex: 1;
+  min-width: 150px;
+}
+.incoming-call p {
+  margin: 0;
+  font-size: 12px;
+}
+.incoming-call > button {
+  border: 0;
+  background: #f3e9e8;
+  color: #884757;
+  border-radius: 12px;
+  min-width: 44px;
+  min-height: 44px;
+  display: grid;
+  place-items: center;
+}
+.call-invite-control {
+  position: relative;
+}
+.call-invite-control > p {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  width: 220px;
+  z-index: 10;
+  background: white;
+  padding: 10px;
+  color: #884757;
+  box-shadow: 0 8px 20px #0002;
+}
+@media (max-width: 600px) {
+  .video-date-header {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .video-date-title {
+    padding-top: 32px;
+  }
+  .call-video-surface {
+    aspect-ratio: 3/4;
+  }
+  .call-video-surface.self-view {
+    aspect-ratio: 3/4;
+    min-width: 88px;
+    bottom: 12px;
+    right: 12px;
+  }
+  .video-date-controls {
+    gap: 9px;
+  }
+}

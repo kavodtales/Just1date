@@ -2,6 +2,7 @@ import type { ExpoConfig } from "expo/config";
 const config: ExpoConfig = {
   name: "JUST1DATE",
   slug: "just1date",
+  owner: "bluechipwhale",
   platforms: ["ios", "android"],
   version: "0.1.0",
   scheme: "just1date",
@@ -11,11 +12,13 @@ const config: ExpoConfig = {
   ios: {
     bundleIdentifier: "com.just1date.app",
     supportsTablet: true,
-    associatedDomains: ["applinks:just1date.com"],
+    associatedDomains: ["applinks:just1date.com", "applinks:just1date-vert.vercel.app"],
     infoPlist: {
       NSPhotoLibraryUsageDescription:
         "Choose photos to tell your story. Your photos are reviewed before appearing in discovery.",
       NSCameraUsageDescription: "Take a profile photo with your permission.",
+      NSMicrophoneUsageDescription:
+        "Use your microphone only when you turn it on during a video call.",
       ITSAppUsesNonExemptEncryption: false,
     },
   },
@@ -25,12 +28,11 @@ const config: ExpoConfig = {
       foregroundImage: "./assets/adaptive-icon.png",
       backgroundColor: "#ffffff",
     },
-    permissions: ["POST_NOTIFICATIONS"],
+    permissions: ["POST_NOTIFICATIONS", "CAMERA", "RECORD_AUDIO"],
     blockedPermissions: [
       "ACCESS_FINE_LOCATION",
       "ACCESS_COARSE_LOCATION",
       "READ_CONTACTS",
-      "RECORD_AUDIO",
     ],
     intentFilters: [
       {
@@ -67,14 +69,28 @@ const config: ExpoConfig = {
       {
         photosPermission: "Select profile photos to upload for review.",
         cameraPermission: "Take a profile photo with your permission.",
-        microphonePermission: false,
+        microphonePermission:
+          "Use your microphone when you enable audio during a call.",
       },
     ],
     ["expo-notifications", { defaultChannel: "connections" }],
+    "@livekit/react-native-expo-plugin",
+    [
+      "@config-plugins/react-native-webrtc",
+      {
+        cameraPermission:
+          "Use your camera for profile photos or when you enable video during a call.",
+        microphonePermission:
+          "Use your microphone only when you turn it on during a video call.",
+      },
+    ],
   ],
-  extra: process.env.EAS_PROJECT_ID
-    ? { eas: { projectId: process.env.EAS_PROJECT_ID } }
-    : undefined,
+  extra: {
+    eas: {
+      projectId:
+        process.env.EAS_PROJECT_ID || "c78a175c-e465-455b-b130-373695b5fc6f",
+    },
+  },
   experiments: { typedRoutes: true },
 };
 export default config;

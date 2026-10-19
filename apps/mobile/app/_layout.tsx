@@ -4,6 +4,7 @@ import {
   QueryClient,
   QueryClientProvider,
   onlineManager,
+  focusManager,
 } from "@tanstack/react-query";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import * as Network from "expo-network";
@@ -11,6 +12,12 @@ import * as Notifications from "expo-notifications";
 import { StatusBar } from "expo-status-bar";
 import { auth } from "../lib/auth";
 import { useFonts } from "expo-font";
+import { AppState } from "react-native";
+import { registerGlobals } from "@livekit/react-native";
+import { IncomingNativeCall } from "../components/call-invitation";
+import * as SplashScreen from "expo-splash-screen";
+registerGlobals();
+void SplashScreen.preventAutoHideAsync();
 export default function Layout() {
   const [fonts, fontError] = useFonts({
     Poppins: require("../assets/fonts/Poppins-Regular.ttf"),
@@ -25,7 +32,11 @@ export default function Layout() {
         },
       }),
   );
+  useEffect(() => { if (fonts || fontError) void SplashScreen.hideAsync(); }, [fonts, fontError]);
   useEffect(() => {
+    const focus = AppState.addEventListener("change", (state) =>
+      focusManager.setFocused(state === "active"),
+    );
     const n = Network.addNetworkStateListener((state) =>
       onlineManager.setOnline(Boolean(state.isConnected)),
     );
@@ -39,11 +50,13 @@ export default function Layout() {
         if (typeof id === "string" && /^[0-9a-f-]{36}$/.test(id)) {
           if (data.kind === "message") router.push(`/messages/${id}`);
           else if (data.kind === "match") router.push("/(tabs)/matches");
+          else if (data.kind === "call") router.push(`/calls/${id}`);
         }
       },
     );
     return () => {
       n.remove();
+      focus.remove();
       a?.data.subscription.unsubscribe();
       push.remove();
     };
@@ -54,6 +67,7 @@ export default function Layout() {
       <QueryClientProvider client={client}>
         <StatusBar style="dark" />
         <Stack screenOptions={{ headerShown: false }} />
+        <IncomingNativeCall />
       </QueryClientProvider>
     </GestureHandlerRootView>
   );

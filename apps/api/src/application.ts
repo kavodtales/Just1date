@@ -20,6 +20,9 @@ import { adminRoutes } from "./modules/admin";
 import { aiRoutes } from "./modules/ai";
 import { openapi } from "./openapi";
 import { DemoService, demoRoutes } from "./modules/demo";
+import { LiveKitProvider, type CallProvider } from "./modules/calls/provider";
+import { CallService } from "./modules/calls/service";
+import { callRoutes, callWebhookRoutes } from "./modules/calls/routes";
 export function createApp(deps: {
   db: Database;
   auth: SupabaseClient;
@@ -28,6 +31,7 @@ export function createApp(deps: {
   rateStore?: Store;
   authRateStore?: Store;
   authenticate?: RequestHandler;
+  calls?: CallProvider;
 }) {
   const app = express(),
     repo = new Repository(deps.db),
@@ -54,6 +58,19 @@ export function createApp(deps: {
     ok(res, { status: "ready" });
   });
   app.get("/openapi.json", (_req, res) => res.json(openapi()));
+  const calls = new CallService(
+    repo,
+    deps.calls ??
+      (config.LIVEKIT_URL && config.LIVEKIT_API_KEY && config.LIVEKIT_API_SECRET
+        ? new LiveKitProvider(
+            config.LIVEKIT_URL!,
+            config.LIVEKIT_API_KEY!,
+            config.LIVEKIT_API_SECRET!,
+          )
+        : undefined),
+    Boolean(deps.calls) || config.VIDEO_CALLS_ENABLED === "true",
+  );
+  app.use("/v1", callWebhookRoutes(repo, calls));
   app.use("/v1", webhookRoutes(repo, deps.payments));
   app.use(express.json({ limit: "64kb" }));
   const apiLimiter = rateLimit({
@@ -110,7 +127,8 @@ export function createApp(deps: {
   app.use("/v1/profiles", profilesRoutes(repo, deps.auth));
   app.use(
     "/v1",
-    socialRoutes(repo, deps.auth),
+    socialRoutes(repo, deps.auth, () => calls.cleanup()),
+    callRoutes(repo, calls),
     accountRoutes(repo, deps.auth, config),
     paymentsRoutes(repo, config, deps.payments),
     aiRoutes(repo, config),

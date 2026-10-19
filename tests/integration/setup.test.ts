@@ -45,7 +45,7 @@ it("installs the complete schema and matches authoritative migration checksums",
   const tables = await db.query(
     "select tablename from pg_tables where schemaname='public'",
   );
-  expect(tables.rows).toHaveLength(59);
+  expect(tables.rows).toHaveLength(62);
   expect(
     (
       await db.query(
@@ -62,7 +62,11 @@ it("is safe to run twice without duplicate seed rows or migrations", async () =>
   ).toEqual(before.rows);
   expect(
     (await db.query("select name from public.schema_migrations")).rows,
-  ).toHaveLength(10);
+  ).toHaveLength(
+    (await readdir("supabase/migrations")).filter((name) =>
+      name.endsWith(".sql"),
+    ).length,
+  );
 });
 it("seeds only four demo slots and denies direct client access to demo profiles and sessions", async () => {
   expect(
@@ -100,10 +104,10 @@ it("configures private storage, realtime publication, and private broadcast poli
   expect(
     (
       await db.query(
-        "select tablename from pg_publication_tables where pubname='supabase_realtime'",
+        "select tablename from pg_publication_tables where pubname='supabase_realtime' order by tablename",
       )
     ).rows,
-  ).toHaveLength(4);
+  ).toEqual(["call_sessions","conversation_members","message_reactions","messages","notifications"].map(tablename=>({tablename})));
   expect(
     (
       await db.query(

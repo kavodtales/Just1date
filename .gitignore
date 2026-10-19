@@ -1,4 +1,13 @@
 node_modules/
+.tool-cache/
+*.apk
+*.aab
+*.ipa
+*.jks
+*.keystore
+*.p8
+*.p12
+*.mobileprovision
 .npm-cache/
 .turbo/
 .next/

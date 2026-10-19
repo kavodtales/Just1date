@@ -1,9 +1,67 @@
 {
-  "cli": { "version": ">=16.0.0", "appVersionSource": "remote" },
-  "build": {
-    "development": { "developmentClient": true, "distribution": "internal" },
-    "preview": { "distribution": "internal" },
-    "production": { "autoIncrement": true, "environment": "production" }
+  "cli": {
+    "version": ">=16.0.0",
+    "appVersionSource": "remote"
   },
-  "submit": { "production": {} }
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal"
+    },
+    "preview": {
+      "distribution": "internal",
+      "environment": "preview",
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://just1date-api.vercel.app",
+        "EXPO_PUBLIC_WEB_URL": "https://just1date-vert.vercel.app",
+        "EXPO_PUBLIC_SUPABASE_URL": "https://kyfohngqetzsrqsyabey.supabase.co",
+        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_hEZukeYk7NPa7k51M2gkdA_FLns8mCK"
+      }
+    },
+    "production-apk": {
+      "distribution": "internal",
+      "autoIncrement": true,
+      "environment": "production",
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://just1date-api.vercel.app",
+        "EXPO_PUBLIC_WEB_URL": "https://just1date-vert.vercel.app",
+        "EXPO_PUBLIC_SUPABASE_URL": "https://kyfohngqetzsrqsyabey.supabase.co",
+        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_hEZukeYk7NPa7k51M2gkdA_FLns8mCK"
+      }
+    },
+    "production": {
+      "autoIncrement": true,
+      "environment": "production",
+      "android": {
+        "buildType": "app-bundle"
+      },
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://just1date-api.vercel.app",
+        "EXPO_PUBLIC_WEB_URL": "https://just1date-vert.vercel.app",
+        "EXPO_PUBLIC_SUPABASE_URL": "https://kyfohngqetzsrqsyabey.supabase.co",
+        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_hEZukeYk7NPa7k51M2gkdA_FLns8mCK"
+      }
+    },
+    "ios-simulator": {
+      "environment": "preview",
+      "ios": {
+        "simulator": true
+      },
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://just1date-api.vercel.app",
+        "EXPO_PUBLIC_WEB_URL": "https://just1date-vert.vercel.app",
+        "EXPO_PUBLIC_SUPABASE_URL": "https://kyfohngqetzsrqsyabey.supabase.co",
+        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_hEZukeYk7NPa7k51M2gkdA_FLns8mCK"
+      }
+    }
+  },
+  "submit": {
+    "production": {}
+  }
 }

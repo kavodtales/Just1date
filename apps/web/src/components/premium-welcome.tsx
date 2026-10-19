@@ -15,6 +15,7 @@ export function Welcome() {
         <Brand />
         <nav aria-label="Welcome navigation">
           <a href="#how-it-works">Our approach</a>
+          <Link href="/download">Get the app</Link>
           <Link href="/auth/login">Sign in</Link>
           <Link className="pill-link" href="/auth/register">
             Join Just1date <ArrowUpRight size={16} />
@@ -145,6 +146,7 @@ export function Welcome() {
         <span>For people. For possibility.</span>
         <div>
           <Link href="/legal/privacy">Privacy</Link>
+          <Link href="/download">Get the app</Link>
           <Link href="/legal/terms">Terms</Link>
           <Link href="/auth/login">Sign in</Link>
         </div>

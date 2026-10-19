@@ -7,6 +7,7 @@ import type { Message } from "@just1date/types";
 import { auth } from "../../lib/auth";
 import { api } from "../../lib/api";
 import { Screen, Status, Button, s } from "../../components/ui";
+import { StartNativeCall } from "../../components/call-invitation";
 export default function Chat() {
   const { id } = useLocalSearchParams<{ id: string }>(),
     qc = useQueryClient();
@@ -87,7 +88,7 @@ export default function Chat() {
     ...new Map([...(q.data ?? []), ...older].map((m) => [m.id, m])).values(),
   ].sort((a, b) => a.created_at.localeCompare(b.created_at));
   return (
-    <Screen title={match?.profile.display_name ?? "Messages"}>
+    <Screen title={match?.profile.display_name ?? "Messages"} headerAction={<StartNativeCall conversationId={id} />}>
       <Status
         pending={q.isPending}
         error={q.error}

@@ -10,6 +10,7 @@ export default ts.config(
       "test-results/**",
       "playwright-report/**",
       ".npm-cache/**",
+      ".tool-cache/**",
       "**/next-env.d.ts",
     ],
   },
@@ -32,5 +33,17 @@ export default ts.config(
   {
     files: ["**/*.{js,mjs}"],
     languageOptions: { globals: { process: "readonly", console: "readonly" } },
+  },
+  {
+    files: ["apps/web/public/sw.js"],
+    languageOptions: {
+      globals: {
+        self: "readonly",
+        caches: "readonly",
+        URL: "readonly",
+        fetch: "readonly",
+        Response: "readonly",
+      },
+    },
   },
 );

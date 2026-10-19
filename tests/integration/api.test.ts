@@ -7,6 +7,10 @@ import { randomUUID, createHmac } from "node:crypto";
 import { createApp } from "../../apps/api/src/app";
 import type { Database } from "@just1date/database";
 import { envSchema } from "../../apps/api/src/config";
+import { AccessToken, TokenVerifier } from "livekit-server-sdk";
+import type { VideoCall } from "@just1date/types";
+import { CallService } from "../../apps/api/src/modules/calls/service";
+import { Repository } from "../../apps/api/src/lib/repository";
 import {
   validPaystackSignature,
   type PaymentProvider,
@@ -17,6 +21,10 @@ const a = randomUUID(),
   stranger = randomUUID(),
   secret = "test-webhook-key";
 let payment: any;
+let database: Database;
+const revokedCalls: string[] = [];
+const callKey = "test-video-key",
+  callSecret = "test-video-secret-at-least-thirty-two-characters";
 beforeAll(async () => {
   sql = new PGlite();
   await sql.exec(
@@ -76,11 +84,39 @@ beforeAll(async () => {
     ADMIN_URL: "http://localhost:3001",
     CORS_ORIGINS: "http://localhost:3000",
   });
+  database = wrap(sql);
   app = createApp({
-    db: wrap(sql),
+    db: database,
     auth: createClient(config.SUPABASE_URL, config.SUPABASE_SERVICE_ROLE_KEY),
     config,
     payments: provider,
+    calls: {
+      credentials: async (call: VideoCall, actor: string) => {
+        const token = new AccessToken(callKey, callSecret, {
+          identity: actor,
+          ttl: 60,
+        });
+        token.addGrant({
+          roomJoin: true,
+          room: call.room_name,
+          canPublish: true,
+          canSubscribe: true,
+          canPublishData: false,
+        });
+        return {
+          token: await token.toJwt(),
+          server_url: "wss://test.livekit.cloud",
+          expires_in: 60,
+        };
+      },
+      revoke: async (call) => {
+        revokedCalls.push(call.room_name);
+      },
+      health: async () => {},
+      webhook: async () => {
+        throw new Error("INVALID_WEBHOOK");
+      },
+    },
     authenticate: (req, res, next) => {
       const id = req.get("Authorization")?.slice(7);
       if (![a, b, stranger].includes(id ?? ""))
@@ -89,6 +125,7 @@ beforeAll(async () => {
       next();
     },
   });
+  await sql.exec("insert into public.call_service_health values(true,now())");
 });
 afterAll(async () => {
   await sql?.close();
@@ -398,7 +435,152 @@ it("rejects spoofed payment webhooks and deduplicates a verified payment", async
     ).status,
   ).toBe(200);
 });
-it("reports and blocks through REST, then revokes chat access", async () => {
+it("requires an accepted mutual-match invitation before issuing any media token", async () => {
+  expect(
+    (
+      await request(app)
+        .post(`/v1/conversations/${cid}/calls`)
+        .send({ operation_id: randomUUID() })
+    ).status,
+  ).toBe(401);
+  expect(
+    (
+      await request(app)
+        .post(`/v1/conversations/${cid}/calls`)
+        .auth(stranger, { type: "bearer" })
+        .send({ operation_id: randomUUID() })
+    ).status,
+  ).toBe(404);
+  const operation_id = randomUUID();
+  const first = await request(app)
+    .post(`/v1/conversations/${cid}/calls`)
+    .auth(a, { type: "bearer" })
+    .send({ operation_id });
+  expect(first.status).toBe(201);
+  const call = first.body.data;
+  expect(call.status).toBe("ringing");
+  expect(
+    (
+      await request(app)
+        .post(`/v1/conversations/${cid}/calls`)
+        .auth(a, { type: "bearer" })
+        .send({ operation_id })
+    ).body.data.id,
+  ).toBe(call.id);
+  expect(
+    (
+      await request(app)
+        .post(`/v1/conversations/${cid}/calls`)
+        .auth(a, { type: "bearer" })
+        .send({ operation_id: randomUUID(), caller_id: stranger })
+    ).status,
+  ).toBe(400);
+  expect(
+    (
+      await request(app)
+        .get(`/v1/calls/${call.id}`)
+        .auth(stranger, { type: "bearer" })
+    ).status,
+  ).toBe(404);
+  expect(
+    (await request(app).get("/v1/calls/incoming").auth(b, { type: "bearer" }))
+      .body.data[0].id,
+  ).toBe(call.id);
+  expect(
+    (
+      await request(app)
+        .post(`/v1/calls/${call.id}/token`)
+        .auth(a, { type: "bearer" })
+        .send({})
+    ).status,
+  ).toBe(409);
+  expect(
+    (
+      await request(app)
+        .post(`/v1/calls/${call.id}/actions`)
+        .auth(a, { type: "bearer" })
+        .send({ action: "accept" })
+    ).status,
+  ).toBe(403);
+  expect(
+    (
+      await request(app)
+        .post(`/v1/calls/${call.id}/actions`)
+        .auth(b, { type: "bearer" })
+        .send({ action: "accept" })
+    ).body.data.status,
+  ).toBe("accepted");
+  const media = await request(app)
+    .post(`/v1/calls/${call.id}/token`)
+    .auth(b, { type: "bearer" })
+    .send({});
+  expect(media.status).toBe(200);
+  expect(media.headers["cache-control"]).toBe("no-store");
+  const claims = await new TokenVerifier(callKey, callSecret).verify(
+    media.body.data.token,
+  );
+  expect(claims.sub).toBe(b);
+  expect(claims.video?.room).toBe(call.room_name);
+  expect(claims.video?.roomJoin).toBe(true);
+  expect(claims.video?.roomAdmin).toBeUndefined();
+  expect(
+    (
+      await request(app)
+        .post(`/v1/calls/${call.id}/actions`)
+        .auth(a, { type: "bearer" })
+        .send({ action: "end" })
+    ).body.data.status,
+  ).toBe("ended");
+  expect(revokedCalls).toContain(call.room_name);
+  expect(
+    (
+      await request(app)
+        .post(`/v1/calls/${call.id}/token`)
+        .auth(b, { type: "bearer" })
+        .send({})
+    ).status,
+  ).toBe(409);
+  expect(
+    (
+      await request(app)
+        .post("/v1/calls/webhook")
+        .set("Content-Type", "application/webhook+json")
+        .send('{"event":"room_finished"}')
+    ).status,
+  ).toBe(401);
+});
+it("fails closed when the media cleanup worker is stale", async () => {
+  await sql.exec(
+    "update public.call_service_health set heartbeat_at=now()-interval '2 minutes'",
+  );
+  expect(
+    (await request(app).get("/v1/calls/config").auth(a, { type: "bearer" }))
+      .body.data.enabled,
+  ).toBe(false);
+  expect(
+    (
+      await request(app)
+        .post(`/v1/conversations/${cid}/calls`)
+        .auth(a, { type: "bearer" })
+        .send({ operation_id: randomUUID() })
+    ).status,
+  ).toBe(503);
+  await sql.exec("update public.call_service_health set heartbeat_at=now()");
+});
+it("reports and blocks through REST, then revokes chat and active video access", async () => {
+  await sql.exec(
+    "update public.call_sessions set created_at=now()-interval '31 seconds'",
+  );
+  const invitation = await request(app)
+    .post(`/v1/conversations/${cid}/calls`)
+    .auth(a, { type: "bearer" })
+    .send({ operation_id: randomUUID() });
+  expect(invitation.status).toBe(201);
+  const call = invitation.body.data;
+  await request(app)
+    .post(`/v1/calls/${call.id}/actions`)
+    .auth(b, { type: "bearer" })
+    .send({ action: "accept" });
   const report = await request(app)
     .post("/v1/reports")
     .auth(a, { type: "bearer" })
@@ -424,7 +606,15 @@ it("reports and blocks through REST, then revokes chat access", async () => {
     ).status,
   ).toBe(404);
 });
-it("excludes blocked matches and message previews from both members' inboxes", async () => {
+it("excludes blocked matches, video invitations and message previews from both members' inboxes", async () => {
+  expect(
+    (
+      await sql.query<{ status: string }>(
+        "select status from public.call_sessions where status in('ringing','accepted')",
+      )
+    ).rows,
+  ).toEqual([]);
+  expect(revokedCalls.length).toBeGreaterThanOrEqual(2);
   for (const member of [a, b])
     expect(
       (
@@ -433,6 +623,48 @@ it("excludes blocked matches and message previews from both members' inboxes", a
           .auth(member, { type: "bearer" })
       ).body.data,
     ).toEqual([]);
+});
+it("keeps media cleanup available when the video feature is switched off", async () => {
+  const row = (
+    await sql.query<{ id: string }>(
+      "select id from public.call_sessions limit 1",
+    )
+  ).rows[0];
+  await sql.query(
+    "update public.call_sessions set status='accepted',ended_at=null,accepted_at=now(),expires_at=now()+interval '30 minutes' where id=$1",
+    [row.id],
+  );
+  await sql.query("delete from public.call_room_cleanup where call_id=$1", [
+    row.id,
+  ]);
+  let revoked = false;
+  const service = new CallService(
+    new Repository(database),
+    {
+      credentials: async () => {
+        throw new Error("Not used");
+      },
+      revoke: async () => {
+        revoked = true;
+      },
+      health: async () => {},
+      webhook: async () => {
+        throw new Error("Not used");
+      },
+    },
+    false,
+  );
+  expect(await service.available()).toBe(false);
+  await service.tick();
+  expect(
+    (
+      await sql.query<{ status: string }>(
+        "select status from public.call_sessions where id=$1",
+        [row.id],
+      )
+    ).rows[0].status,
+  ).toBe("ended");
+  expect(revoked).toBe(true);
 });
 it("records date sessions but rejects unsupported emergency or location promises", async () => {
   const input = {

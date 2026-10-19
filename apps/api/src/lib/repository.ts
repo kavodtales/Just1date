@@ -33,6 +33,10 @@ const functions = {
   notificationRead: "rpc_notification_read",
   notificationPreferences: "rpc_notification_preferences",
   deviceToken: "rpc_device_token",
+  callStart: "rpc_call_start",
+  callGet: "rpc_call_get",
+  callAction: "rpc_call_action",
+  callIncoming: "rpc_call_incoming",
 } as const;
 export class Repository {
   constructor(public db: Database) {}

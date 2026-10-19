@@ -10,7 +10,19 @@ export function proxy(req: NextRequest) {
   }
   const realtime = provider.replace("https:", "wss:").replace("http:", "ws:");
   const dev = process.env.NODE_ENV !== "production";
-  const csp = `default-src 'self'; script-src 'self' 'nonce-${nonce}'${dev ? " 'unsafe-eval'" : ""}; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: ${provider}; connect-src 'self' ${provider} ${realtime}${dev ? " ws:" : ""}; font-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self';`;
+  const isCall = req.nextUrl.pathname.startsWith("/calls/");
+  let media = "";
+  try {
+    if (process.env.LIVEKIT_URL) {
+      const url = new URL(process.env.LIVEKIT_URL);
+      media = `${url.origin} ${url.origin.replace("wss:", "https:")}`;
+      if (url.hostname.endsWith(".livekit.cloud"))
+        media += " wss://*.livekit.cloud https://*.livekit.cloud";
+    }
+  } catch {
+    /* Configuration errors are handled server-side. */
+  }
+  const csp = `default-src 'self'; script-src 'self' 'nonce-${nonce}'${dev ? " 'unsafe-eval'" : ""}; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: ${provider}; connect-src 'self' ${provider} ${realtime} ${isCall ? media : ""}${dev ? " ws:" : ""}; font-src 'self'; media-src 'self' blob:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self';`;
   const headers = new Headers(req.headers);
   headers.set("x-nonce", nonce);
   headers.set("Content-Security-Policy", csp);
@@ -20,7 +32,9 @@ export function proxy(req: NextRequest) {
   response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
   response.headers.set(
     "Permissions-Policy",
-    "geolocation=(), microphone=(), camera=()",
+    isCall
+      ? "geolocation=(), microphone=(self), camera=(self)"
+      : "geolocation=(), microphone=(), camera=()",
   );
   if (!dev)
     response.headers.set("Strict-Transport-Security", "max-age=31536000");

@@ -22,8 +22,63 @@ export const envSchema = z
     OPENAI_API_KEY: z.string().optional(),
     OPENAI_MODEL: z.string().optional(),
     AI_ENABLED: z.enum(["true", "false"]).default("false"),
+    VIDEO_CALLS_ENABLED: z.enum(["true", "false"]).default("false"),
+    LIVEKIT_URL: z.preprocess(
+      (value) => (value === "" ? undefined : value),
+      z.url().optional(),
+    ),
+    LIVEKIT_API_KEY: z.string().optional(),
+    LIVEKIT_API_SECRET: z.string().optional(),
   })
   .superRefine((config, ctx) => {
+    if (
+      config.VIDEO_CALLS_ENABLED === "true" ||
+      config.LIVEKIT_URL ||
+      config.LIVEKIT_API_KEY ||
+      config.LIVEKIT_API_SECRET
+    ) {
+      if (
+        !config.LIVEKIT_URL ||
+        !config.LIVEKIT_API_KEY ||
+        !config.LIVEKIT_API_SECRET
+      )
+        ctx.addIssue({
+          code: "custom",
+          path: ["LIVEKIT_URL"],
+          message: "Video calls require LiveKit configuration.",
+        });
+      if (config.LIVEKIT_URL) {
+        try {
+          const url = new URL(config.LIVEKIT_URL);
+          if (
+            url.protocol !== "wss:" ||
+            url.username ||
+            url.password ||
+            url.search ||
+            url.hash ||
+            url.pathname !== "/"
+          )
+            throw new Error();
+          if (
+            config.NODE_ENV === "production" &&
+            !url.hostname.endsWith(".livekit.cloud")
+          )
+            ctx.addIssue({
+              code: "custom",
+              path: ["LIVEKIT_URL"],
+              message:
+                "Production calls require the Cloud token-revocation adapter.",
+            });
+        } catch {
+          ctx.addIssue({
+            code: "custom",
+            path: ["LIVEKIT_URL"],
+            message:
+              "Use an exact secure WebSocket media origin without credentials or a path.",
+          });
+        }
+      }
+    }
     if (config.NODE_ENV !== "production") return;
     const issue = (path: string, message: string) =>
       ctx.addIssue({ code: "custom", path: [path], message });
