@@ -1,6 +1,16 @@
 import { useState } from "react";
-import { View, Text, Pressable, ScrollView, StyleSheet } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import {
+  View,
+  Text,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  useWindowDimensions,
+} from "react-native";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 import { Image } from "expo-image";
 import { router } from "expo-router";
 import { Button, colors } from "./ui";
@@ -23,6 +33,15 @@ const slides = [
 ];
 export function Welcome() {
   const [index, setIndex] = useState(0);
+  const { height } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
+  const photoHeight = Math.min(
+    index === 2 ? 364 : 417,
+    Math.max(
+      160,
+      height - insets.top - insets.bottom - (index === 2 ? 375 : 333),
+    ),
+  );
   return (
     <SafeAreaView style={st.screen}>
       <ScrollView contentContainerStyle={st.container}>
@@ -30,12 +49,13 @@ export function Welcome() {
           source={slides[index].image}
           style={[
             st.photo,
-            index === 2 && { height: 364, marginHorizontal: 23, marginTop: 12 },
+            { height: photoHeight },
+            index === 2 && { marginHorizontal: 23, marginTop: 12 },
           ]}
           contentFit="cover"
           accessibilityLabel="Just1date introduction artwork"
         />
-        <View style={[st.copy, index === 2 && { paddingTop: 62 }]}>
+        <View style={[st.copy, index === 2 && { paddingTop: 32, height: 153 }]}>
           <Text accessibilityRole="header" style={st.title}>
             {slides[index].title}
           </Text>

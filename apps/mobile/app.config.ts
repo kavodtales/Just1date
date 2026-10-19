@@ -12,7 +12,10 @@ const config: ExpoConfig = {
   ios: {
     bundleIdentifier: "com.just1date.app",
     supportsTablet: true,
-    associatedDomains: ["applinks:just1date.com", "applinks:just1date-vert.vercel.app"],
+    associatedDomains: [
+      "applinks:just1date.com",
+      "applinks:just1date-vert.vercel.app",
+    ],
     infoPlist: {
       NSPhotoLibraryUsageDescription:
         "Choose photos to tell your story. Your photos are reviewed before appearing in discovery.",
@@ -30,6 +33,7 @@ const config: ExpoConfig = {
     },
     permissions: ["POST_NOTIFICATIONS", "CAMERA", "RECORD_AUDIO"],
     blockedPermissions: [
+      "SYSTEM_ALERT_WINDOW",
       "ACCESS_FINE_LOCATION",
       "ACCESS_COARSE_LOCATION",
       "READ_CONTACTS",
