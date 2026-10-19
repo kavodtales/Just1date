@@ -1,5 +1,5 @@
 /* Public assets only. Never cache API responses, authenticated HTML or profiles. */
-const CACHE = "just1date-public-v1";
+const CACHE = "just1date-public-v2";
 const PUBLIC = ["/offline.html", "/icons/icon-192.png", "/icons/icon-512.png", "/icons/maskable-512.png"];
 self.addEventListener("install", event => { event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(PUBLIC)).then(() => self.skipWaiting())); });
 self.addEventListener("activate", event => { event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(key => key.startsWith("just1date-public-") && key !== CACHE).map(key => caches.delete(key)))).then(() => self.clients.claim())); });

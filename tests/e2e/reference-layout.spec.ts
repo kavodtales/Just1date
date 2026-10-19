@@ -112,33 +112,46 @@ async function capture(page: Page, name: string) {
     fullPage: true,
   });
 }
-test("premium welcome and signup navigation work", async ({ page }) => {
+test("reference welcome slides and signup navigation work", async ({
+  page,
+}) => {
   await page.goto("/welcome");
   await expect(
-    page.getByRole("heading", { name: /Less swiping/ }),
+    page.getByRole("heading", { name: "Algorithm", exact: true }),
   ).toBeVisible();
-  await expect(
-    page.getByRole("link", { name: "Try the app", exact: true }),
-  ).toHaveAttribute("href", "/demo");
   await capture(page, "welcome");
+  await page.getByRole("button", { name: "Show Matches" }).click();
+  await expect(
+    page.getByRole("heading", { name: "Matches", exact: true }),
+  ).toBeVisible();
+  await capture(page, "welcome-matches");
+  await page.getByRole("button", { name: "Show Premium" }).click();
+  await capture(page, "welcome-premium");
   await page
     .getByRole("link", { name: "Create an account", exact: true })
     .click();
   await expect(
-    page.getByRole("heading", { name: "Let’s get to know you." }),
+    page.getByRole("heading", { name: "Sign up to continue" }),
   ).toBeVisible();
-  await expect(page.getByLabel("Email address")).toBeVisible();
-  await expect(page.getByLabel("Date of birth")).toBeVisible();
-  await capture(page, "signup");
   await expect(
     page.getByRole("link", { name: "Use phone number" }),
-  ).toHaveCount(0);
+  ).toHaveAttribute("href", "/auth/phone");
+  await capture(page, "signup");
+  await page.getByRole("link", { name: "Continue with email" }).click();
+  await expect(page.getByLabel("Email address")).toBeVisible();
 });
-test("registration saves a private birth date and offers password visibility", async ({
+test("registration saves a private calendar birth date and offers password visibility", async ({
   page,
 }) => {
   await page.goto("/auth/register");
-  await page.getByLabel("Date of birth").fill("1995-07-11");
+  await page.getByRole("button", { name: "Choose birthday date" }).click();
+  await page.getByRole("combobox", { name: "Birth year" }).selectOption("1995");
+  // The picker starts in January; select July using its visible month controls.
+  for (let i = 0; i < 6; i++)
+    await page.getByRole("button", { name: "Next month" }).click();
+  await page.getByRole("button", { name: "Day 11", exact: true }).click();
+  await capture(page, "birthday");
+  await page.getByRole("button", { name: "Save", exact: true }).click();
   await expect(page.locator('input[name="date_of_birth"]')).toHaveValue(
     "1995-07-11",
   );
@@ -157,18 +170,36 @@ test("registration saves a private birth date and offers password visibility", a
     "12",
   );
 });
-test("the single profile form saves essential details, interests and values", async ({
+test("reference onboarding saves profile details, interests and values", async ({
   page,
 }) => {
   await fixture(page);
   await page.goto("/onboarding");
-  await page.getByLabel("Display name", { exact: true }).fill("A real member");
-  await page.getByLabel("City", { exact: true }).fill("Lagos");
+  await page.getByLabel("First name", { exact: true }).fill("A real");
+  await page.getByLabel("Last name", { exact: true }).fill("member");
+  await capture(page, "profile-details");
+  await page.getByRole("button", { name: "Confirm", exact: true }).click();
+  await page.getByRole("button", { name: "Continue", exact: true }).click();
+  await page.getByRole("button", { name: "Man", exact: true }).click();
+  await capture(page, "gender");
+  await page.getByRole("button", { name: "Continue", exact: true }).click();
+  await page.getByRole("button", { name: "Continue", exact: true }).click();
+  await page.getByRole("button", { name: "Continue", exact: true }).click();
+  await page.getByLabel("Your city", { exact: true }).fill("Lagos");
+  await page.getByRole("button", { name: "Continue", exact: true }).click();
+  await capture(page, "interests");
+  await page.getByRole("button", { name: "Continue", exact: true }).click();
+  await page.getByLabel("Values (comma separated)").fill("Kindness, Honesty");
+  await page.getByRole("button", { name: "Continue", exact: true }).click();
+  await page.getByRole("button", { name: "Continue", exact: true }).click();
   await page
-    .getByLabel("A little about me", { exact: true })
+    .getByLabel("About me", { exact: true })
     .fill(
       "I enjoy thoughtful conversation, a good book and finding new favourite places.",
     );
+  await page.getByRole("button", { name: "Continue", exact: true }).click();
+  for (let i = 0; i < 3; i++)
+    await page.getByRole("button", { name: "Continue", exact: true }).click();
   const sent = page.waitForRequest(
     (r) => r.url().endsWith("/profiles/me") && r.method() === "PATCH",
   );
@@ -178,8 +209,9 @@ test("the single profile form saves essential details, interests and values", as
   const payload = (await sent).postDataJSON();
   expect(payload.display_name).toBe("A real member");
   expect(payload.interests).toHaveLength(3);
-  await expect(page.locator(".editor-success")).toContainText(
-    "Your profile is saved.",
+  expect(payload.values).toEqual(["Kindness", "Honesty"]);
+  await expect(page.getByRole("status")).toContainText(
+    "Profile and preferences saved.",
   );
 });
 test("discovery matches the reference dimensions and records a real action request", async ({

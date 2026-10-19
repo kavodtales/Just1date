@@ -148,7 +148,7 @@ export function DemoExperience() {
     ) ?? [];
   const currentChat = connections.find((p) => p.id === selected);
   return (
-    <div className="premium-app">
+    <div className="premium-app demo-compat">
       <aside className="premium-sidebar">
         <Brand />
         <p className="sidebar-caption">YOUR NEXT CHAPTER</p>

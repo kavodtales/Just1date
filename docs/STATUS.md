@@ -10,8 +10,8 @@ lint and production web/admin/API builds pass; three staging journeys remain
 skipped. See RELEASE_2026-10-18.md for artifact provenance and limitations.
 This preview is not approval for a public dating-service launch. Apple signing,
 media service/worker, email sender, real staff and the outstanding product,
-legal, security and device gates below remain necessary. Earlier evidence below
-describes the previous deployed version until the new deployment is verified.
+legal, security and device gates below remain necessary. The owner has since locked the supplied white/pink references and original logo;
+that UI is being verified before a fresh deployment and native builds.
 
 Independent Android CI now passes official signature, target/compile API 36,
 16KiB zip/native alignment, emulator installation and welcome startup checks.
@@ -20,11 +20,11 @@ exports and member/staff browser suites. The real APK link/checksum update passe
 nine additional targeted browser checks; all four staff checks pass locally.
 Google Play approval and a full physical-device journey remain outstanding.
 
-**Public production launch remains blocked.** The source is uploaded to `kavodtales/Just1date`. Project `kyfohngqetzsrqsyabey` now has ten applied migrations and 59 RLS-enabled public tables, private Storage buckets, real Auth/Storage/Realtime checks, and tested production API access through strict TLS. Member, staff and API applications are deployed to Vercel and verified through their real production domains. Current live evidence is recorded in LIVE_VERIFICATION.md. Supabase and PostgreSQL credentials are kept in ignored environment files and the API's Vercel production environment. The remaining product, SMTP, legal, security and operational gates below still apply. Passing selected live checks does not verify the entire dating journey.
+**Public production launch remains blocked.** The source is uploaded to `kavodtales/Just1date`. Project `kyfohngqetzsrqsyabey` now has eleven applied migrations and 62 RLS-enabled public tables, private Storage buckets, real Auth/Storage/Realtime checks, and tested production API access through strict TLS. Member, staff and API applications are deployed to Vercel and verified through their real production domains. Current live evidence is recorded in LIVE_VERIFICATION.md. Supabase and PostgreSQL credentials are kept in ignored environment files and the API's Vercel production environment. The remaining product, SMTP, legal, security and operational gates below still apply. Passing selected live checks does not verify the entire dating journey.
 
-## Premium web redesign — 8 October 2026
+## Earlier premium web redesign — superseded by owner reference update
 
-The member website now has an editorial landing page, responsive discovery preview, redesigned authentication, and one profile setup form. Migration 010 adds exactly four fictional profiles and private, expiring demo sessions. Likes, sample matches, messages and preferences persist in Supabase. Demo replies are explicitly scripted. Staff removal requires authenticator verification and settings permission; it affects only demo tables and writes an audit entry. The same four profiles can be restored. No Auth accounts or real member records are seeded. Public email sending remains unconfigured and the production database currently has no staff account; owner details are still required.
+The 8 October version introduced an editorial landing page, responsive discovery preview, redesigned authentication, and one profile setup form. Migration 010 adds exactly four fictional profiles and private, expiring demo sessions. Likes, sample matches, messages and preferences persist in Supabase. Demo replies are explicitly scripted. Staff removal requires authenticator verification and settings permission; it affects only demo tables and writes an audit entry. The same four profiles can be restored. No Auth accounts or real member records are seeded. Public email sending remains unconfigured and the production database currently has no staff account; owner details are still required.
 
 ## Delivered in the repository
 

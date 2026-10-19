@@ -1,5 +1,6 @@
 import { AuthForm } from "../../../components/auth-form";
 import { PhoneAuth } from "../../../components/phone-auth";
+import { AuthChoice } from "../../../components/auth-choice";
 export default async function Page({
   params,
 }: {
@@ -7,7 +8,7 @@ export default async function Page({
 }) {
   const { mode } = await params;
   return mode === "signup" ? (
-    <AuthForm mode="register" />
+    <AuthChoice />
   ) : mode === "phone" ? (
     <PhoneAuth />
   ) : (

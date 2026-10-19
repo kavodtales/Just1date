@@ -1,0 +1,145 @@
+/* The supplied screens define the product; this file styles added capabilities. */
+.reference-logo {
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
+}
+.reference-logo img,
+.signup-logo img {
+  object-fit: contain;
+}
+.sidebar .reference-logo img {
+  width: 170px;
+  height: 104px;
+}
+.premium-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 56px;
+  padding: 16px 24px;
+  background: var(--pink);
+  color: #fff;
+  border: 1px solid var(--pink);
+  border-radius: 15px;
+  font:
+    700 15px Poppins,
+    sans-serif;
+  text-align: center;
+  cursor: pointer;
+}
+.premium-button:hover {
+  background: #cb2584;
+}
+.premium-kicker {
+  color: var(--pink);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+.premium-error,
+.field-error {
+  color: #a91d56;
+}
+.quiet-link,
+.pink-link {
+  color: var(--pink);
+}
+.auth-story {
+  background: #fff;
+  color: var(--ink);
+  border-right: 1px solid var(--line);
+}
+.auth-story h1,
+.auth-story em {
+  color: var(--ink);
+  font-family: Poppins, sans-serif;
+  font-style: normal;
+}
+.auth-story .eyebrow,
+.auth-story > span {
+  color: var(--pink);
+}
+.auth-story .wordmark img {
+  object-fit: contain;
+}
+.auth-form-panel {
+  background: #fff;
+}
+.sidebar-bottom p,
+.sidebar-bottom a {
+  font-family: Poppins, sans-serif;
+}
+.welcome-bottom > p a,
+.signup-screen footer a {
+  color: var(--pink);
+}
+.password-toggle {
+  border: 0;
+  background: none;
+  padding: 8px 0;
+  color: var(--pink);
+  font-size: 12px;
+  min-height: 44px;
+}
+.download-intro h1 em {
+  font-style: normal;
+}
+.onboarding-step-1 .onboarding-top,
+.onboarding-step-1 .progress-track,
+.onboarding-step-3 .onboarding-top,
+.onboarding-step-3 .progress-track,
+.onboarding-step-7 .onboarding-top,
+.onboarding-step-7 .progress-track {
+  display: none;
+}
+.onboarding-screen .form-actions {
+  margin-top: 70px;
+}
+.onboarding-avatar > img {
+  width: 100px;
+  height: 100px;
+}
+.onboarding-name .floating-label > span {
+  position: absolute;
+  top: -7px;
+  left: 20px;
+  padding: 0 8px;
+  background: white;
+  z-index: 1;
+}
+.onboarding-name .floating-label > input {
+  margin-top: 0;
+}
+.onboarding-step-1 .form-actions {
+  margin-top: 87px;
+}
+.onboarding-step-1 .form-actions > button:disabled {
+  display: none;
+}
+.demo-compat .reference-logo img {
+  width: 170px;
+  height: 104px;
+}
+.download-page h1,
+.download-page h2,
+.video-date h1 {
+  font-family: Poppins, sans-serif;
+  font-style: normal;
+}
+@media (max-width: 767px) {
+  .auth-story {
+    display: none;
+  }
+  .auth-layout {
+    display: block;
+    min-height: 100dvh;
+    background: #fff;
+  }
+  .auth-form-panel {
+    padding: 44px 40px;
+    width: 100%;
+    min-height: 100dvh;
+  }
+}

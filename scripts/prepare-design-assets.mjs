@@ -14,15 +14,8 @@ for (const [index, [name, rectangle]] of crops.entries()) {
     .toFile(destination);
   await copyFile(destination, `apps/mobile/assets/welcome/${index + 1}.jpg`);
 }
-// The provided brand artwork, cropped without recreating its letterforms.
-await sharp("design/references/Sign up.jpg")
-  .extract({ left: 86, top: 124, width: 199, height: 122 })
-  .png()
-  .toFile("apps/web/public/images/logo.png");
-await copyFile(
-  "apps/web/public/images/logo.png",
-  "apps/mobile/assets/logo.png",
-);
+// Use the owner's original PNG, not the low resolution screenshot crop.
+await import("./prepare-brand-assets.mjs");
 for (const [name, rectangle] of [
   ["social-facebook", { left: 88, top: 620, width: 29, height: 30 }],
   ["social-google", { left: 172, top: 620, width: 31, height: 30 }],

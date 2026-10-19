@@ -20,23 +20,23 @@
   margin: 18px 0;
 }
 .download-intro h1 em {
-  color: #617362;
+  color: #df3594;
 }
 .download-intro > p:last-child {
-  color: #747b73;
+  color: #555555;
 }
 .download-card {
-  border: 1px solid #e0e3d6;
+  border: 1px solid #e8e6ea;
   padding: 38px;
   border-radius: 24px;
-  background: #fffefb;
+  background: #ffffff;
   margin-bottom: 24px;
 }
 .download-platform {
   font-size: 10px;
   letter-spacing: 2px;
   display: block;
-  color: #617362;
+  color: #df3594;
   margin-bottom: 16px;
 }
 .download-card h2 {
@@ -46,7 +46,7 @@
 }
 .download-card > p {
   max-width: 650px;
-  color: #747b73;
+  color: #555555;
   font-size: 14px;
 }
 .native-downloads {
@@ -55,13 +55,13 @@
   gap: 24px;
 }
 .native-downloads .download-card > svg {
-  color: #884757;
+  color: #df3594;
   margin-bottom: 20px;
 }
 .install-instructions {
   margin-top: 25px;
   padding: 20px;
-  background: #eff2e8;
+  background: #fbeaf5;
   border-radius: 16px;
 }
 .install-instructions p {
@@ -70,7 +70,7 @@
 }
 .release-pending {
   padding: 16px;
-  background: #f3f1e8;
+  background: #fbeaf5;
   border-radius: 14px;
 }
 .download-card code {
@@ -88,7 +88,7 @@
   display: grid;
   gap: 10px;
   font-size: 12px;
-  color: #617362;
+  color: #df3594;
 }
 .download-principles p {
   display: flex;
@@ -106,7 +106,7 @@
 }
 .install-success {
   padding: 16px;
-  background: #eff2e8;
+  background: #fbeaf5;
   border-radius: 14px;
 }
 @media (max-width: 700px) {

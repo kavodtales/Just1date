@@ -4,7 +4,8 @@ import { headers } from "next/headers";
 import { Providers } from "../components/providers";
 import "./globals.css";
 import "./reference.css";
-import "./premium.css";
+import "./reference-refresh.css";
+import "./reference-demo.css";
 import "./calls.css";
 import "./distribution.css";
 import { PwaRegistration } from "../components/install-app";
@@ -17,7 +18,7 @@ export const metadata: Metadata = {
   icons: { icon: "/icons/icon-192.png", apple: "/icons/apple-touch-icon.png" },
 };
 export const viewport: Viewport = {
-  themeColor: "#293632",
+  themeColor: "#ffffff",
   colorScheme: "light",
   width: "device-width",
   initialScale: 1,

@@ -1,2 +1,2 @@
-import { Welcome } from "../../components/premium-welcome";
+import { Welcome } from "../../components/welcome";
 export default function Page() { return <Welcome />; }
