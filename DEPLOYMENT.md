@@ -1,6 +1,6 @@
 # Deployment
 
-For the requested `kavodtales/Just1date` repository and Vercel hosting, follow
+For the existing `kavodtales/Just1date` deployment and Vercel hosting, follow
 [the Vercel/Supabase setup guide](docs/VERCEL_SUPABASE_SETUP.md). It includes the
 repeat-safe SQL Editor installer, verification/admin bootstrap SQL, three Vercel
 projects, credential locations and launch blockers. Hosted Supabase setup and member/staff deployments are now verified; see docs/STATUS.md for the exact scope and remaining release gates.
@@ -18,3 +18,19 @@ Production: managed Supabase with PITR, backups and restore drills; pooler for A
 Migrations: advisory lock, checksum validation, transactional application, staging rehearsal, pre-release backup. Use additive changes and backward compatible readers. Roll back images; roll forward data migrations. Test restoration quarterly. Document RPO/RTO after infrastructure selection and actual drills, not as invented guarantees.
 
 Required release evidence: Supabase email/phone recovery and deletion; RLS against all client roles; private realtime membership; Paystack test payment/replay/refund; native store subscription sandbox; mobile device permissions/deep links/push; Android/iOS build; Playwright journey; load tests; penetration test; accessibility review; legal/privacy/store review.
+
+The 19 October update was also uploaded to the user's specified
+Bluechipwhale/Just1date repository. Updating the separate existing deployment
+repository requires explicit confirmation when its destination differs from the
+requested upload. Do not force-push either history.
+
+Migration 011 and the full 11-migration installer are current. Use
+DATABASE_MIGRATION_URL for a strict-TLS direct/session connection; Supabase port
+6543 is rejected for migration advisory locks. Runtime transactions may use the
+transaction pooler. See docs/VIDEO_CALLS.md before enabling media; video needs a
+separately hosted continuous worker and provider, not only a Vercel deploy.
+
+The web/PWA manifest, public-only offline fallback and /download route are built.
+The Android preview URL and SHA-256 are recorded in apps/web/src/lib/native-release.ts.
+Deploy only real HTTPS artifact/store URLs. APK delivery is independent of Google
+Play approval; iOS device builds require the owner's Apple signing credentials.

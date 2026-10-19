@@ -5,14 +5,16 @@ import { envSchema } from "./config";
 import { Repository } from "./lib/repository";
 import { CallService } from "./modules/calls/service";
 import { LiveKitProvider } from "./modules/calls/provider";
+import { startPollingWorker } from "./lib/polling-worker";
 load({ path: "../../.env.local" });
 load({ path: ".env.local" });
 if (!process.env.DATABASE_URL) throw new Error("DATABASE_URL required");
+const config = envSchema.parse(process.env);
 const db = createDatabase(
   process.env.DATABASE_URL,
   process.env.DATABASE_SSL !== "false",
+  config.DATABASE_POOL_MAX,
 );
-const config = envSchema.parse(process.env);
 const calls = new CallService(
   new Repository(db),
   config.LIVEKIT_URL && config.LIVEKIT_API_KEY && config.LIVEKIT_API_SECRET
@@ -25,6 +27,7 @@ const calls = new CallService(
   config.VIDEO_CALLS_ENABLED === "true",
 );
 // Durable outbox. Push is at-least-once; provider tickets/receipts must be reconciled before launch.
+let stopping = false;
 async function tick() {
   const rows = await db.transaction(
     null,
@@ -36,6 +39,7 @@ async function tick() {
       ).rows,
   );
   for (const item of rows) {
+    if (stopping) break;
     try {
       const payload = await db.transaction(
         null,
@@ -94,25 +98,25 @@ async function tick() {
     }
   }
 }
-let busy = false;
-const timer = setInterval(async () => {
-  if (busy) return;
-  busy = true;
-  try {
-    try {
-      await calls.tick();
-    } catch {
-      log.error({ code: "CALL_WORKER_FAILED" }, "call_worker_tick_failed");
-    }
-    await tick();
-  } catch {
-    log.error({ code: "WORKER_FAILED" }, "outbox_tick_failed");
-  } finally {
-    busy = false;
-  }
-}, 5000);
+const stopCalls = startPollingWorker(
+  () => calls.tick(),
+  () => {
+    log.error({ code: "CALL_WORKER_FAILED" }, "call_worker_tick_failed");
+  },
+);
+const stopOutbox = startPollingWorker(tick, () => {
+  log.error({ code: "WORKER_FAILED" }, "outbox_tick_failed");
+});
 for (const signal of ["SIGTERM", "SIGINT"])
-  process.on(signal, () => {
-    clearInterval(timer);
-    process.exit(0);
+  process.once(signal, async () => {
+    if (stopping) return;
+    stopping = true;
+    try {
+      await Promise.all([stopCalls(), stopOutbox()]);
+      await db.close?.();
+      process.exit(0);
+    } catch {
+      log.error({ code: "WORKER_SHUTDOWN_FAILED" }, "worker_shutdown_failed");
+      process.exit(1);
+    }
   });

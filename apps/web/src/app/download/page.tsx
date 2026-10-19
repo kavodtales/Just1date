@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Brand } from "../../components/brand";
 import { InstallApp } from "../../components/install-app";
+import { androidPreview } from "../../lib/native-release";
 import { Smartphone, ShieldCheck, Video } from "lucide-react";
 export const metadata = { title: "Get Just1date — Web, Android and iPhone" };
 function httpsLink(value: string | undefined, allowedHost?: string) {
@@ -8,6 +9,8 @@ function httpsLink(value: string | undefined, allowedHost?: string) {
   try {
     const url = new URL(value);
     return url.protocol === "https:" &&
+      !url.username &&
+      !url.password &&
       (!allowedHost || url.hostname === allowedHost)
       ? url.href
       : null;
@@ -16,8 +19,9 @@ function httpsLink(value: string | undefined, allowedHost?: string) {
   }
 }
 export default function DownloadPage() {
-  const apk = process.env.ANDROID_APK_SHA256?.match(/^[a-f0-9]{64}$/i)
-    ? httpsLink(process.env.ANDROID_APK_URL)
+  const apkSha = process.env.ANDROID_APK_SHA256 ?? androidPreview.sha256;
+  const apk = apkSha.match(/^[a-f0-9]{64}$/i)
+    ? httpsLink(process.env.ANDROID_APK_URL ?? androidPreview.url)
     : null;
   const play = httpsLink(process.env.GOOGLE_PLAY_URL, "play.google.com"),
     ios = httpsLink(process.env.APP_STORE_URL, "apps.apple.com"),
@@ -61,10 +65,14 @@ export default function DownloadPage() {
                 <a className="premium-button" href={apk}>
                   Download Android APK
                 </a>
+                <p className="release-pending">
+                  Android preview · {androidPreview.version} · 151 MB. Google
+                  Play release is pending.
+                </p>
                 <details>
                   <summary>Verify your download</summary>
                   <p>SHA-256</p>
-                  <code>{process.env.ANDROID_APK_SHA256}</code>
+                  <code>{apkSha}</code>
                 </details>
               </>
             ) : (

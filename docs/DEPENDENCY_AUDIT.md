@@ -1,5 +1,13 @@
 # Dependency audit release gate
 
+Latest native-release snapshot: **19 October 2026**,
+[security/npm-audit-native-2026-10-19.json](security/npm-audit-native-2026-10-19.json).
+It reports 32 affected dependency entries: 20 high, 11 moderate, one low and zero
+critical. This includes transitive dependents of five root advisory packages;
+it does not represent 32 independent vulnerabilities. No incompatible automatic
+Expo downgrade was applied. The audit remains a release gate. The signed APK is
+a preview, not evidence that dependency remediation is complete.
+
 Audit snapshot: 2026-10-07, Node 24.11 / npm 11.6, current committed lockfile.
 The full machine-readable report is [security/npm-audit-2026-10-07.json](security/npm-audit-2026-10-07.json).
 The report contains 31 affected dependency entries: 19 high, 11 moderate, one low,

@@ -1,0 +1,31 @@
+{
+  "artifact": "https://expo.dev/artifacts/eas/FwKNN7vA2CKoA4ck85BHfYPmV0O-nnR488bmZHt98TQ.apk",
+  "build_id": "8e5d5ab7-6cd4-4b98-a138-16bd8790748f",
+  "sha256": "9d8c046ef9c486a22ef2c304b90eaf0099b2d1b9f7da5842e345da07b02c0f6f",
+  "bytes": 158166999,
+  "package": "com.just1date.app",
+  "version": "0.1.0",
+  "version_code": 1,
+  "minimum_android_api": 24,
+  "target_android_api": 36,
+  "compile_android_api": 36,
+  "apksigner_v2_verification": true,
+  "signing_certificate_sha256": "5ebcd924f715d62b99ab96b1d0f1931f0491946a8dc725186aa91193c0edf7a6",
+  "zipalign_16k_verification": true,
+  "native_64bit_libraries_checked": 52,
+  "elf_16k_alignment": true,
+  "emulator": {
+    "android_api": 36,
+    "architecture": "x86_64",
+    "installed": true,
+    "process_started": true,
+    "welcome_ui_found": true
+  },
+  "workflow": "https://github.com/Bluechipwhale/Just1date/actions/runs/39245490013",
+  "limitations": [
+    "Preview, not Google Play approved",
+    "Physical-device full account journey not tested",
+    "Calls remain disabled without provider/worker",
+    "Store permission/privacy/dependency review remains required"
+  ]
+}

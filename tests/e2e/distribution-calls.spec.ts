@@ -26,12 +26,16 @@ test("publishes install metadata and only real native-release links", async ({
   ).toHaveCount(0);
   await expect(
     page.getByRole("link", { name: "Download Android APK" }),
-  ).toHaveCount(0);
+  ).toHaveAttribute("href", /^https:\/\/expo\.dev\/artifacts\/eas\/.+\.apk$/);
   await expect(
-    page.getByText("The signed Android download is being prepared.", {
+    page.getByText("Android preview", {
       exact: false,
     }),
   ).toBeVisible();
+  await page.getByText("Verify your download", { exact: true }).click();
+  await expect(page.locator(".download-card code")).toHaveText(
+    /^[a-f0-9]{64}$/,
+  );
   const overflow = await page.evaluate(
     () => document.documentElement.scrollWidth > window.innerWidth,
   );
@@ -119,7 +123,9 @@ test("requires explicit invitation acceptance and never enables media automatica
   await expect(
     page.getByRole("button", { name: "Join video call" }),
   ).toBeVisible();
-  await expect(page.getByRole("button", { name: "Join video call" })).toBeEnabled();
+  await expect(
+    page.getByRole("button", { name: "Join video call" }),
+  ).toBeEnabled();
   expect(actions).toEqual(["accept"]);
   expect(tokens).toBe(0);
   await expect(

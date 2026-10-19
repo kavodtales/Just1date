@@ -47,3 +47,14 @@ migrations execute in the embedded SQL/REST integration suites. Migration 008
 protects the custom migration ledger with RLS and revoked client privileges and
 enforces private photo/evidence bucket configuration. The SQL Editor installer
 adds all nine migrations with canonical LF checksums shared with the runner.
+
+Migration 011 adds `call_sessions`, `call_room_cleanup` and
+`call_service_health`. Sessions belong to an existing matched conversation;
+caller/recipient are derived under row locks rather than trusted request fields.
+Unique active-conversation and operation indexes prevent duplicate invitations.
+Private membership RLS covers reads; only server RPCs can mutate call state.
+Cleanup leases use `FOR UPDATE SKIP LOCKED` with retries. Account, block and match
+triggers terminate calls. `call_sessions` joins the private realtime publication.
+Eleven migrations are now applied to the hosted project; catalog inspection on
+19 October 2026 confirmed all 62 public tables have RLS enabled. This catalog
+check is additional to SQL/REST tests, not a complete hosted authorization audit.

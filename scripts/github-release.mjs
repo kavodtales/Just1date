@@ -1,8 +1,10 @@
 /* global fetch */
 // Uses the existing Git credential helper; never writes credentials to disk.
 import { execFileSync } from "node:child_process";
-import { readFile, stat } from "node:fs/promises";
-const repository = process.env.GITHUB_RELEASE_REPOSITORY ?? "Bluechipwhale/Just1date";
+import { Buffer } from "node:buffer";
+import { readFile, stat, writeFile, mkdir } from "node:fs/promises";
+const repository =
+  process.env.GITHUB_RELEASE_REPOSITORY ?? "Bluechipwhale/Just1date";
 if (!["Bluechipwhale/Just1date", "kavodtales/Just1date"].includes(repository))
   throw new Error("Choose an explicitly authorized Just1date repository.");
 const credential = execFileSync("git", ["credential", "fill"], {
@@ -98,6 +100,34 @@ if (command === "status") {
         description: r.description,
         url: r.target_url,
       })),
+    }),
+  );
+} else if (command === "artifacts") {
+  const result = await request(`/actions/runs/${arg}/artifacts`);
+  const artifact = result.artifacts.find(
+    (a) => a.name === "android-verification" && !a.expired,
+  );
+  if (!artifact) throw new Error("Android verification artifact is not ready.");
+  const response = await fetch(
+    `https://api.github.com/repos/${repository}/actions/artifacts/${artifact.id}/zip`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/vnd.github+json",
+      },
+    },
+  );
+  if (!response.ok)
+    throw new Error(`Artifact download failed (${response.status}).`);
+  await mkdir("releases/evidence", { recursive: true });
+  await writeFile(
+    "releases/evidence/android-verification.zip",
+    Buffer.from(await response.arrayBuffer()),
+  );
+  console.log(
+    JSON.stringify({
+      artifact: artifact.name,
+      file: "releases/evidence/android-verification.zip",
     }),
   );
 } else if (command === "publish") {

@@ -22,3 +22,14 @@ The same-origin web `/api/auth` BFF accepts `phone_send` (E.164 `phone`) and
 `phone_verify` (`phone`, six-digit `token`) for registered-number SMS sign-in.
 Sessions are maintained through Supabase SSR cookies. These actions do not create
 new unverified-age accounts. SMS configuration and a registered phone are required.
+
+Video (migration 011): `GET /calls/config` reports actual provider/worker
+availability. `POST /conversations/:id/calls` accepts an idempotent UUID
+`operation_id`; `GET /calls/incoming` and `GET /calls/:id` expose only accessible
+matches. `POST /calls/:id/actions` accepts `accept`, `decline` or `end`; only the
+recipient can accept/decline. `POST /calls/:id/token` requires mutual acceptance
+and rechecks membership after the provider request. Grants expire in 60 seconds
+and permit only that member's camera/microphone in the private two-person room.
+`POST /calls/webhook` verifies LiveKit's signed raw body before updating state.
+Blocking, unmatching or account revocation queues durable media termination.
+No call is recorded by the app. See docs/VIDEO_CALLS.md for operation and limits.
