@@ -22,7 +22,11 @@ export async function api<T = any>(
   } catch {
     throw new Error("You're offline. We'll reconnect automatically.");
   }
-  const result = await response.json();
+  const result = await response.json().catch(() => {
+    throw new Error(
+      "We couldn't reach the service. Please try again in a moment.",
+    );
+  });
   if (!response.ok)
     throw new Error(
       result.error?.message ?? "This action could not finish. Try again.",

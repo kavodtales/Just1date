@@ -42,6 +42,7 @@ jobs:
           "$TOOLS/zipalign" -c -P 16 -v 4 app.apk > zip-alignment.txt
           "$TOOLS/aapt" dump badging app.apk > badging.txt
           grep -q "package: name='com.just1date.app'" badging.txt
+          ! grep -q 'android.permission.SYSTEM_ALERT_WINDOW' badging.txt
           TARGET=$(sed -n "s/targetSdkVersion:'\([0-9]*\)'.*/\1/p" badging.txt)
           test "$TARGET" -ge 36
           python scripts/verify-apk.py app.apk | tee apk-verification.json
@@ -63,6 +64,7 @@ jobs:
             adb shell am start -n com.just1date.app/.MainActivity
             sleep 20
             adb shell pidof com.just1date.app
+            python scripts/native-smoke.py
             adb shell uiautomator dump /sdcard/just1date-ui.xml
             adb pull /sdcard/just1date-ui.xml native-ui.xml
             grep -q 'Create an account' native-ui.xml
@@ -79,4 +81,8 @@ jobs:
             apk-verification.json
             native-ui.xml
             android-welcome.png
+            android-signup.png
+            android-registration-validation.png
+            android-phone-validation.png
+            android-*.xml
             android-logcat.txt

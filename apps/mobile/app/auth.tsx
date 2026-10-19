@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { ZodError } from "zod";
 import { Text, TextInput, Pressable } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { useForm, Controller } from "react-hook-form";
@@ -111,7 +112,11 @@ export default function Auth() {
             if (result.data.session) router.replace("/(tabs)/discover");
             else setMessage("Check your email to confirm your account.");
           } catch (e) {
-            setError((e as Error).message);
+            setError(
+              e instanceof ZodError
+                ? "Enter a valid email address, a password with 12–128 characters, and your birthday."
+                : (e as Error).message,
+            );
           }
         })}
       >
