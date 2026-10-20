@@ -6,11 +6,13 @@ export function Sheet({
   children,
   onClose,
   action,
+  variant,
 }: {
   title: string;
   children: ReactNode;
   onClose: () => void;
   action?: ReactNode;
+  variant?: "match";
 }) {
   const ref = useRef<HTMLDialogElement>(null);
   useEffect(() => {
@@ -26,7 +28,7 @@ export function Sheet({
   return (
     <dialog
       ref={ref}
-      className="reference-sheet"
+      className={`reference-sheet ${variant === "match" ? "match-screen" : ""}`}
       aria-labelledby="sheet-title"
       onCancel={onClose}
       onClick={(e) => {

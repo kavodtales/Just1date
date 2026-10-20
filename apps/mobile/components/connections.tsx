@@ -140,10 +140,10 @@ export function Connections({
           <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 16 }}>
             {rows.slice(0, 4).map((row) => (
               <Pressable
-                accessibilityLabel={`View ${row.profile.display_name}'s profile`}
+                accessibilityLabel={`View ${row.profile.display_name}'s photos`}
                 key={row.id}
                 style={{ width: 60 }}
-                onPress={() => router.push(`/profile/${row.profile.user_id}`)}
+                onPress={() => router.push(`/stories/${row.profile.user_id}`)}
               >
                 {row.profile.photos?.[0] ? (
                   <Image

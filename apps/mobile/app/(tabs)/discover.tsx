@@ -87,7 +87,13 @@ export default function Discover() {
       x.value = withSpring(0);
     });
   const animated = useAnimatedStyle(() => ({
-    transform: [{ translateX: x.value }, { rotate: `${x.value / 24}deg` }],
+    transform: [
+      { translateX: x.value },
+      { rotate: `${Math.max(-18, Math.min(18, x.value / 10))}deg` },
+    ],
+  }));
+  const likeFeedback = useAnimatedStyle(() => ({
+    opacity: Math.max(0, Math.min(1, (x.value - 25) / 75)),
   }));
   return (
     <Screen
@@ -132,72 +138,150 @@ export default function Discover() {
       />
       {p && (
         <>
-          <GestureDetector gesture={gesture}>
-            <Animated.View style={[styles.card, animated]}>
-              <Pressable
-                accessibilityLabel={`View ${p.display_name}'s profile`}
-                onPress={() => router.push(`/profile/${p.user_id}`)}
-              >
-                {p.photos?.[0] ? (
-                  <Image
-                    source={{ uri: p.photos[0] }}
-                    style={styles.image}
-                    contentFit="cover"
-                    cachePolicy="memory"
-                    accessibilityLabel="Approved profile photo"
-                  />
-                ) : (
-                  <View style={[styles.image, styles.noPhoto]}>
-                    <Text>Photo unavailable</Text>
-                  </View>
-                )}
+          <View style={{ position: "relative" }}>
+            {q.data?.items
+              .slice(index + 1, index + 3)
+              .reverse()
+              .map((next, layer) => (
                 <View
-                  style={{
-                    position: "absolute",
-                    top: 54,
-                    left: 16,
-                    borderRadius: 7,
-                    backgroundColor: "#ffffff35",
-                    padding: 8,
-                    flexDirection: "row",
-                    gap: 3,
-                    alignItems: "center",
-                  }}
+                  key={next.user_id}
+                  accessibilityElementsHidden
+                  importantForAccessibility="no-hide-descendants"
+                  style={[
+                    StyleSheet.absoluteFill,
+                    styles.card,
+                    {
+                      transform: [
+                        { translateY: 8 + layer * 8 },
+                        { scale: 0.94 + layer * 0.03 },
+                      ],
+                    },
+                  ]}
                 >
-                  <Ionicons name="location-outline" size={14} color="white" />
-                  <Text
-                    style={{
-                      fontFamily: "Poppins",
-                      fontSize: 12,
-                      color: "white",
-                    }}
-                  >
-                    {p.city}
-                  </Text>
+                  {next.photos?.[0] && (
+                    <Image
+                      source={{ uri: next.photos[0] }}
+                      cachePolicy="memory"
+                      style={styles.image}
+                      contentFit="cover"
+                    />
+                  )}
+                  <View style={styles.caption}>
+                    <Text
+                      style={{
+                        color: "white",
+                        fontFamily: "PoppinsSemiBold",
+                        fontSize: 24,
+                      }}
+                    >
+                      {next.display_name}, {next.age}
+                    </Text>
+                    <Text
+                      style={{
+                        color: "white",
+                        fontFamily: "Poppins",
+                        fontSize: 14,
+                      }}
+                    >
+                      {next.profession}
+                    </Text>
+                  </View>
                 </View>
-                <View style={styles.caption}>
-                  <Text
+              ))}
+            <GestureDetector gesture={gesture}>
+              <Animated.View style={[styles.card, animated]}>
+                <Pressable
+                  accessibilityLabel={`View ${p.display_name}'s profile`}
+                  onPress={() => router.push(`/profile/${p.user_id}`)}
+                >
+                  {p.photos?.[0] ? (
+                    <Image
+                      source={{ uri: p.photos[0] }}
+                      style={styles.image}
+                      contentFit="cover"
+                      cachePolicy="memory"
+                      accessibilityLabel="Approved profile photo"
+                    />
+                  ) : (
+                    <View style={[styles.image, styles.noPhoto]}>
+                      <Text>Photo unavailable</Text>
+                    </View>
+                  )}
+                  <View
                     style={{
-                      color: "white",
-                      fontSize: 24,
-                      fontFamily: "PoppinsSemiBold",
+                      position: "absolute",
+                      top: 54,
+                      left: 16,
+                      borderRadius: 7,
+                      backgroundColor: "#ffffff35",
+                      padding: 8,
+                      flexDirection: "row",
+                      gap: 3,
+                      alignItems: "center",
                     }}
                   >
-                    {p.display_name}, {p.age}
-                  </Text>
-                  <Text
-                    style={{
-                      color: "white",
-                      fontSize: 14,
-                      fontFamily: "Poppins",
-                    }}
+                    <Ionicons name="location-outline" size={14} color="white" />
+                    <Text
+                      style={{
+                        fontFamily: "Poppins",
+                        fontSize: 12,
+                        color: "white",
+                      }}
+                    >
+                      {p.city}
+                    </Text>
+                  </View>
+                  <Animated.View
+                    pointerEvents="none"
+                    accessibilityElementsHidden
+                    importantForAccessibility="no-hide-descendants"
+                    style={[
+                      StyleSheet.absoluteFill,
+                      {
+                        backgroundColor: "#df359440",
+                        justifyContent: "center",
+                        alignItems: "center",
+                      },
+                      likeFeedback,
+                    ]}
                   >
-                    {p.profession || p.goal.replaceAll("_", " ")}
-                  </Text>
-                </View>
-              </Pressable>
-            </Animated.View>
-          </GestureDetector>
+                    <View
+                      style={{
+                        width: 80,
+                        height: 80,
+                        borderRadius: 40,
+                        backgroundColor: "white",
+                        justifyContent: "center",
+                        alignItems: "center",
+                      }}
+                    >
+                      <Ionicons name="heart" size={42} color={colors.pink} />
+                    </View>
+                  </Animated.View>
+                  <View style={styles.caption}>
+                    <Text
+                      style={{
+                        color: "white",
+                        fontSize: 24,
+                        fontFamily: "PoppinsSemiBold",
+                      }}
+                    >
+                      {p.display_name}, {p.age}
+                    </Text>
+                    <Text
+                      style={{
+                        color: "white",
+                        fontSize: 14,
+                        fontFamily: "Poppins",
+                      }}
+                    >
+                      {p.profession || p.goal.replaceAll("_", " ")}
+                    </Text>
+                  </View>
+                </Pressable>
+              </Animated.View>
+            </GestureDetector>
+          </View>
           <Reactions disabled={mutation.isPending} onAction={act} />
         </>
       )}

@@ -49,20 +49,6 @@ export default function Friends() {
             Access to a contact list
           </Button>
         </View>
-        <Pressable
-          style={s.link}
-          onPress={() => router.replace("/(tabs)/discover")}
-        >
-          <Text
-            style={{
-              fontFamily: "PoppinsBold",
-              color: colors.pink,
-              textAlign: "center",
-            }}
-          >
-            Continue to discovery
-          </Text>
-        </Pressable>
       </ScrollView>
     </SafeAreaView>
   );

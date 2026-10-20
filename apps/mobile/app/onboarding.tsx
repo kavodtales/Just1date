@@ -1,5 +1,10 @@
 import { useState } from "react";
-import { Text, TextInput, View, Pressable } from "react-native";
+import { Text, TextInput, View, Pressable, ScrollView } from "react-native";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
+import { Image } from "expo-image";
 import { router } from "expo-router";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -10,25 +15,38 @@ import * as ImagePicker from "expo-image-picker";
 import { api } from "../lib/api";
 import { Screen, Status, Button, s, colors } from "../components/ui";
 import { BirthdayPicker } from "../components/birthday-picker";
-type FormFields = { display_name: string; city: string; bio: string; profession: string; education: string; values: string; communication: string; question: string; answer: string };
+type FormFields = {
+  display_name: string;
+  city: string;
+  bio: string;
+  profession: string;
+  education: string;
+  values: string;
+  communication: string;
+  question: string;
+  answer: string;
+};
 export default function Onboarding() {
   const qc = useQueryClient(),
     q = useQuery({ queryKey: ["me"], queryFn: () => api("profiles/me") });
+  if (q.data)
+    return (
+      <Editor
+        key={q.data.user_id}
+        own={q.data}
+        done={() => qc.invalidateQueries({ queryKey: ["me"] })}
+      />
+    );
   return (
     <Screen title="Profile details">
       <Status pending={q.isPending} error={q.error} retry={() => q.refetch()} />
-      {q.data && (
-        <Editor
-          key={q.data.user_id}
-          own={q.data}
-          done={() => qc.invalidateQueries({ queryKey: ["me"] })}
-        />
-      )}
     </Screen>
   );
 }
 function Editor({ own, done }: { own: any; done: () => unknown }) {
-  const [step, setStep] = useState(0),
+  const insets = useSafeAreaInsets();
+  const [step, setStep] = useState(1),
+    [photoReturn, setPhotoReturn] = useState(false),
     [error, setError] = useState(""),
     [message, setMessage] = useState(""),
     [busy, setBusy] = useState(false);
@@ -43,7 +61,13 @@ function Editor({ own, done }: { own: any; done: () => unknown }) {
     queryKey: ["interests"],
     queryFn: () => api<any[]>("catalog/interests"),
   });
-  const { control, getValues } = useForm<FormFields>({
+  const [firstName, setFirstName] = useState(
+    (own.display_name ?? "").split(/\s+/)[0],
+  );
+  const [lastName, setLastName] = useState(
+    (own.display_name ?? "").split(/\s+/).slice(1).join(" "),
+  );
+  const { control, getValues, setValue } = useForm<FormFields>({
     defaultValues: {
       display_name: own.display_name ?? "",
       city: own.city ?? "",
@@ -56,11 +80,7 @@ function Editor({ own, done }: { own: any; done: () => unknown }) {
       answer: own.prompts?.[0]?.answer ?? "",
     },
   });
-  const field = (
-    name: keyof FormFields,
-    label: string,
-    multiline = false,
-  ) => (
+  const field = (name: keyof FormFields, label: string, multiline = false) => (
     <Controller
       key={name}
       name={name}
@@ -113,7 +133,10 @@ function Editor({ own, done }: { own: any; done: () => unknown }) {
         goals: prefs.goals,
         deal_breakers: prefs.deal_breakers ?? {},
       });
-      await api("profiles/me", { method: "PATCH", body: JSON.stringify(details) });
+      await api("profiles/me", {
+        method: "PATCH",
+        body: JSON.stringify(details),
+      });
       await api("profiles/me/preferences", {
         method: "PATCH",
         body: JSON.stringify(preferences),
@@ -148,10 +171,6 @@ function Editor({ own, done }: { own: any; done: () => unknown }) {
         allowsEditing: true,
       });
       if (selected.canceled) return;
-      await api("profiles/me", {
-        method: "PATCH",
-        body: JSON.stringify(profile()),
-      });
       const position = [0, 1, 2, 3, 4, 5].find(
         (v) => !(own.photo_review ?? []).some((p: any) => p.position === v),
       );
@@ -218,6 +237,11 @@ function Editor({ own, done }: { own: any; done: () => unknown }) {
   );
   function next() {
     setError("");
+    if (step === 11 && photoReturn) {
+      setPhotoReturn(false);
+      setStep(1);
+      return;
+    }
     const v = getValues();
     if (step === 1 && v.display_name.trim().length < 2) {
       setError("Enter a name with at least two characters.");
@@ -249,299 +273,468 @@ function Editor({ own, done }: { own: any; done: () => unknown }) {
     setStep((v) => v + 1);
   }
   return (
-    <View style={{ gap: 15 }}>
-      <View style={s.row}>
-        <Text style={[s.muted, { fontSize: 11 }]}>STEP {step + 1} OF 15</Text>
-        <Text style={[s.muted, { fontSize: 11 }]}>
-          {own.completion}% complete
-        </Text>
-      </View>
-      <View style={{ height: 3, backgroundColor: colors.line }}>
+    <SafeAreaView style={s.screen}>
+      <ScrollView
+        keyboardShouldPersistTaps="handled"
+        contentContainerStyle={{
+          flexGrow: 1,
+          width: "100%",
+          maxWidth: 500,
+          alignSelf: "center",
+          paddingHorizontal: 40,
+          paddingTop: 20,
+          paddingBottom: Math.max(14, 48 - insets.bottom),
+          gap: 15,
+        }}
+      >
         <View
           style={{
-            height: 3,
-            width: `${((step + 1) / 15) * 100}%`,
-            backgroundColor: colors.pink,
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: 23,
           }}
-        />
-      </View>
-      <Text style={[s.title, { marginTop: 15, marginBottom: 25 }]}>
-        {step === 3
-          ? "I am a"
-          : step === 7
-            ? "Your interests"
-            : onboardingSteps[step]}
-      </Text>
-      {step === 0 && (
-        <Text style={s.muted}>
-          Your intentions, interests and everyday life help us introduce people
-          worth getting to know.
-        </Text>
-      )}
-      {step === 1 && field("display_name", "Name")}
-      {step === 2 && <BirthdayPicker value={own.date_of_birth} readOnly />}
-      {step === 3 &&
-        [
-          ["woman", "Woman"],
-          ["man", "Man"],
-          ["nonbinary", "Nonbinary"],
-          ["self_described", "Choose another"],
-        ].map(([value, label]) => option(value, label, gender, setGender))}
-      {step === 4 &&
-        ["woman", "man", "nonbinary", "self_described"].map((g) => (
+        >
           <Pressable
-            key={g}
-            style={s.input}
-            accessibilityRole="checkbox"
-            accessibilityState={{ checked: prefs.genders.includes(g) }}
-            onPress={() =>
-              setPrefs({
-                ...prefs,
-                genders: prefs.genders.includes(g)
-                  ? prefs.genders.filter((x: string) => x !== g)
-                  : [...prefs.genders, g],
-              })
-            }
-          >
-            <Text style={s.muted}>
-              {prefs.genders.includes(g) ? "✓ " : "+ "}
-              {g.replace("_", " ")}
-            </Text>
-          </Pressable>
-        ))}
-      {step === 5 &&
-        [
-          ["serious", "Serious relationship"],
-          ["marriage", "Marriage"],
-          ["long_term", "Long-term dating"],
-          ["dating", "Dating"],
-          ["friendship", "Friendship"],
-          ["exploring", "Still figuring it out"],
-        ].map(([value, label]) => option(value, label, goal, setGoal))}
-      {step === 6 && (
-        <>
-          {field("city", "Location")}
-          <Text style={s.muted}>
-            Your home address is never requested or shown.
-          </Text>
-        </>
-      )}
-      {step === 7 && (
-        <>
-          <Text style={s.muted}>
-            Select a few of your interests and let everyone know what you’re
-            passionate about.
-          </Text>
-          {catalogs.isPending && (
-            <Text style={s.muted}>Loading interests…</Text>
-          )}
-          {catalogs.error && (
-            <Text style={s.error}>{catalogs.error.message}</Text>
-          )}
-          <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 10 }}>
-            {catalogs.data?.map((i) => (
-              <Pressable
-                key={i.code}
-                accessibilityRole="button"
-                accessibilityState={{ selected: interests.includes(i.code) }}
-                onPress={() =>
-                  setInterests((v) =>
-                    v.includes(i.code)
-                      ? v.filter((x) => x !== i.code)
-                      : [...v, i.code],
-                  )
-                }
-                style={{
-                  width: "48%",
-                  minHeight: 45,
-                  borderRadius: 15,
-                  borderWidth: 1,
-                  borderColor: interests.includes(i.code)
-                    ? colors.pink
-                    : colors.line,
-                  padding: 12,
-                  backgroundColor: interests.includes(i.code)
-                    ? colors.pink
-                    : "white",
-                  flexDirection: "row",
-                  gap: 8,
-                  alignItems: "center",
-                }}
-              >
-                <Ionicons
-                  name="heart-outline"
-                  size={19}
-                  color={interests.includes(i.code) ? "white" : colors.pink}
-                />
-                <Text
-                  style={{
-                    flex: 1,
-                    fontFamily: interests.includes(i.code)
-                      ? "PoppinsBold"
-                      : "Poppins",
-                    fontSize: 13,
-                    color: interests.includes(i.code) ? "white" : "black",
-                  }}
-                >
-                  {i.name}
-                </Text>
-              </Pressable>
-            ))}
-          </View>
-        </>
-      )}
-      {step === 8 && (
-        <>
-          {[
-            "smoking",
-            "drinking",
-            "exercise",
-            "children",
-            "pets",
-            "social",
-          ].map((k) => (
-            <View key={k}>
-              <Text style={s.label}>{k}</Text>
-              <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 6 }}>
-                {["", "yes", "no", "sometimes"].map((value) => (
-                  <Pressable
-                    key={value}
-                    style={[
-                      s.input,
-                      {
-                        padding: 10,
-                        minHeight: 44,
-                        backgroundColor:
-                          lifestyle[k] === value ? colors.soft : "white",
-                      },
-                    ]}
-                    onPress={() => setLifestyle({ ...lifestyle, [k]: value })}
-                    accessibilityState={{ selected: lifestyle[k] === value }}
-                  >
-                    <Text
-                      style={{
-                        fontFamily: "Poppins",
-                        fontSize: 11,
-                        color: lifestyle[k] === value ? colors.pink : "black",
-                      }}
-                    >
-                      {value || "Prefer not to share"}
-                    </Text>
-                  </Pressable>
-                ))}
-              </View>
-            </View>
-          ))}
-          {field("values", "Values (comma separated)")}
-        </>
-      )}
-      {step === 9 && (
-        <>
-          {field("profession", "Profession")}
-          {field("education", "Education")}
-        </>
-      )}
-      {step === 10 && (
-        <>
-          {field("bio", "About me", true)}
-          {field("question", "Profile prompt")}
-          {field("answer", "Your answer", true)}
-          {field("communication", "Communication preference")}
-        </>
-      )}
-      {step === 11 && (
-        <>
-          <Text style={s.muted}>
-            Use a clear photo of yourself. Photos are reviewed before other
-            members can see them.
-          </Text>
-          <Button disabled={busy} onPress={photo}>
-            Add a profile photo
-          </Button>
-          {own.photo_review?.map((p: any) => (
-            <Text key={p.id} style={s.muted}>
-              Photo {p.position + 1}: {p.status}
-            </Text>
-          ))}
-        </>
-      )}
-      {step === 12 && (
-        <>
-          {["age_min", "age_max", "distance_km"].map((k) => (
-            <View key={k}>
-              <Text style={s.label}>
-                {k === "age_min"
-                  ? "Minimum age"
-                  : k === "age_max"
-                    ? "Maximum age"
-                    : "Distance (km)"}
-              </Text>
-              <TextInput
-                style={s.input}
-                keyboardType="number-pad"
-                accessibilityLabel={k}
-                value={String(prefs[k])}
-                onChangeText={(v) => setPrefs({ ...prefs, [k]: v })}
-              />
-            </View>
-          ))}
-        </>
-      )}
-      {step === 13 && (
-        <Text style={s.muted}>
-          Confirm your email using the verification link. Profile photos are
-          reviewed separately. Selfie verification is not enabled yet.
-        </Text>
-      )}
-      {step === 14 && (
-        <>
-          <Text style={s.muted}>
-            Save your profile to continue. Discovery opens after email
-            confirmation and approval of a profile photo.
-          </Text>
-          <Button disabled={busy} onPress={save}>
-            {busy ? "Saving…" : "Confirm"}
-          </Button>
-          {message && (
-            <Button onPress={() => router.replace("/enable-notifications")}>
-              Continue
-            </Button>
-          )}
-        </>
-      )}
-      {error && (
-        <Text style={s.error} accessibilityLiveRegion="polite">
-          {error}
-        </Text>
-      )}
-      {message && <Text style={s.muted}>{message}</Text>}
-      <View style={{ marginTop: 40, gap: 15 }}>
-        {step < 14 && (
-          <Button disabled={busy} onPress={next}>
-            Continue
-          </Button>
-        )}
-        {step > 0 && (
-          <Pressable
+            style={s.square}
             accessibilityRole="button"
-            style={s.link}
+            accessibilityLabel="Back"
             onPress={() => {
-              setStep((v) => v - 1);
-              setError("");
+              if (step === 11 && photoReturn) {
+                setPhotoReturn(false);
+                setStep(1);
+              } else if (step > 1) setStep(step - 1);
+              else router.replace("/(tabs)/profile");
             }}
           >
-            <Text
-              style={{
-                color: colors.pink,
-                textAlign: "center",
-                fontFamily: "PoppinsBold",
-              }}
-            >
-              Back
+            <Ionicons name="chevron-back" size={23} color={colors.pink} />
+          </Pressable>
+          <Pressable
+            style={{ minHeight: 44, justifyContent: "center" }}
+            accessibilityRole="button"
+            onPress={() => router.replace("/(tabs)/profile")}
+          >
+            <Text style={{ color: colors.pink, fontFamily: "PoppinsBold" }}>
+              Skip
             </Text>
           </Pressable>
+        </View>
+        {![1, 3, 7].includes(step) && (
+          <>
+            <View style={s.row}>
+              <Text style={[s.muted, { fontSize: 11 }]}>
+                STEP {step + 1} OF 15
+              </Text>
+              <Text style={[s.muted, { fontSize: 11 }]}>
+                {own.completion}% complete
+              </Text>
+            </View>
+            <View style={{ height: 3, backgroundColor: colors.line }}>
+              <View
+                style={{
+                  height: 3,
+                  width: `${((step + 1) / 15) * 100}%`,
+                  backgroundColor: colors.pink,
+                }}
+              />
+            </View>
+          </>
         )}
-      </View>
-    </View>
+        <Text style={[s.title, { marginBottom: step === 1 ? 0 : 10 }]}>
+          {step === 1
+            ? "Profile details"
+            : step === 3
+              ? "I am a"
+              : step === 7
+                ? "Your interests"
+                : onboardingSteps[step]}
+        </Text>
+        {step === 0 && (
+          <Text style={s.muted}>
+            Your intentions, interests and everyday life help us introduce
+            people worth getting to know.
+          </Text>
+        )}
+        {step === 1 && (
+          <>
+            <View
+              style={{
+                width: 100,
+                height: 100,
+                borderRadius: 26,
+                backgroundColor: colors.soft,
+                alignSelf: "center",
+                alignItems: "center",
+                justifyContent: "center",
+                marginTop: 80,
+                marginBottom: 35,
+              }}
+            >
+              {own.photos?.[0] ? (
+                <Image
+                  source={{ uri: own.photos[0] }}
+                  cachePolicy="memory"
+                  contentFit="cover"
+                  style={{ width: 100, height: 100, borderRadius: 26 }}
+                />
+              ) : (
+                <Ionicons name="person-outline" size={44} color={colors.pink} />
+              )}
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Add a profile photo"
+                onPress={() => {
+                  setPhotoReturn(true);
+                  setStep(11);
+                }}
+                style={{
+                  position: "absolute",
+                  bottom: -6,
+                  right: -4,
+                  width: 38,
+                  height: 38,
+                  borderRadius: 19,
+                  borderWidth: 3,
+                  borderColor: "white",
+                  backgroundColor: colors.pink,
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <Ionicons name="camera-outline" size={17} color="white" />
+              </Pressable>
+            </View>
+            {(
+              [
+                [
+                  "First name",
+                  firstName,
+                  (value: string) => {
+                    setFirstName(value);
+                    setValue(
+                      "display_name",
+                      [value, lastName].filter(Boolean).join(" "),
+                    );
+                  },
+                ],
+                [
+                  "Last name",
+                  lastName,
+                  (value: string) => {
+                    setLastName(value);
+                    setValue(
+                      "display_name",
+                      [firstName, value].filter(Boolean).join(" "),
+                    );
+                  },
+                ],
+              ] as const
+            ).map(([label, value, change]) => (
+              <View key={label}>
+                <Text
+                  style={{
+                    position: "absolute",
+                    top: -8,
+                    left: 20,
+                    paddingHorizontal: 8,
+                    backgroundColor: "white",
+                    zIndex: 1,
+                    color: "#999",
+                    fontFamily: "Poppins",
+                    fontSize: 12,
+                  }}
+                >
+                  {label}
+                </Text>
+                <TextInput
+                  style={s.input}
+                  accessibilityLabel={label}
+                  value={value}
+                  onChangeText={change}
+                  autoCapitalize="words"
+                  maxLength={50}
+                />
+              </View>
+            ))}
+            <BirthdayPicker value={own.date_of_birth ?? ""} readOnly />
+          </>
+        )}
+        {step === 2 && <BirthdayPicker value={own.date_of_birth} readOnly />}
+        {step === 3 && (
+          <View style={{ gap: 10, marginTop: 65 }}>
+            {[
+              ["woman", "Woman"],
+              ["man", "Man"],
+              ["nonbinary", "Nonbinary"],
+              ["self_described", "Choose another"],
+            ].map(([value, label]) => option(value, label, gender, setGender))}
+          </View>
+        )}
+        {step === 4 &&
+          ["woman", "man", "nonbinary", "self_described"].map((g) => (
+            <Pressable
+              key={g}
+              style={s.input}
+              accessibilityRole="checkbox"
+              accessibilityState={{ checked: prefs.genders.includes(g) }}
+              onPress={() =>
+                setPrefs({
+                  ...prefs,
+                  genders: prefs.genders.includes(g)
+                    ? prefs.genders.filter((x: string) => x !== g)
+                    : [...prefs.genders, g],
+                })
+              }
+            >
+              <Text style={s.muted}>
+                {prefs.genders.includes(g) ? "✓ " : "+ "}
+                {g.replace("_", " ")}
+              </Text>
+            </Pressable>
+          ))}
+        {step === 5 &&
+          [
+            ["serious", "Serious relationship"],
+            ["marriage", "Marriage"],
+            ["long_term", "Long-term dating"],
+            ["dating", "Dating"],
+            ["friendship", "Friendship"],
+            ["exploring", "Still figuring it out"],
+          ].map(([value, label]) => option(value, label, goal, setGoal))}
+        {step === 6 && (
+          <>
+            {field("city", "Location")}
+            <Text style={s.muted}>
+              Your home address is never requested or shown.
+            </Text>
+          </>
+        )}
+        {step === 7 && (
+          <>
+            <Text style={s.muted}>
+              Select a few of your interests and let everyone know what you’re
+              passionate about.
+            </Text>
+            {catalogs.isPending && (
+              <Text style={s.muted}>Loading interests…</Text>
+            )}
+            {catalogs.error && (
+              <Text style={s.error}>{catalogs.error.message}</Text>
+            )}
+            <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 10 }}>
+              {catalogs.data?.map((i) => (
+                <Pressable
+                  key={i.code}
+                  accessibilityRole="button"
+                  accessibilityState={{ selected: interests.includes(i.code) }}
+                  onPress={() =>
+                    setInterests((v) =>
+                      v.includes(i.code)
+                        ? v.filter((x) => x !== i.code)
+                        : [...v, i.code],
+                    )
+                  }
+                  style={{
+                    width: "48%",
+                    minHeight: 45,
+                    borderRadius: 15,
+                    borderWidth: 1,
+                    borderColor: interests.includes(i.code)
+                      ? colors.pink
+                      : colors.line,
+                    padding: 12,
+                    backgroundColor: interests.includes(i.code)
+                      ? colors.pink
+                      : "white",
+                    flexDirection: "row",
+                    gap: 8,
+                    alignItems: "center",
+                  }}
+                >
+                  <Ionicons
+                    name="heart-outline"
+                    size={19}
+                    color={interests.includes(i.code) ? "white" : colors.pink}
+                  />
+                  <Text
+                    style={{
+                      flex: 1,
+                      fontFamily: interests.includes(i.code)
+                        ? "PoppinsBold"
+                        : "Poppins",
+                      fontSize: 13,
+                      color: interests.includes(i.code) ? "white" : "black",
+                    }}
+                  >
+                    {i.name}
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
+          </>
+        )}
+        {step === 8 && (
+          <>
+            {[
+              "smoking",
+              "drinking",
+              "exercise",
+              "children",
+              "pets",
+              "social",
+            ].map((k) => (
+              <View key={k}>
+                <Text style={s.label}>{k}</Text>
+                <View
+                  style={{ flexDirection: "row", flexWrap: "wrap", gap: 6 }}
+                >
+                  {["", "yes", "no", "sometimes"].map((value) => (
+                    <Pressable
+                      key={value}
+                      style={[
+                        s.input,
+                        {
+                          padding: 10,
+                          minHeight: 44,
+                          backgroundColor:
+                            lifestyle[k] === value ? colors.soft : "white",
+                        },
+                      ]}
+                      onPress={() => setLifestyle({ ...lifestyle, [k]: value })}
+                      accessibilityState={{ selected: lifestyle[k] === value }}
+                    >
+                      <Text
+                        style={{
+                          fontFamily: "Poppins",
+                          fontSize: 11,
+                          color: lifestyle[k] === value ? colors.pink : "black",
+                        }}
+                      >
+                        {value || "Prefer not to share"}
+                      </Text>
+                    </Pressable>
+                  ))}
+                </View>
+              </View>
+            ))}
+            {field("values", "Values (comma separated)")}
+          </>
+        )}
+        {step === 9 && (
+          <>
+            {field("profession", "Profession")}
+            {field("education", "Education")}
+          </>
+        )}
+        {step === 10 && (
+          <>
+            {field("bio", "About me", true)}
+            {field("question", "Profile prompt")}
+            {field("answer", "Your answer", true)}
+            {field("communication", "Communication preference")}
+          </>
+        )}
+        {step === 11 && (
+          <>
+            <Text style={s.muted}>
+              Use a clear photo of yourself. Photos are reviewed before other
+              members can see them.
+            </Text>
+            <Button disabled={busy} onPress={photo}>
+              Add a profile photo
+            </Button>
+            {own.photo_review?.map((p: any) => (
+              <Text key={p.id} style={s.muted}>
+                Photo {p.position + 1}: {p.status}
+              </Text>
+            ))}
+          </>
+        )}
+        {step === 12 && (
+          <>
+            {["age_min", "age_max", "distance_km"].map((k) => (
+              <View key={k}>
+                <Text style={s.label}>
+                  {k === "age_min"
+                    ? "Minimum age"
+                    : k === "age_max"
+                      ? "Maximum age"
+                      : "Distance (km)"}
+                </Text>
+                <TextInput
+                  style={s.input}
+                  keyboardType="number-pad"
+                  accessibilityLabel={k}
+                  value={String(prefs[k])}
+                  onChangeText={(v) => setPrefs({ ...prefs, [k]: v })}
+                />
+              </View>
+            ))}
+          </>
+        )}
+        {step === 13 && (
+          <Text style={s.muted}>
+            Confirm your email using the verification link. Profile photos are
+            reviewed separately. Selfie verification is not enabled yet.
+          </Text>
+        )}
+        {step === 14 && (
+          <>
+            <Text style={s.muted}>
+              Save your profile to continue. Discovery opens after email
+              confirmation and approval of a profile photo.
+            </Text>
+            <Button disabled={busy} onPress={save}>
+              {busy ? "Saving…" : "Confirm"}
+            </Button>
+            {message && (
+              <Button onPress={() => router.replace("/enable-notifications")}>
+                Continue
+              </Button>
+            )}
+          </>
+        )}
+        {error && (
+          <Text style={s.error} accessibilityLiveRegion="polite">
+            {error}
+          </Text>
+        )}
+        {message && <Text style={s.muted}>{message}</Text>}
+        <View style={{ marginTop: "auto", paddingTop: 40, gap: 15 }}>
+          {step < 14 && (
+            <Button disabled={busy} onPress={next}>
+              {step === 1
+                ? "Confirm"
+                : step === 11 && photoReturn
+                  ? "Done"
+                  : "Continue"}
+            </Button>
+          )}
+          {step > 1 && (
+            <Pressable
+              accessibilityRole="button"
+              style={s.link}
+              onPress={() => {
+                if (step === 11 && photoReturn) {
+                  setPhotoReturn(false);
+                  setStep(1);
+                } else setStep((v) => v - 1);
+                setError("");
+              }}
+            >
+              <Text
+                style={{
+                  color: colors.pink,
+                  textAlign: "center",
+                  fontFamily: "PoppinsBold",
+                }}
+              >
+                Back
+              </Text>
+            </Pressable>
+          )}
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 }

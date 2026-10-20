@@ -106,12 +106,131 @@ async function fixture(page: Page) {
   });
 }
 async function capture(page: Page, name: string) {
+  await page
+    .locator("input:focus, textarea:focus")
+    .evaluateAll((nodes) =>
+      nodes.forEach((node) => (node as HTMLElement).blur()),
+    );
   await page.evaluate(() => document.fonts.ready);
   await page.screenshot({
     path: test.info().outputPath(`${name}.png`),
     fullPage: true,
   });
 }
+test("story photos navigate and send only a matched member's explicit reply", async ({
+  page,
+}) => {
+  await fixture(page);
+  await page.goto("/messages");
+  await page
+    .getByRole("link", { name: "View Angela Paul's photos", exact: true })
+    .click();
+  await expect(
+    page.getByRole("img", { name: "Angela Paul, photo 1", exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Send message", exact: true }),
+  ).toBeDisabled();
+  await capture(page, "stories");
+  await page.getByRole("button", { name: "Next photo", exact: true }).click();
+  await expect(
+    page.getByRole("img", { name: "Angela Paul, photo 2", exact: true }),
+  ).toBeVisible();
+  await page
+    .getByRole("textbox", { name: "Your message", exact: true })
+    .fill("Beautiful photo! How was your day?");
+  const request = page.waitForRequest(
+    (r) =>
+      r.url().endsWith(`/conversations/${conversation}/messages`) &&
+      r.method() === "POST",
+  );
+  await page.getByRole("button", { name: "Send message", exact: true }).click();
+  const sent = (await request).postDataJSON();
+  expect(sent.body).toBe("Beautiful photo! How was your day?");
+  expect(sent.client_id).toMatch(/^[\da-f-]{36}$/);
+  await expect(page.getByRole("status")).toContainText("Message sent.");
+  await expect(page.getByRole("textbox", { name: "Your message" })).toHaveValue(
+    "",
+  );
+  await page.getByRole("link", { name: "Close photo viewer" }).click();
+  await expect(page).toHaveURL(/\/messages$/);
+});
+test("profile camera can upload before setup and return without losing a name", async ({
+  page,
+}) => {
+  await fixture(page);
+  const patchRequests: string[] = [];
+  await page.route("**/api/service/profiles/me", (route) => {
+    if (route.request().method() === "PATCH")
+      patchRequests.push(route.request().postData() ?? "");
+    return route.fulfill({
+      json: { data: { ...own, city: "", bio: "", interests: [], photos: [] } },
+    });
+  });
+  await page.goto("/onboarding");
+  await page.getByLabel("First name", { exact: true }).fill("New member");
+  await page.getByRole("button", { name: "Add a profile photo" }).click();
+  const upload = page.waitForRequest(
+    (r) =>
+      r.url().includes("/profiles/me/photos?position=0") &&
+      r.method() === "POST",
+  );
+  await page
+    .getByLabel("Upload profile photo")
+    .setInputFiles("tests/fixtures/reference-photo.jpg");
+  expect((await upload).headers()["content-type"]).toBe("image/jpeg");
+  await expect(page.getByRole("status")).toContainText(
+    "Photo uploaded and awaiting review.",
+  );
+  expect(patchRequests).toHaveLength(0);
+  await page.getByRole("button", { name: "Done", exact: true }).click();
+  await expect(page.getByLabel("First name", { exact: true })).toHaveValue(
+    "New member",
+  );
+});
+test("photo viewer offers no composer without a current connection", async ({
+  page,
+}) => {
+  await fixture(page);
+  await page.route("**/api/service/conversations", (r) =>
+    r.fulfill({ json: { data: [] } }),
+  );
+  await page.goto(`/stories/${other}`);
+  await expect(
+    page.getByText("A mutual match opens a private conversation."),
+  ).toBeVisible();
+  await expect(page.getByRole("textbox", { name: "Your message" })).toHaveCount(
+    0,
+  );
+});
+test("permission introductions persist real notification preferences", async ({
+  page,
+}) => {
+  await fixture(page);
+  await page.goto("/enable-notifications");
+  await expect(
+    page.getByRole("heading", { name: "Enable notifications", exact: true }),
+  ).toBeVisible();
+  await capture(page, "enable-notifications");
+  const request = page.waitForRequest(
+    (r) =>
+      r.url().endsWith("/notifications/preferences") && r.method() === "PATCH",
+  );
+  await page.getByRole("button", { name: "I want to be notified" }).click();
+  expect((await request).postDataJSON()).toEqual({
+    likes_enabled: true,
+    messages_enabled: true,
+  });
+  await expect(
+    page.getByRole("heading", { name: "Search friends", exact: true }),
+  ).toBeVisible();
+  await capture(page, "friends");
+  await expect(
+    page.getByRole("button", { name: "Access to a contact list" }),
+  ).toBeDisabled();
+  await page.getByRole("link", { name: "Skip", exact: true }).click();
+  await expect(page).toHaveURL(/\/discover$/);
+});
 test("reference welcome slides and signup navigation work", async ({
   page,
 }) => {
@@ -249,7 +368,7 @@ test("discovery matches the reference dimensions and records a real action reque
   expect(data.target_id).toBe(other);
   expect(data.operation_id).toMatch(/^[\da-f-]{36}$/);
   await expect(
-    page.getByRole("heading", { name: "It’s a match!", exact: true }),
+    page.getByRole("heading", { name: "It’s a match, Yes!", exact: true }),
   ).toBeVisible();
   await capture(page, "match");
   await page.getByRole("link", { name: "Say hi" }).click();
@@ -272,6 +391,62 @@ test("filters submit validated preferences and close the sheet", async ({
   expect((await request).postDataJSON().genders).toEqual(["man"]);
   await expect(page.getByRole("dialog")).toHaveCount(0);
 });
+for (const direction of ["left", "right"] as const) {
+  test(`swipe ${direction} shows the referenced card motion and records the chosen action`, async ({
+    page,
+  }) => {
+    await fixture(page);
+    await page.route("**/api/service/profiles/discover", (route) =>
+      route.fulfill({
+        json: {
+          data: {
+            items: [
+              profile,
+              {
+                ...profile,
+                user_id: "d4444444-4444-4444-8444-444444444444",
+                display_name: "Next member",
+              },
+            ],
+            next_cursor: null,
+          },
+        },
+      }),
+    );
+    await page.goto("/discover");
+    const card = page.locator(".discovery-card");
+    await expect(card).toBeVisible();
+    const box = (await card.boundingBox())!;
+    const x = box.x + box.width / 2,
+      y = box.y + box.height / 2;
+    await page.mouse.move(x, y);
+    await page.mouse.down();
+    await page.mouse.move(x + (direction === "right" ? 118 : -118), y, {
+      steps: 8,
+    });
+    if (direction === "right") await expect(card).toHaveClass(/swipe-like/);
+    await capture(page, `swipe-${direction}`);
+    const request = page.waitForRequest(
+      (r) =>
+        r
+          .url()
+          .endsWith(
+            `/api/service/${direction === "right" ? "likes" : "passes"}`,
+          ) && r.method() === "POST",
+    );
+    await page.mouse.up();
+    expect((await request).postDataJSON().target_id).toBe(other);
+    if (direction === "right")
+      await expect(
+        page.getByRole("heading", { name: "It’s a match, Yes!", exact: true }),
+      ).toBeVisible();
+    else
+      await expect(
+        page.getByRole("heading", { name: "Next member, 25", exact: true }),
+      ).toBeVisible();
+    await expect(page).toHaveURL(/\/discover$/);
+  });
+}
 test("matches use approved photos and messages show actual inbox metadata", async ({
   page,
 }) => {
@@ -363,6 +538,7 @@ test("phone sign-in verifies the entered code and enforces the resend cooldown",
   await page
     .getByRole("textbox", { name: "Phone number", exact: true })
     .fill("08137925301");
+  await capture(page, "phone");
   await page.getByRole("button", { name: "Continue", exact: true }).click();
   await expect(page.getByRole("heading", { name: "01:00" })).toBeVisible();
   expect(requests[0]).toEqual({ mode: "phone_send", phone: "+2348137925301" });
@@ -371,6 +547,7 @@ test("phone sign-in verifies the entered code and enforces the resend cooldown",
   await expect(page.getByRole("heading", { name: "00:00" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Send again" })).toBeEnabled();
   await page.getByRole("textbox", { name: "Verification code" }).fill("123456");
+  await capture(page, "verification-code");
   await page.getByRole("button", { name: "Verify code" }).click();
   await expect(page).toHaveURL(/\/discover$/);
   expect(requests[1]).toEqual({

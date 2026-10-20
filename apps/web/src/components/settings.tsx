@@ -72,6 +72,9 @@ export function Settings() {
             <Link className="setting-link" href="/notifications">
               Notifications →
             </Link>
+            <Link className="setting-link" href="/enable-notifications">
+              Notification preferences →
+            </Link>
             <Link className="setting-link" href="/verification">
               Verification status →
             </Link>

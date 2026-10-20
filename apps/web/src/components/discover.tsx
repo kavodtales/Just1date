@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { MapPin, ShieldCheck, SlidersHorizontal } from "lucide-react";
+import { MapPin, ShieldCheck, SlidersHorizontal, Heart } from "lucide-react";
 import type { Profile } from "@just1date/types";
 import { Button, State } from "@just1date/ui";
 import { Shell } from "./shell";
@@ -137,85 +137,113 @@ export function Discover() {
         )}
         {p && (
           <>
-            <article
-              className="discovery-card"
-              style={{
-                transform: `translateX(${drag}px) rotate(${drag / 24}deg)`,
-              }}
-              onPointerDown={(e) => {
-                if (action.isPending) return;
-                start.current = e.clientX;
-                moved.current = false;
-              }}
-              onPointerMove={(e) => {
-                if (start.current === null) return;
-                const x = e.clientX - start.current;
-                if (Math.abs(x) > 8) {
-                  moved.current = true;
-                  e.currentTarget.setPointerCapture(e.pointerId);
-                  setDrag(x);
-                }
-              }}
-              onPointerUp={() => {
-                const delta = drag;
-                start.current = null;
-                setDrag(0);
-                if (Math.abs(delta) > 100)
-                  interact(delta > 0 ? "likes" : "passes");
-              }}
-              onPointerCancel={() => {
-                start.current = null;
-                setDrag(0);
-              }}
-              onClickCapture={(e) => {
-                if (moved.current) {
-                  e.preventDefault();
-                  moved.current = false;
-                }
-              }}
-            >
-              <Link
-                href={`/profile/${p.user_id}`}
-                className="card-profile-link"
-                aria-label={`View ${p.display_name}'s profile`}
-                draggable={false}
-              >
-                <div className="profile-visual">
-                  {p.photos?.[0] ? (
-                    <img
-                      src={p.photos[0]}
-                      alt={`${p.display_name}'s approved profile photo`}
-                      fetchPriority="high"
-                      draggable={false}
-                    />
-                  ) : (
-                    <div className="photo-unavailable">
-                      Photo temporarily unavailable
+            <div className="discovery-deck">
+              {query.data?.items
+                .slice(index + 1, index + 3)
+                .reverse()
+                .map((next, layer) => (
+                  <div
+                    key={next.user_id}
+                    className="discovery-underlay"
+                    aria-hidden="true"
+                    style={{
+                      transform: `translateY(${8 + layer * 8}px) scale(${0.94 + layer * 0.03})`,
+                    }}
+                  >
+                    {next.photos?.[0] && <img src={next.photos[0]} alt="" />}
+                    <div className="underlay-caption">
+                      <strong>
+                        {next.display_name}, {next.age}
+                      </strong>
+                      <p>{next.profession}</p>
                     </div>
-                  )}
-                  <div className="photo-shade" />
-                  <span className="distance-pill">
-                    <MapPin size={14} />
-                    {(p as Profile & { distance_km?: number }).distance_km
-                      ? `Within ${(p as Profile & { distance_km: number }).distance_km} km`
-                      : p.city}
-                  </span>
-                  {p.verified && (
-                    <ShieldCheck
-                      className="verification-dot"
-                      size={27}
-                      aria-label="Selfie verified"
-                    />
-                  )}
-                  <div className="photo-caption">
-                    <h2>
-                      {p.display_name}, {p.age}
-                    </h2>
-                    <p>{p.profession || p.goal.replaceAll("_", " ")}</p>
                   </div>
-                </div>
-              </Link>
-            </article>
+                ))}
+              <article
+                className={`discovery-card ${drag > 30 ? "swipe-like" : ""}`}
+                style={{
+                  transform: `translateX(${drag}px) rotate(${Math.max(-18, Math.min(18, drag / 10))}deg)`,
+                }}
+                onPointerDown={(e) => {
+                  if (action.isPending) return;
+                  start.current = e.clientX;
+                  moved.current = false;
+                }}
+                onPointerMove={(e) => {
+                  if (start.current === null) return;
+                  const x = e.clientX - start.current;
+                  if (Math.abs(x) > 8) {
+                    moved.current = true;
+                    e.currentTarget.setPointerCapture(e.pointerId);
+                    setDrag(x);
+                  }
+                }}
+                onPointerUp={() => {
+                  const delta = drag;
+                  start.current = null;
+                  setDrag(0);
+                  if (Math.abs(delta) > 100)
+                    interact(delta > 0 ? "likes" : "passes");
+                }}
+                onPointerCancel={() => {
+                  start.current = null;
+                  setDrag(0);
+                }}
+                onClickCapture={(e) => {
+                  if (moved.current) {
+                    e.preventDefault();
+                    moved.current = false;
+                  }
+                }}
+              >
+                <Link
+                  href={`/profile/${p.user_id}`}
+                  className="card-profile-link"
+                  aria-label={`View ${p.display_name}'s profile`}
+                  draggable={false}
+                >
+                  <div className="profile-visual">
+                    {p.photos?.[0] ? (
+                      <img
+                        src={p.photos[0]}
+                        alt={`${p.display_name}'s approved profile photo`}
+                        fetchPriority="high"
+                        draggable={false}
+                      />
+                    ) : (
+                      <div className="photo-unavailable">
+                        Photo temporarily unavailable
+                      </div>
+                    )}
+                    <div className="photo-shade" />
+                    <div className="swipe-feedback" aria-hidden="true">
+                      <span>
+                        <Heart size={42} fill="currentColor" />
+                      </span>
+                    </div>
+                    <span className="distance-pill">
+                      <MapPin size={14} />
+                      {(p as Profile & { distance_km?: number }).distance_km
+                        ? `Within ${(p as Profile & { distance_km: number }).distance_km} km`
+                        : p.city}
+                    </span>
+                    {p.verified && (
+                      <ShieldCheck
+                        className="verification-dot"
+                        size={27}
+                        aria-label="Selfie verified"
+                      />
+                    )}
+                    <div className="photo-caption">
+                      <h2>
+                        {p.display_name}, {p.age}
+                      </h2>
+                      <p>{p.profession || p.goal.replaceAll("_", " ")}</p>
+                    </div>
+                  </div>
+                </Link>
+              </article>
+            </div>
             <Reactions onAction={interact} disabled={action.isPending} />
           </>
         )}
@@ -235,7 +263,11 @@ export function Discover() {
         />
       )}
       {match && (
-        <Sheet title="It’s a match!" onClose={() => setMatch(null)}>
+        <Sheet
+          title="It’s a match!"
+          variant="match"
+          onClose={() => setMatch(null)}
+        >
           <div className="match-celebration">
             {match.profile.photos?.[0] && own.data?.photos?.[0] && (
               <div className="match-photos">
@@ -244,6 +276,18 @@ export function Discover() {
                   src={match.profile.photos[0]}
                   alt={match.profile.display_name}
                 />
+                <span
+                  className="match-heart match-heart-top"
+                  aria-hidden="true"
+                >
+                  <Heart fill="currentColor" size={28} />
+                </span>
+                <span
+                  className="match-heart match-heart-bottom"
+                  aria-hidden="true"
+                >
+                  <Heart fill="currentColor" size={28} />
+                </span>
               </div>
             )}
             <h3>It’s a match, Yes!</h3>

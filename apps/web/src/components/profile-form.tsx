@@ -68,6 +68,7 @@ export function ProfileForm() {
 }
 function Editor({ own, done }: { own: any; done: () => unknown }) {
   const [step, setStep] = useState(1),
+    [photoReturn, setPhotoReturn] = useState(false),
     [error, setError] = useState(""),
     [message, setMessage] = useState(""),
     [busy, setBusy] = useState(false);
@@ -203,7 +204,10 @@ function Editor({ own, done }: { own: any; done: () => unknown }) {
               <button
                 type="button"
                 aria-label="Add a profile photo"
-                onClick={() => setStep(11)}
+                onClick={() => {
+                  setPhotoReturn(true);
+                  setStep(11);
+                }}
               >
                 <Camera size={17} />
               </button>
@@ -464,13 +468,6 @@ function Editor({ own, done }: { own: any; done: () => unknown }) {
                 setBusy(true);
                 setError("");
                 try {
-                  const values = getValues();
-                  if (!(await trigger()))
-                    throw new Error("Complete your profile details first.");
-                  await api("profiles/me", {
-                    method: "PATCH",
-                    body: json(values),
-                  });
                   const positions = (own.photo_review ?? []).map(
                     (x: any) => x.position,
                   );
@@ -571,6 +568,11 @@ function Editor({ own, done }: { own: any; done: () => unknown }) {
             <Link className="text-link" href="/discover">
               Go to discovery
             </Link>
+            {message && (
+              <Link className="button" href="/enable-notifications">
+                Continue
+              </Link>
+            )}
           </>
         )}
       </div>
@@ -589,7 +591,10 @@ function Editor({ own, done }: { own: any; done: () => unknown }) {
           disabled={step === 1 || busy}
           onClick={() => {
             setError("");
-            setStep((s) => s - 1);
+            if (step === 11 && photoReturn) {
+              setPhotoReturn(false);
+              setStep(1);
+            } else setStep((s) => s - 1);
           }}
         >
           Back
@@ -599,6 +604,11 @@ function Editor({ own, done }: { own: any; done: () => unknown }) {
             disabled={busy}
             onClick={async () => {
               setError("");
+              if (step === 11 && photoReturn) {
+                setPhotoReturn(false);
+                setStep(1);
+                return;
+              }
               if (stepFields[step] && !(await trigger(stepFields[step])))
                 return;
               if (step === 4 && !prefs.genders.length) {
@@ -608,7 +618,11 @@ function Editor({ own, done }: { own: any; done: () => unknown }) {
               setStep((s) => s + 1);
             }}
           >
-            {step === 1 ? "Confirm" : "Continue"}
+            {step === 1
+              ? "Confirm"
+              : step === 11 && photoReturn
+                ? "Done"
+                : "Continue"}
           </Button>
         )}
       </div>

@@ -146,7 +146,8 @@ export function Connections({
             {rows.slice(0, 20).map((row) => (
               <Link
                 className="activity"
-                href={`/profile/${row.profile.user_id}`}
+                href={`/stories/${row.profile.user_id}`}
+                aria-label={`View ${row.profile.display_name}'s photos`}
                 key={row.id}
               >
                 {row.profile.photos?.[0] ? (

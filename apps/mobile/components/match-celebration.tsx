@@ -1,4 +1,12 @@
-import { Modal, View, Text, Pressable } from "react-native";
+import {
+  Modal,
+  View,
+  Text,
+  Pressable,
+  ScrollView,
+  useWindowDimensions,
+} from "react-native";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { Image } from "expo-image";
 import { router } from "expo-router";
 import { useQuery } from "@tanstack/react-query";
@@ -14,15 +22,16 @@ export function MatchCelebration({
   conversation: string;
   onClose: () => void;
 }) {
+  const { height } = useWindowDimensions();
   const own = useQuery({
     queryKey: ["me"],
     queryFn: () => api<Profile>("profiles/me"),
   });
   return (
     <Modal visible animationType="slide" onRequestClose={onClose}>
-      <View
-        style={{
-          flex: 1,
+      <ScrollView
+        contentContainerStyle={{
+          minHeight: height,
           backgroundColor: "white",
           paddingHorizontal: 40,
           paddingTop: 80,
@@ -59,6 +68,26 @@ export function MatchCelebration({
                   transform: [{ rotate: "-10deg" }],
                 }}
               />
+              {[
+                { top: -20, left: 115 },
+                { bottom: -5, left: 20 },
+              ].map((position, i) => (
+                <View
+                  key={i}
+                  style={{
+                    position: "absolute",
+                    width: 60,
+                    height: 60,
+                    borderRadius: 30,
+                    backgroundColor: "white",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    ...position,
+                  }}
+                >
+                  <Ionicons name="heart" color={colors.pink} size={28} />
+                </View>
+              ))}
             </View>
           )}
           <Text
@@ -67,7 +96,7 @@ export function MatchCelebration({
               fontSize: 32,
               textAlign: "center",
               color: colors.pink,
-              marginTop: 30,
+              marginTop: 50,
             }}
           >
             It’s a match, Yes!
@@ -101,7 +130,7 @@ export function MatchCelebration({
             </Text>
           </Pressable>
         </View>
-      </View>
+      </ScrollView>
     </Modal>
   );
 }

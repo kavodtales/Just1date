@@ -1,3 +1,31 @@
+# Completed reference screen pass — 20 October 2026
+
+PHASE: Supplied screen completion and authorized repository upload.
+
+Completed the remaining web permission introductions, web/native full-photo viewer
+with explicit matched replies, native name/photo/birthday setup and native country
+selector/six-digit keypad. Added real next-profile swipe layers, pink like feedback
+and the full-screen match celebration. Original owner artwork, white/pink palette,
+Poppins and four-tab navigation remain the design source.
+
+Database/API: no new schema or endpoint was needed. Photos, messages, preferences
+and reactions use the existing authenticated services. Early photo upload no longer
+tries to submit an incomplete whole profile before uploading.
+
+Verification: web/admin/API production builds and both native Hermes exports pass;
+final type, browser, screen-review and upload results are being recorded. Test images
+and accounts exist only at the browser network boundary. Full physical-device pixel
+equivalence and provider acceptance remain separate checks.
+
+Service limitations: story-style viewing is of approved profile photos, without
+claiming ephemeral publishing. Contact discovery and social providers remain disabled.
+Live media still requires configured provider credentials and a persistent cleanup
+worker; Apple device signing and the launch gates in STATUS.md remain outstanding.
+
+---
+
+Earlier reference phase record:
+
 # Reference redesign phase
 
 PHASE: Reference-driven web/mobile UI and authorized GitHub upload

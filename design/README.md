@@ -11,8 +11,9 @@ a phone screen across the display.
 
 ## Source assets
 
-`scripts/prepare-design-assets.mjs` extracts the supplied logo, introductory
-photography, social glyphs and permission illustrations into web/mobile assets.
+`scripts/prepare-brand-assets.mjs` derives platform assets from the owner’s
+byte-preserved original PNG. `scripts/prepare-design-assets.mjs` extracts the
+supplied introductory photography, social glyphs and permission illustrations.
 Existing watermarks are preserved. Introductory photography is promotional content;
 it never becomes a discovery profile. Review rights to these supplied assets before
 public commercial launch. Self-hosted Poppins fonts include their OFL license.
@@ -35,9 +36,9 @@ public commercial launch. Self-hosted Poppins fonts include their OFL license.
 | Chat                            | `/messages/:id`                        | `/messages/:id`                        | Private messages, pagination, actual send/delete actions                |
 | Profile / Profile 1             | `/profile/:id`                         | `/profile/:id`                         | Photo hero, actions, location, about, interests, gallery                |
 | Photo fullsreen                 | Profile gallery modal                  | Profile gallery modal                  | Photo selection and dismissal                                           |
-| Notification                    | Account preferences                    | `/enable-notifications`                | Native permission + token registration; delivery configuration required |
-| Friends                         | Not exposed as an enabled web feature  | `/friends`                             | Illustration and skip; contact matching clearly unavailable             |
-| Stories                         | Profile gallery provides photo viewing | Profile gallery provides photo viewing | Ephemeral stories/replies are not implemented or represented as working |
+| Notification                    | `/enable-notifications`                 | `/enable-notifications`                | Native permission + token registration; delivery configuration required |
+| Friends                         | `/friends`                             | `/friends`                             | Illustration and skip; contact matching clearly unavailable             |
+| Stories                         | `/stories/:id`                         | `/stories/:id`                         | Full-photo viewer, photo navigation, optional playback and authorized matched replies |
 | gym1 1 / gym1 2 / NAKE          | Reference assets only                  | Reference assets only                  | Never seeded as production members                                      |
 
 ## Deliberate functional differences
@@ -47,7 +48,7 @@ public commercial launch. Self-hosted Poppins fonts include their OFL license.
 - Registration age requirements, truthful verification, approximate location,
   backend authorization and payment entitlements remain enforced.
 - Intro copy does not promise bot-free matches or an unconfigured free month.
-- Online/presence, delivery checkmarks, stories, microphone capture, contact sync
+- Online/presence, delivery checkmarks, ephemeral story publishing, microphone capture, contact sync
   and social providers are not faked. The chat composer has a working Send action.
 - DOB on an existing profile is read-only. Editing a display name through separate
   name fields still uses the existing public display-name schema.
@@ -71,3 +72,24 @@ Run with `E2E_BASE_URL` set to a running application. On Windows with Chrome
 installed, set `E2E_BROWSER_CHANNEL=chrome`; CI uses installed Playwright Chromium.
 Screenshots are written to ignored `test-results/`. Selected reviewed screenshots
 are copied to `verification/` with their fixture limitations documented.
+
+## Completed screen pass — 20 October 2026
+
+All supplied screen types now have web and native UI: three welcome slides, signup,
+phone/code, profile details/calendar, gender, interests, both permission introductions,
+discovery and both swipe states, filters, match celebration, connection grid, inbox,
+chat, profile details/gallery and the full-photo story-style viewer. Both native
+onboarding and phone verification were brought closer to the supplied composition.
+The photo camera flow supports uploading before profile completion and returning
+without losing entered names. Swipe underlays use actual next profiles, never seeded
+placeholder members. The match celebration now fills the screen on mobile.
+
+The story-style viewer is explicitly labelled Profile photos: it views approved
+profile images, rather than claiming an unimplemented 24-hour publishing lifecycle.
+Replies use the existing authorized conversation API only after the member presses
+Send. Contact matching and social providers remain visibly unavailable; the web
+notification screen saves real match/message preferences and does not request a
+browser permission for a nonexistent web-push service.
+
+Rendered review evidence is collected in [verification/current](verification/current/README.md).
+These are real browser renders using test-boundary identities, not production member data.
