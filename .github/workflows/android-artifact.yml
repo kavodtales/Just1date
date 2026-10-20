@@ -58,6 +58,8 @@ jobs:
           api-level: 36
           target: google_apis
           arch: x86_64
+          # API 36 defaults can exceed a runner's remaining disk before app install.
+          disk-size: 4096M
           disable-animations: true
           script: |
             adb install app.apk

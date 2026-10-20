@@ -75,6 +75,33 @@ if (command === "release") {
       })),
     }),
   );
+} else if (command === "run-logs") {
+  if (!/^\d+$/.test(arg || "")) throw new Error("Provide a workflow run ID.");
+  const response = await fetch(
+    `https://api.github.com/repos/${repository}/actions/runs/${arg}/logs`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/vnd.github+json",
+      },
+    },
+  );
+  if (!response.ok)
+    throw new Error(`Workflow logs unavailable (${response.status}).`);
+  await mkdir("releases/evidence", { recursive: true });
+  const path = `releases/evidence/run-${arg}-logs.zip`;
+  await writeFile(path, Buffer.from(await response.arrayBuffer()));
+  console.log(JSON.stringify({ file: path }));
+} else if (command === "rerun-failed") {
+  if (!/^\d+$/.test(arg || "")) throw new Error("Provide a workflow run ID.");
+  await request(`/actions/runs/${arg}/rerun-failed-jobs`, "POST");
+  console.log("Failed workflow jobs queued for retry.");
+} else if (command === "cancel-run") {
+  if (!/^\d+$/.test(arg || "")) throw new Error("Provide a workflow run ID.");
+  const run = await request(`/actions/runs/${arg}`);
+  if (run.status !== "completed")
+    await request(`/actions/runs/${arg}/cancel`, "POST");
+  console.log("Superseded workflow run is stopped or already completed.");
 } else if (command === "dispatch") {
   await request("/actions/workflows/android-artifact.yml/dispatches", "POST", {
     ref: "main",
@@ -111,6 +138,7 @@ if (command === "release") {
   console.log(
     JSON.stringify({
       status: run.status,
+      attempt: run.run_attempt,
       conclusion: run.conclusion,
       url: run.html_url,
       jobs: jobs.jobs.map((j) => ({
