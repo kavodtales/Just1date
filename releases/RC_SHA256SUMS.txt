@@ -1,3 +1,3 @@
-8c5728076d796ece617afd0876b8d4b93ea18b07f8670e8a6611e1060b304b21  just1date-0.1.0-rc.1.apk
-5253405034fc4d81840c1bea8ec7b1b5ac90d252792f759adcf37353b9fbf1e5  just1date-0.1.0-rc.1.aab
-703ec9c20c02706f1d67e05b2dbb5de66f4edb8a8978ce224adef0b3684e41e2  just1date-0.1.0-ios-simulator.tar.gz
+bb671e7a1e2e5a1242d9ad106936dc145111d7b23bb3183124696d1ea722a0ce  just1date-0.1.0-rc.2.apk
+bc2deb3269b92e8941e638e2fd64459e2d24b0aa0d6a2dd8ed4c18e6fbae3d87  just1date-0.1.0-rc.2.aab
+3eec61011ec9bdd00d4309af3ebc20d3e174ac5678b67fb1580bbb0fd1a0877b  just1date-0.1.0-rc.2-ios-simulator.tar.gz

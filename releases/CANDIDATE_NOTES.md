@@ -1,4 +1,11 @@
-Just1date reference-screen release candidate
+Just1date coded screens and editable photography — v0.1.0-rc.2
+
+Welcome photography can be previewed, published and restored by authorized staff
+through App images. Updated web, Android and iOS apps read the same published
+photos without a new build for each image change. Permission artwork and social
+glyphs are code. The match celebration composes actual member photos after a
+server-confirmed mutual like from discovery or profile detail; Say hi opens that
+specific conversation. Owner activation requires completed authenticator setup.
 
 The supplied white/pink screens and original owner logo are implemented across
 web and native: welcome, signup, phone/code, profile/calendar, interests,
