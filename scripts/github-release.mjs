@@ -42,7 +42,23 @@ async function request(path, method = "GET", body, binary = false) {
   return response.status === 204 ? {} : response.json();
 }
 const [command, arg, extra] = process.argv.slice(2);
-if (command === "status") {
+if (command === "release") {
+  if (!/^v[0-9]+\.[0-9]+\.[0-9]+(?:-[a-zA-Z0-9.-]+)?$/.test(arg || ""))
+    throw new Error("Provide a release tag.");
+  const release = await request(`/releases/tags/${arg}`);
+  console.log(
+    JSON.stringify({
+      url: release.html_url,
+      prerelease: release.prerelease,
+      assets: release.assets.map((a) => ({
+        name: a.name,
+        bytes: a.size,
+        sha256: a.digest,
+        url: a.browser_download_url,
+      })),
+    }),
+  );
+} else if (command === "status") {
   const repo = await request("");
   const runs = await request("/actions/runs?per_page=8");
   console.log(

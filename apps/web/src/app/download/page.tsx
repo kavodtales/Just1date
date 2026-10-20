@@ -66,8 +66,9 @@ export default function DownloadPage() {
                   Download Android APK
                 </a>
                 <p className="release-pending">
-                  Android preview · {androidPreview.version} · 151 MB. Google
-                  Play release is pending.
+                  Android release candidate · {androidPreview.version} ·{" "}
+                  {Math.ceil(androidPreview.bytes / 1048576)} MB. Google Play
+                  listing is not published.
                 </p>
                 <details>
                   <summary>Verify your download</summary>

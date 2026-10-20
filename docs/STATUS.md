@@ -7,7 +7,10 @@ introductions, story-style photo viewer, native country/code keypad, tilted swip
 cards, heart feedback and full-screen match. The original owner PNG is retained.
 Member browser acceptance: 66 pass; three prepared-account staging journeys remain
 skipped. All ten workspace typechecks, lint, web/admin/API production builds and
-both native exports pass. See DESIGN_PHASE.md and design/verification/current for
+both native exports pass. The code-8 APK and code-9 AAB passed independent
+certificate/signature/API/alignment and emulator or bundletool verification, and
+are published as v0.1.0-rc.1 in both authorized repositories. The iOS simulator
+archive compiled and was inspected; it is not an iPhone IPA. See DESIGN_PHASE.md and design/verification/current for
 measured scope and fixture-only rendered review images.
 
 This completes the screen implementation, not the separate public-launch gates.
@@ -27,7 +30,7 @@ skipped. See RELEASE_2026-10-18.md for artifact provenance and limitations.
 This preview is not approval for a public dating-service launch. Apple signing,
 media service/worker, email sender, real staff and the outstanding product,
 legal, security and device gates below remain necessary. The owner has since locked the supplied white/pink references and original logo;
-that UI is being verified before a fresh deployment and native builds.
+that UI is now deployed and the reference native artifacts are verified above.
 
 Independent Android CI now passes official signature, target/compile API 36,
 16KiB zip/native alignment, emulator installation and welcome startup checks.

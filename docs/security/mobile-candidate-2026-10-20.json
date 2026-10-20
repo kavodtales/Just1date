@@ -40,6 +40,10 @@
     "aab_runs": {
       "Bluechipwhale": 39395859358,
       "kavodtales": 39395950872
+    },
+    "publication_runs": {
+      "Bluechipwhale": 39397026431,
+      "kavodtales": 39397030180
     }
   },
   "limitations": [
@@ -47,5 +51,7 @@
     "iOS archive is simulator-only; Apple device signing remains required",
     "Calls remain disabled without media provider and persistent worker",
     "Full account/device/security/legal/product launch gates remain in docs/STATUS.md"
-  ]
+  ],
+  "public_release": "https://github.com/kavodtales/Just1date/releases/tag/v0.1.0-rc.1",
+  "owner_release": "https://github.com/Bluechipwhale/Just1date/releases/tag/v0.1.0-rc.1"
 }

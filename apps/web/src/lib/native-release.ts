@@ -1,9 +1,9 @@
-// Downloaded and inspected from the completed EAS managed-signing build.
-// This preview is not a Google Play-approved release.
+// Published only after certificate, signature, API/alignment and emulator checks.
+// The exact APK and AAB are recorded in docs/security/mobile-candidate-2026-10-20.json.
 export const androidPreview = {
   version: "0.1.0",
-  buildId: "8e5d5ab7-6cd4-4b98-a138-16bd8790748f",
-  url: "https://expo.dev/artifacts/eas/FwKNN7vA2CKoA4ck85BHfYPmV0O-nnR488bmZHt98TQ.apk",
-  sha256: "9d8c046ef9c486a22ef2c304b90eaf0099b2d1b9f7da5842e345da07b02c0f6f",
-  bytes: 158166999,
+  buildId: "3a0263b3-41cf-431e-a47c-c436a46925d6",
+  url: "https://github.com/kavodtales/Just1date/releases/download/v0.1.0-rc.1/just1date-0.1.0-rc.1.apk",
+  sha256: "8c5728076d796ece617afd0876b8d4b93ea18b07f8670e8a6611e1060b304b21",
+  bytes: 158097275,
 } as const;

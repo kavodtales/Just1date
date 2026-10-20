@@ -15,7 +15,9 @@ tries to submit an incomplete whole profile before uploading.
 Verification: web/admin/API production builds and both native Hermes exports pass;
 all ten workspace typechecks and lint pass. Member browser acceptance has 66 passing
 checks and three prepared-account staging skips. Twenty-three actual rendered
-375×812 review screens are retained in design/verification/current. Test images
+375×812 review screens are retained in design/verification/current. Four staff checks pass. Both repositories have passing clean CI. The web reference
+release is live and signed Android candidates passed independent emulator/bundletool
+verification and are published in both repositories. Test images
 and accounts exist only at the browser network boundary. Full physical-device pixel
 equivalence and provider acceptance remain separate checks.
 
