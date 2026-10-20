@@ -1,6 +1,8 @@
 "use client";
 import Link from "next/link";
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { appImageSlots, type AppImage } from "@just1date/config";
 const slides = [
   {
     title: "Algorithm",
@@ -18,18 +20,29 @@ const slides = [
 export function Welcome() {
   const [index, setIndex] = useState(0);
   const slide = slides[index];
+  const media = useQuery({
+    queryKey: ["app-media"],
+    queryFn: async () => {
+      const r = await fetch("/api/app-media", { cache: "no-store" });
+      if (!r.ok) throw new Error("Images unavailable");
+      return (await r.json()).data as AppImage[];
+    },
+    staleTime: 60000,
+    refetchInterval: 60000,
+    retry: 1,
+  });
+  const image = media.data?.find((p) => p.slot === appImageSlots[index].slot);
   return (
     <main className={`welcome-screen welcome-${index + 1}`}>
       <div className="welcome-image">
         <img
-          src={`/images/welcome-${index + 1}.jpg`}
-          alt={
-            [
-              "A smiling woman wearing glasses",
-              "A woman enjoying a break after exercise",
-              "A woman outdoors in the sunshine",
-            ][index]
-          }
+          key={`${index}-${image?.revision ?? 0}`}
+          src={image?.url ?? appImageSlots[index].fallback}
+          alt={image?.url ? image.alt_text : appImageSlots[index].alt}
+          onError={(e) => {
+            e.currentTarget.onerror = null;
+            e.currentTarget.src = appImageSlots[index].fallback;
+          }}
           width={345}
           height={417}
         />

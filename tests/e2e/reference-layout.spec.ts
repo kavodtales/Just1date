@@ -26,6 +26,7 @@ const own = {
   ...profile,
   user_id: user,
   display_name: "Test member",
+  photos: ["/images/welcome-1.jpg"],
   date_of_birth: "1995-07-11",
   status: "ACTIVE",
   completion: 100,
@@ -75,6 +76,9 @@ const messages = [
   },
 ];
 async function fixture(page: Page) {
+  await page.route("**/api/app-media", (route) =>
+    route.fulfill({ json: { data: [] } }),
+  );
   await page.route("**/test-photo.jpg*", async (route) =>
     route.fulfill({
       contentType: "image/jpeg",
@@ -105,6 +109,68 @@ async function fixture(page: Page) {
     await route.fulfill({ json: { data, request_id: "test-fixture" } });
   });
 }
+test("a one-sided like never fabricates a mutual match", async ({ page }) => {
+  await fixture(page);
+  await page.route("**/api/service/likes", (route) =>
+    route.fulfill({
+      json: { data: { matched: false, conversation_id: null } },
+    }),
+  );
+  await page.goto("/discover");
+  await page
+    .getByRole("button", { name: "Like this profile", exact: true })
+    .click();
+  await expect(
+    page.getByText(
+      "No more profiles in this set. Adjust your preferences or return when more members join.",
+    ),
+  ).toBeVisible();
+  await expect(page.locator(".match-celebration")).toHaveCount(0);
+});
+test("profile detail opens the same functional mutual-match celebration", async ({
+  page,
+}) => {
+  await fixture(page);
+  await page.goto(`/profile/${other}`);
+  await page
+    .getByRole("button", { name: "Like this profile", exact: true })
+    .click();
+  await expect(
+    page.getByText("You and Angela Paul liked each other."),
+  ).toBeVisible();
+  await page.getByRole("link", { name: "Say hi", exact: true }).click();
+  await expect(page).toHaveURL(new RegExp(`/messages/${conversation}`));
+});
+test("published welcome photography changes independently of coded slide controls", async ({
+  page,
+}) => {
+  await page.route("**/api/app-media", (route) =>
+    route.fulfill({
+      json: {
+        data: [
+          {
+            slot: "welcome_matches",
+            url: "/images/welcome-1.jpg",
+            alt_text: "Admin selected welcome portrait",
+            revision: 4,
+          },
+        ],
+      },
+    }),
+  );
+  await page.goto("/welcome");
+  await page.getByRole("button", { name: "Show Matches", exact: true }).click();
+  await expect(
+    page.getByRole("img", { name: "Admin selected welcome portrait" }),
+  ).toHaveAttribute("src", "/images/welcome-1.jpg");
+  await expect(
+    page.getByRole("heading", { name: "Matches", exact: true }),
+  ).toBeVisible();
+  await page
+    .getByRole("link", { name: "Create an account", exact: true })
+    .click();
+  await expect(page).toHaveURL(/auth\/signup/);
+});
 async function capture(page: Page, name: string) {
   await page
     .locator("input:focus, textarea:focus")
@@ -370,6 +436,14 @@ test("discovery matches the reference dimensions and records a real action reque
   await expect(
     page.getByRole("heading", { name: "It’s a match, Yes!", exact: true }),
   ).toBeVisible();
+  await expect(page.locator(".match-photos img").first()).toHaveAttribute(
+    "src",
+    "/images/welcome-1.jpg",
+  );
+  await expect(page.locator(".match-photos img").nth(1)).toHaveAttribute(
+    "src",
+    "/test-photo.jpg",
+  );
   await capture(page, "match");
   await page.getByRole("link", { name: "Say hi" }).click();
   await expect(page).toHaveURL(new RegExp(`/messages/${conversation}`));

@@ -9,6 +9,7 @@ export const brand = {
     paper: "#ffffff",
   },
 };
+export { appImageSlots, type AppImage } from "./app-media";
 export { legalDocuments } from "./legal";
 export const defaultWeights = {
   goals: 25,

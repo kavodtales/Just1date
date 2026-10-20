@@ -99,7 +99,7 @@ try {
     status: privateLedger.status,
   });
   const buckets = await auth.storage.listBuckets();
-  const required = ["profile-photos", "verification-evidence"];
+  const required = ["profile-photos", "verification-evidence", "app-images"];
   add(
     "private_storage_buckets",
     !buckets.error &&

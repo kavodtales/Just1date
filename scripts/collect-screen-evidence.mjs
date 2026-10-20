@@ -28,6 +28,7 @@ const names = new Set([
 ]);
 await mkdir(destination, { recursive: true });
 const collected = new Set();
+names.add("admin-app-images-preview");
 for (const directory of await readdir("test-results")) {
   if (!directory.endsWith("reference-375")) continue;
   for (const name of await readdir(join("test-results", directory))) {
@@ -41,11 +42,12 @@ for (const directory of await readdir("test-results")) {
   }
 }
 for (const name of await readdir(destination)) {
-  if (name.endsWith(".png") && names.has(name.replace(/\.png$/, ""))) collected.add(name);
+  if (name.endsWith(".png") && names.has(name.replace(/\.png$/, "")))
+    collected.add(name);
 }
 await writeFile(
   join(destination, "README.md"),
-  `# Reference screen review\n\nActual rendered web screens at 375 × 812. Photography, names, matches and messages in these screenshots are browser-test fixtures; they are never seeded as live members. The original owner logo and supplied introductory artwork are used. Native source uses the same visual references; these images are not physical-device screenshots.\n\n${[
+  `# Reference screen review\n\nActual rendered web screens at 375 × 812, plus the desktop staff image editor. Photography, names, matches and messages in these screenshots are browser-test fixtures; they are never seeded as live members. The screens themselves are React components, not screenshot backgrounds. Only photography and the original owner logo are images; titles, controls, permission artwork and the mutual-match composition are code. Native source uses the same visual references; these images are not physical-device screenshots. See [the image editing guide](../../../docs/APP_IMAGES.md) for the functional admin workflow.\n\n${[
     ...collected,
   ]
     .sort()

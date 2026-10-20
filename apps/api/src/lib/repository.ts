@@ -23,6 +23,8 @@ const functions = {
   startPayment: "rpc_start_payment",
   cancelSubscription: "rpc_cancel_subscription",
   adminIdentity: "rpc_admin_identity",
+  adminAppMedia: "rpc_admin_app_media",
+  adminPublishMedia: "rpc_admin_publish_media",
   adminMetrics: "rpc_admin_metrics",
   adminQueue: "rpc_admin_queue",
   adminModerate: "rpc_admin_moderate",

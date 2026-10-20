@@ -16,6 +16,7 @@ import { can, type AdminRole } from "@just1date/config";
 import { Button } from "@just1date/ui";
 import { api, json, ClientError } from "../../../web/src/lib/client";
 import { QueryState } from "../../../web/src/components/query-state";
+import { AppImages } from "./app-images";
 export function Dashboard() {
   const [section, setSection] = useState("overview"),
     [error, setError] = useState(""),
@@ -85,6 +86,7 @@ export function Dashboard() {
           ["overview", "Overview", Activity],
           ["moderation", "Moderation", Flag],
           ["photos", "Photo review", Camera],
+          ["app-images", "App images", Camera],
           ["demo", "Demo profiles", Users],
         ].map(([key, label, Icon]: any) => (
           <button
@@ -132,9 +134,11 @@ export function Dashboard() {
                 ? "A responsible view."
                 : section === "moderation"
                   ? "Care, with accountability."
-                  : section === "demo"
-                    ? "Ready for real connections."
-                    : "First impressions, reviewed."}
+                  : section === "app-images"
+                    ? "Your app, your photography."
+                    : section === "demo"
+                      ? "Ready for real connections."
+                      : "First impressions, reviewed."}
             </h1>
           </div>
           <span className="admin-badge">RESTRICTED ACCESS</span>
@@ -200,6 +204,13 @@ export function Dashboard() {
             </div>
           </>
         )}
+        {identity.data &&
+          section === "app-images" &&
+          (can(identity.data.role, "settings") ? (
+            <AppImages />
+          ) : (
+            <p>Your role does not have app image management access.</p>
+          ))}
         {identity.data && section === "moderation" && (
           <>
             {can(identity.data.role, "moderation") ? (

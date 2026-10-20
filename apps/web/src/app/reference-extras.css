@@ -1,4 +1,104 @@
 /* Remaining supplied screens: permission introductions and full-photo stories. */
+.code-art {
+  position: relative;
+  width: 207px;
+  height: 190px;
+}
+.code-art i {
+  display: block;
+  position: absolute;
+}
+.code-art .bubble-back {
+  width: 160px;
+  height: 125px;
+  right: 3px;
+  top: 10px;
+  border-radius: 22px;
+  background: linear-gradient(135deg, #ff993c, #ffca7d);
+  box-shadow: 5px 2px 25px #ffad5566;
+}
+.code-art .bubble-front {
+  width: 160px;
+  height: 125px;
+  left: 12px;
+  top: 40px;
+  border-radius: 22px;
+  background: linear-gradient(110deg, #fff4ed, #ffb57caa);
+  backdrop-filter: blur(6px);
+  box-shadow: inset 0 -12px 20px #ffcba488;
+}
+.code-art .bubble-front::after {
+  content: "";
+  position: absolute;
+  bottom: -16px;
+  left: 19px;
+  width: 30px;
+  height: 30px;
+  background: #ffdbbe;
+  transform: skew(-35deg);
+  border-radius: 0 0 16px 0;
+  z-index: -1;
+}
+.code-art .bubble-front b {
+  display: block;
+  width: 100px;
+  height: 20px;
+  border-radius: 14px;
+  margin: 34px 0 0 25px;
+  background: #fff4d9b0;
+}
+.code-art .bubble-front b + b {
+  width: 70px;
+  margin-top: 20px;
+}
+.code-art.friends-art {
+  height: 215px;
+}
+.code-art .person-back {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  right: 22px;
+  top: 7px;
+  background: radial-gradient(circle at 25% 25%, #cf83d5, #a33da7);
+  box-shadow: 8px 0 22px #bb66c544;
+}
+.code-art .person-front {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  left: 25px;
+  top: 28px;
+  background: radial-gradient(
+    circle at 20% 25%,
+    #fff8fc,
+    #efd4e9 40%,
+    #ac50b8cc
+  );
+  backdrop-filter: blur(7px);
+}
+.code-art .person-body-back {
+  width: 140px;
+  height: 62px;
+  border-radius: 50%;
+  right: 12px;
+  bottom: 28px;
+  background: linear-gradient(130deg, #d48dd5, #a53ea6);
+}
+.code-art .person-body-front {
+  width: 132px;
+  height: 60px;
+  border-radius: 50%;
+  left: 14px;
+  bottom: 8px;
+  background: radial-gradient(
+    ellipse at 20% 30%,
+    #fff9fc,
+    #ebcbe6 55%,
+    #bd65b8
+  );
+  box-shadow: inset -9px 3px 20px #b352b455;
+}
 .reference-shell {
   overflow-x: clip;
 }
@@ -86,6 +186,27 @@
 .match-heart-bottom {
   bottom: -5px;
   left: 20px;
+}
+.match-photo-placeholder {
+  position: absolute;
+  width: 160px;
+  height: 245px;
+  right: 10px;
+  top: 0;
+  background: #fbeaf5;
+  color: #df3594;
+  font-size: 64px;
+  display: grid;
+  place-items: center;
+  border-radius: 15px;
+  transform: rotate(10deg);
+}
+.match-photo-placeholder:nth-child(2) {
+  left: 10px;
+  right: auto;
+  top: auto;
+  bottom: 20px;
+  transform: rotate(-10deg);
 }
 .discovery-deck {
   position: relative;

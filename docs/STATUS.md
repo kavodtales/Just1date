@@ -1,5 +1,25 @@
 # Implementation and verification status
 
+## Coded UI and editable app images — 20 October 2026
+
+Promotional welcome photography now has an authenticated, MFA-protected App images
+editor for ADMIN/SUPER_ADMIN staff. It supports local preview, accessible image
+descriptions, publication, optimistic revision checks and confirmed restoration.
+Migration 012 stores published slots separately from private member photography.
+Web and native fetch the same feed and retain original photo fallbacks. Permission
+artwork and social glyphs are rendered as code instead of screenshot crops.
+Discovery and profile detail share a dynamic match celebration, using the actual
+two member photos and a server-confirmed mutual match. See APP_IMAGES.md.
+
+The complete SQL/API/unit suite passes 66 tests, including publishing, reset,
+storage failure, staff restrictions and stale-editor cleanup. Ten workspace
+typechecks and production web/admin/API builds pass with bounded local memory.
+Member browser acceptance passes 75 tests across desktop and mobile, with three
+prepared-account staging journeys skipped. Eight staff browser tests pass.
+Both updated native Hermes bundles export successfully. Updated native release
+verification is recorded separately as it completes; these source changes do
+not update an already downloaded RC1 binary.
+
 ## Completed reference screens — 20 October 2026
 
 All owner-supplied screen types now have web and native UI, including the permission
@@ -17,7 +37,6 @@ This completes the screen implementation, not the separate public-launch gates.
 Contact matching/social providers remain visibly unavailable. Story-style viewing
 uses approved profile photos and matched replies, not ephemeral publishing. Apple
 device signing and media/worker configuration remain external dependencies.
-
 
 ## Native and installable web update — 19 October 2026
 

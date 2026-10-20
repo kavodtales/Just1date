@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { api, json } from "../lib/client";
+import { PermissionArt } from "./permission-art";
 
 export function PermissionIntro({ friends = false }: { friends?: boolean }) {
   const router = useRouter();
@@ -16,13 +17,7 @@ export function PermissionIntro({ friends = false }: { friends?: boolean }) {
       >
         Skip
       </Link>
-      <img
-        className={`permission-art ${friends ? "friends-art" : ""}`}
-        src={`/images/${friends ? "contacts" : "notifications"}.png`}
-        alt=""
-        width={friends ? 200 : 207}
-        height={friends ? 215 : 190}
-      />
+      <PermissionArt friends={friends} />
       <h1>{friends ? "Search friends" : "Enable notifications"}</h1>
       <p>
         {friends

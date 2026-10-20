@@ -17,6 +17,7 @@ import type { PaymentProvider } from "./modules/payments/provider";
 import { safetyRoutes } from "./modules/safety";
 import { accountRoutes } from "./modules/account";
 import { adminRoutes } from "./modules/admin";
+import { publicAppMediaRoutes } from "./modules/app-media";
 import { aiRoutes } from "./modules/ai";
 import { openapi } from "./openapi";
 import { DemoService, demoRoutes } from "./modules/demo";
@@ -122,6 +123,7 @@ export function createApp(deps: {
   });
   const demo = new DemoService(deps.db, config.SUPABASE_SERVICE_ROLE_KEY);
   app.use("/v1/demo", demo.middleware, apiLimiter, demoRoutes(demo));
+  app.use("/v1/app-media", apiLimiter, publicAppMediaRoutes(repo, deps.auth));
   app.use("/v1", deps.authenticate ?? authenticate(deps.auth));
   app.use("/v1", apiLimiter);
   app.use("/v1/profiles", profilesRoutes(repo, deps.auth));

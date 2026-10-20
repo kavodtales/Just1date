@@ -5,6 +5,7 @@ import { moderationSchema, uuid } from "@just1date/validation";
 import { Repository } from "../lib/repository";
 import { AppError, ok } from "../lib/http";
 import { DemoService } from "./demo";
+import { adminAppMediaRoutes } from "./app-media";
 export function adminRoutes(
   repo: Repository,
   storage: SupabaseClient,
@@ -24,6 +25,7 @@ export function adminRoutes(
     next();
   });
   r.get("/demo", async (req, res) => ok(res, await demo!.admin(req.actor.id)));
+  r.use("/app-media", adminAppMediaRoutes(repo, storage));
   r.post("/demo", async (req, res) => {
     const { action } = z
       .object({ action: z.enum(["remove", "restore"]) })

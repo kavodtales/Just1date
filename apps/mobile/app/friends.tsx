@@ -1,6 +1,6 @@
 import { View, Text, Pressable, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Image } from "expo-image";
+import { PermissionArt } from "../components/permission-art";
 import { router } from "expo-router";
 import { Button, s, colors } from "../components/ui";
 export default function Friends() {
@@ -28,17 +28,7 @@ export default function Friends() {
             Skip
           </Text>
         </Pressable>
-        <Image
-          source={require("../assets/contacts.png")}
-          style={{
-            width: 200,
-            height: 215,
-            alignSelf: "center",
-            marginTop: 100,
-            marginBottom: 90,
-          }}
-          contentFit="contain"
-        />
+        <PermissionArt friends />
         <Text style={[s.h2, { textAlign: "center" }]}>Search friends</Text>
         <Text style={[s.muted, { textAlign: "center", marginTop: 12 }]}>
           Contact matching is not available yet. Your contact list stays on your

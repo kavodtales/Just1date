@@ -63,6 +63,12 @@ export function ok(res: Response, data: unknown, status = 200) {
   return res.status(status).json({ data, request_id: res.req.requestId });
 }
 const domain: Record<string, [number, string]> = {
+  MEDIA_CONFLICT: [
+    409,
+    "Another admin changed this image. Reload the latest version before publishing.",
+  ],
+  MEDIA_UNAVAILABLE: [404, "This app image slot does not exist."],
+  INVALID_MEDIA: [400, "Choose a valid photo and add an image description."],
   ACCOUNT_UNAVAILABLE: [
     403,
     "Your account is unavailable. Contact support for help.",

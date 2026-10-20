@@ -9,6 +9,7 @@ import { QueryState } from "./query-state";
 import { Reactions, type Reaction } from "./reactions";
 import { PhotoViewer } from "./photo-viewer";
 import { api, json } from "../lib/client";
+import { MatchCelebration } from "./match-celebration";
 export function ProfileDetail({ id }: { id?: string }) {
   const qc = useQueryClient();
   const q = useQuery({
@@ -21,6 +22,7 @@ export function ProfileDetail({ id }: { id?: string }) {
     [expanded, setExpanded] = useState(false),
     [photo, setPhoto] = useState<number | null>(null);
   const p = q.data;
+  const [conversation, setConversation] = useState<string | null>(null);
   async function action(path: Reaction | "blocks") {
     setBusy(true);
     setError("");
@@ -32,6 +34,8 @@ export function ProfileDetail({ id }: { id?: string }) {
           ...(path === "blocks" ? {} : { operation_id: crypto.randomUUID() }),
         }),
       });
+      if (path !== "blocks" && result.matched && result.conversation_id)
+        setConversation(result.conversation_id);
       setMessage(
         path === "blocks"
           ? "This person is blocked and your conversation is closed."
@@ -51,6 +55,13 @@ export function ProfileDetail({ id }: { id?: string }) {
   }
   return (
     <Shell title={id ? "Profile" : "Your profile"} variant="profile">
+      {conversation && p && (
+        <MatchCelebration
+          profile={p}
+          conversation={conversation}
+          onClose={() => setConversation(null)}
+        />
+      )}
       <QueryState pending={q.isPending} error={q.error} retry={q.refetch} />
       {p && (
         <article className="full-profile">

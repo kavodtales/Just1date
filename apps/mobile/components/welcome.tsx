@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { appImageSlots, type AppImage } from "@just1date/config";
 import {
   View,
   Text,
@@ -33,6 +35,23 @@ const slides = [
 ];
 export function Welcome() {
   const [index, setIndex] = useState(0);
+  const [failed, setFailed] = useState<string | null>(null);
+  const media = useQuery({
+    queryKey: ["app-media"],
+    queryFn: async () => {
+      if (!process.env.EXPO_PUBLIC_API_URL) return [] as AppImage[];
+      const response = await fetch(
+        `${process.env.EXPO_PUBLIC_API_URL}/v1/app-media`,
+        { signal: AbortSignal.timeout(8000) },
+      );
+      if (!response.ok) throw new Error("Images unavailable");
+      return (await response.json()).data as AppImage[];
+    },
+    staleTime: 60000,
+    refetchInterval: 60000,
+    retry: 1,
+  });
+  const remote = media.data?.find((p) => p.slot === appImageSlots[index].slot);
   const { height } = useWindowDimensions();
   const insets = useSafeAreaInsets();
   const photoHeight = Math.min(
@@ -46,14 +65,23 @@ export function Welcome() {
     <SafeAreaView style={st.screen}>
       <ScrollView contentContainerStyle={st.container}>
         <Image
-          source={slides[index].image}
+          source={
+            remote?.url && remote.url !== failed
+              ? { uri: remote.url }
+              : slides[index].image
+          }
+          onError={() => setFailed(remote?.url ?? null)}
           style={[
             st.photo,
             { height: photoHeight },
             index === 2 && { marginHorizontal: 23, marginTop: 12 },
           ]}
           contentFit="cover"
-          accessibilityLabel="Just1date introduction artwork"
+          accessibilityLabel={
+            remote?.url && remote.url !== failed
+              ? remote.alt_text
+              : appImageSlots[index].alt
+          }
         />
         <View style={[st.copy, index === 2 && { paddingTop: 32, height: 153 }]}>
           <Text accessibilityRole="header" style={st.title}>

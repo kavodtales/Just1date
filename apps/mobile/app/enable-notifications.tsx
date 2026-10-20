@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { View, Text, Pressable, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Image } from "expo-image";
+import { PermissionArt } from "../components/permission-art";
 import { router } from "expo-router";
 import { enableNotifications } from "../lib/notifications";
 import { Button, s, colors } from "../components/ui";
@@ -32,19 +32,9 @@ export default function EnableNotifications() {
             Skip
           </Text>
         </Pressable>
-        <Image
-          source={require("../assets/notifications.png")}
-          style={{
-            width: 207,
-            height: 190,
-            alignSelf: "center",
-            marginTop: 125,
-            marginBottom: 90,
-          }}
-          contentFit="contain"
-        />
+        <PermissionArt />
         <Text style={[s.h2, { textAlign: "center" }]}>
-          Enable notification’s
+          Enable notifications
         </Text>
         <Text style={[s.muted, { textAlign: "center", marginTop: 12 }]}>
           Get push-notification when you get the match or receive a message.

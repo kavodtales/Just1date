@@ -16,27 +16,12 @@ for (const [index, [name, rectangle]] of crops.entries()) {
 }
 // Use the owner's original PNG, not the low resolution screenshot crop.
 await import("./prepare-brand-assets.mjs");
-for (const [name, rectangle] of [
-  ["social-facebook", { left: 88, top: 620, width: 29, height: 30 }],
-  ["social-google", { left: 172, top: 620, width: 31, height: 30 }],
-  ["social-apple", { left: 256, top: 620, width: 29, height: 30 }],
-])
-  await sharp("design/references/Sign up.jpg")
-    .extract(rectangle)
-    .png()
-    .toFile(`apps/web/public/images/${name}.png`);
-for (const [name, source, rectangle] of [
-  [
-    "notifications",
-    "Notification.jpg",
-    { left: 90, top: 195, width: 207, height: 190 },
-  ],
-  ["contacts", "Friends.jpg", { left: 90, top: 180, width: 200, height: 215 }],
-]) {
-  const destination = `apps/web/public/images/${name}.png`;
-  await sharp(`design/references/${source}`)
-    .extract(rectangle)
-    .png()
-    .toFile(destination);
-  await copyFile(destination, `apps/mobile/assets/${name}.png`);
+// Only photography and the original owner logo are raster assets.
+// Controls, permission illustrations and match compositions are rendered in code.
+await mkdir("apps/admin/public/images", { recursive: true });
+for (let index = 1; index <= 3; index++) {
+  await copyFile(
+    `apps/web/public/images/welcome-${index}.jpg`,
+    `apps/admin/public/images/welcome-${index}.jpg`,
+  );
 }

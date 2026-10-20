@@ -6,11 +6,11 @@ import { MapPin, ShieldCheck, SlidersHorizontal, Heart } from "lucide-react";
 import type { Profile } from "@just1date/types";
 import { Button, State } from "@just1date/ui";
 import { Shell } from "./shell";
-import { Sheet } from "./sheet";
 import { Filters } from "./filters";
 import { Reactions, type Reaction } from "./reactions";
 import { QueryState } from "./query-state";
 import { api, json } from "../lib/client";
+import { MatchCelebration } from "./match-celebration";
 export function Discover() {
   const client = useQueryClient();
   const [index, setIndex] = useState(0),
@@ -27,11 +27,6 @@ export function Discover() {
       api<{ items: Profile[]; next_cursor: string | null }>(
         `profiles/discover${cursor ? `?cursor=${cursor}` : ""}`,
       ),
-  });
-  const own = useQuery({
-    queryKey: ["me"],
-    queryFn: () => api<Profile>("profiles/me"),
-    enabled: Boolean(match),
   });
   const p = query.data?.items[index];
   const operation = useRef<{
@@ -263,43 +258,11 @@ export function Discover() {
         />
       )}
       {match && (
-        <Sheet
-          title="It’s a match!"
-          variant="match"
+        <MatchCelebration
+          profile={match.profile}
+          conversation={match.conversation}
           onClose={() => setMatch(null)}
-        >
-          <div className="match-celebration">
-            {match.profile.photos?.[0] && own.data?.photos?.[0] && (
-              <div className="match-photos">
-                <img src={own.data.photos[0]} alt="Your profile photo" />
-                <img
-                  src={match.profile.photos[0]}
-                  alt={match.profile.display_name}
-                />
-                <span
-                  className="match-heart match-heart-top"
-                  aria-hidden="true"
-                >
-                  <Heart fill="currentColor" size={28} />
-                </span>
-                <span
-                  className="match-heart match-heart-bottom"
-                  aria-hidden="true"
-                >
-                  <Heart fill="currentColor" size={28} />
-                </span>
-              </div>
-            )}
-            <h3>It’s a match, Yes!</h3>
-            <p>Start a conversation now with each other.</p>
-            <Link className="button" href={`/messages/${match.conversation}`}>
-              Say hi
-            </Link>
-            <button className="button secondary" onClick={() => setMatch(null)}>
-              Keep swiping
-            </button>
-          </div>
-        </Sheet>
+        />
       )}
     </Shell>
   );

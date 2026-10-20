@@ -45,7 +45,7 @@ it("installs the complete schema and matches authoritative migration checksums",
   const tables = await db.query(
     "select tablename from pg_tables where schemaname='public'",
   );
-  expect(tables.rows).toHaveLength(62);
+  expect(tables.rows).toHaveLength(63);
   expect(
     (
       await db.query(
@@ -95,7 +95,7 @@ it("configures private storage, realtime publication, and private broadcast poli
     allowed_mime_types: string[];
     file_size_limit: number;
   }>("select * from storage.buckets");
-  expect(buckets.rows).toHaveLength(2);
+  expect(buckets.rows).toHaveLength(3);
   for (const bucket of buckets.rows) {
     expect(bucket.public).toBe(false);
     expect(Number(bucket.file_size_limit)).toBe(5242880);
@@ -107,7 +107,15 @@ it("configures private storage, realtime publication, and private broadcast poli
         "select tablename from pg_publication_tables where pubname='supabase_realtime' order by tablename",
       )
     ).rows,
-  ).toEqual(["call_sessions","conversation_members","message_reactions","messages","notifications"].map(tablename=>({tablename})));
+  ).toEqual(
+    [
+      "call_sessions",
+      "conversation_members",
+      "message_reactions",
+      "messages",
+      "notifications",
+    ].map((tablename) => ({ tablename })),
+  );
   expect(
     (
       await db.query(

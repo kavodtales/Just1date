@@ -16,6 +16,7 @@ import { useQuery } from "@tanstack/react-query";
 import { api } from "../../lib/api";
 import { Status, Button, s, colors } from "../../components/ui";
 import { Reactions, type Reaction } from "../../components/reactions";
+import { MatchCelebration } from "../../components/match-celebration";
 export default function Profile() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const q = useQuery({
@@ -30,11 +31,21 @@ export default function Profile() {
     [photo, setPhoto] = useState<number | null>(null);
   const { height } = useWindowDimensions(),
     p = q.data;
+  const [conversation, setConversation] = useState<string | null>(null);
   async function action(path: string, body: unknown, success: string) {
     setBusy(true);
     setError("");
     try {
-      await api(path, { method: "POST", body: JSON.stringify(body) });
+      const result = await api(path, {
+        method: "POST",
+        body: JSON.stringify(body),
+      });
+      if (
+        ["likes", "super-likes"].includes(path) &&
+        result?.matched &&
+        result.conversation_id
+      )
+        setConversation(result.conversation_id);
       setMessage(success);
     } catch (e) {
       setError((e as Error).message);
@@ -44,6 +55,13 @@ export default function Profile() {
   }
   return (
     <View style={s.screen}>
+      {conversation && p && (
+        <MatchCelebration
+          profile={p}
+          conversation={conversation}
+          onClose={() => setConversation(null)}
+        />
+      )}
       <ScrollView
         contentContainerStyle={{
           width: "100%",
