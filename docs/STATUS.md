@@ -1,5 +1,21 @@
 # Implementation and verification status
 
+## Completed reference screens — 20 October 2026
+
+All owner-supplied screen types now have web and native UI, including the permission
+introductions, story-style photo viewer, native country/code keypad, tilted swipe
+cards, heart feedback and full-screen match. The original owner PNG is retained.
+Member browser acceptance: 66 pass; three prepared-account staging journeys remain
+skipped. All ten workspace typechecks, lint, web/admin/API production builds and
+both native exports pass. See DESIGN_PHASE.md and design/verification/current for
+measured scope and fixture-only rendered review images.
+
+This completes the screen implementation, not the separate public-launch gates.
+Contact matching/social providers remain visibly unavailable. Story-style viewing
+uses approved profile photos and matched replies, not ephemeral publishing. Apple
+device signing and media/worker configuration remain external dependencies.
+
+
 ## Native and installable web update — 19 October 2026
 
 A real managed-signing Android preview APK has finished building. Video-call

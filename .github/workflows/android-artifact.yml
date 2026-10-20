@@ -39,6 +39,7 @@ jobs:
         run: |
           TOOLS=$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -1)
           "$TOOLS/apksigner" verify --verbose --print-certs app.apk | tee signature.txt
+          grep -qi 'certificate SHA-256 digest: 5ebcd924f715d62b99ab96b1d0f1931f0491946a8dc725186aa91193c0edf7a6' signature.txt
           "$TOOLS/zipalign" -c -P 16 -v 4 app.apk > zip-alignment.txt
           "$TOOLS/aapt" dump badging app.apk > badging.txt
           grep -q "package: name='com.just1date.app'" badging.txt

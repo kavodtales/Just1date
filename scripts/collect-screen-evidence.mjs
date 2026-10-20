@@ -40,6 +40,9 @@ for (const directory of await readdir("test-results")) {
     collected.add(name);
   }
 }
+for (const name of await readdir(destination)) {
+  if (name.endsWith(".png") && names.has(name.replace(/\.png$/, ""))) collected.add(name);
+}
 await writeFile(
   join(destination, "README.md"),
   `# Reference screen review\n\nActual rendered web screens at 375 × 812. Photography, names, matches and messages in these screenshots are browser-test fixtures; they are never seeded as live members. The original owner logo and supplied introductory artwork are used. Native source uses the same visual references; these images are not physical-device screenshots.\n\n${[

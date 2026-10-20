@@ -13,7 +13,9 @@ and reactions use the existing authenticated services. Early photo upload no lon
 tries to submit an incomplete whole profile before uploading.
 
 Verification: web/admin/API production builds and both native Hermes exports pass;
-final type, browser, screen-review and upload results are being recorded. Test images
+all ten workspace typechecks and lint pass. Member browser acceptance has 66 passing
+checks and three prepared-account staging skips. Twenty-three actual rendered
+375×812 review screens are retained in design/verification/current. Test images
 and accounts exist only at the browser network boundary. Full physical-device pixel
 equivalence and provider acceptance remain separate checks.
 

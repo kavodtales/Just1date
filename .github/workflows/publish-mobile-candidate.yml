@@ -1,0 +1,76 @@
+name: Publish verified mobile candidate
+on:
+  workflow_dispatch:
+    inputs:
+      apk_verification_run:
+        description: Successful APK verification run in this repository
+        required: true
+        type: string
+      aab_verification_run:
+        description: Successful AAB verification run in this repository
+        required: true
+        type: string
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: mobile-candidate-release
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Require exact independently verified artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+          APK_RUN: ${{ inputs.apk_verification_run }}
+          AAB_RUN: ${{ inputs.aab_verification_run }}
+        run: |
+          [[ "$APK_RUN" =~ ^[0-9]+$ ]] && [[ "$AAB_RUN" =~ ^[0-9]+$ ]]
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/$APK_RUN" > apk-run.json
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/$AAB_RUN" > aab-run.json
+          gh run download "$APK_RUN" --repo "$GITHUB_REPOSITORY" --name android-verification --dir evidence/apk
+          gh run download "$AAB_RUN" --repo "$GITHUB_REPOSITORY" --name google-play-bundle-verification --dir evidence/aab
+          python - <<'PY'
+          import json,os,re,urllib.parse
+          release=json.load(open('docs/security/mobile-candidate-2026-10-20.json'))
+          assert re.fullmatch(r'v[0-9]+\.[0-9]+\.[0-9]+-rc\.[0-9]+',release['tag'])
+          for kind,name,evidence in [('apk','Verify signed Android artifact','evidence/apk/apk-verification.json'),('aab','Verify signed Google Play bundle','evidence/aab/native-verification.json')]:
+            run=json.load(open(kind+'-run.json'))
+            assert run['conclusion']=='success' and run['name']==name and run['head_branch']=='main'
+            item=release[kind]
+            assert json.load(open(evidence))['sha256']==item['sha256']
+            url=urllib.parse.urlparse(item['artifact'])
+            assert url.scheme=='https' and url.hostname=='expo.dev' and url.path.startswith('/artifacts/eas/') and url.path.endswith('.'+kind)
+            assert re.fullmatch('[a-f0-9]{64}',item['sha256'])
+            assert re.fullmatch(r'just1date-[a-zA-Z0-9.-]+\.'+kind,item['filename'])
+          with open(os.environ['GITHUB_ENV'],'a') as env:
+            env.write('RELEASE_TAG='+release['tag']+'\n')
+            for kind in ['apk','aab']:
+              for key,value in release[kind].items():
+                if key in ['artifact','filename','sha256']: env.write(kind.upper()+'_'+key.upper()+'='+value+'\n')
+          PY
+      - name: Download the exact signed releases
+        run: |
+          curl --fail --location --proto '=https' --proto-redir '=https' --max-filesize 268435456 "$APK_ARTIFACT" --output "$APK_FILENAME"
+          curl --fail --location --proto '=https' --proto-redir '=https' --max-filesize 268435456 "$AAB_ARTIFACT" --output "$AAB_FILENAME"
+          printf '%s  %s\n%s  %s\n' "$APK_SHA256" "$APK_FILENAME" "$AAB_SHA256" "$AAB_FILENAME" > SHA256SUMS.txt
+          sha256sum --check SHA256SUMS.txt
+      - name: Publish immutable prerelease assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" || gh release create "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --prerelease --title 'Just1date reference screen release candidate' --notes-file releases/CANDIDATE_NOTES.md
+          for FILE in "$APK_FILENAME" "$AAB_FILENAME" SHA256SUMS.txt; do
+            if gh api "repos/$GITHUB_REPOSITORY/releases/tags/$RELEASE_TAG" --jq '.assets[].name' | grep -Fxq "$FILE"; then
+              echo "Release asset already exists; refusing to overwrite it: $FILE"
+              exit 1
+            fi
+            gh release upload "$RELEASE_TAG" "$FILE" --repo "$GITHUB_REPOSITORY"
+          done
+          gh api "repos/$GITHUB_REPOSITORY/releases/tags/$RELEASE_TAG" --jq '{url: .html_url, assets: [.assets[] | {name,size,digest}]}'

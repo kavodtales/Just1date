@@ -65,6 +65,24 @@ if (command === "status") {
     inputs: { artifact_url: arg, sha256: extra },
   });
   console.log("Android artifact verification requested.");
+} else if (command === "dispatch-bundle") {
+  await request("/actions/workflows/android-bundle.yml/dispatches", "POST", {
+    ref: "main",
+    inputs: { artifact_url: arg, sha256: extra },
+  });
+  console.log("Google Play bundle verification requested.");
+} else if (command === "publish-candidate") {
+  if (!/^\d+$/.test(arg || "") || !/^\d+$/.test(extra || ""))
+    throw new Error("Provide successful APK and AAB verification run IDs.");
+  await request(
+    "/actions/workflows/publish-mobile-candidate.yml/dispatches",
+    "POST",
+    {
+      ref: "main",
+      inputs: { apk_verification_run: arg, aab_verification_run: extra },
+    },
+  );
+  console.log("Verified mobile candidate publication requested.");
 } else if (command === "run") {
   const run = await request(`/actions/runs/${arg}`),
     jobs = await request(`/actions/runs/${arg}/jobs`);

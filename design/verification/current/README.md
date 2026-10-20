@@ -1,0 +1,27 @@
+# Reference screen review
+
+Actual rendered web screens at 375 × 812. Photography, names, matches and messages in these screenshots are browser-test fixtures; they are never seeded as live members. The original owner logo and supplied introductory artwork are used. Native source uses the same visual references; these images are not physical-device screenshots.
+
+- [birthday](./birthday.png)
+- [chat](./chat.png)
+- [discover](./discover.png)
+- [enable-notifications](./enable-notifications.png)
+- [filters](./filters.png)
+- [friends](./friends.png)
+- [gallery](./gallery.png)
+- [gender](./gender.png)
+- [interests](./interests.png)
+- [match](./match.png)
+- [matches](./matches.png)
+- [messages](./messages.png)
+- [phone](./phone.png)
+- [profile-details](./profile-details.png)
+- [profile](./profile.png)
+- [signup](./signup.png)
+- [stories](./stories.png)
+- [swipe-left](./swipe-left.png)
+- [swipe-right](./swipe-right.png)
+- [verification-code](./verification-code.png)
+- [welcome-matches](./welcome-matches.png)
+- [welcome-premium](./welcome-premium.png)
+- [welcome](./welcome.png)

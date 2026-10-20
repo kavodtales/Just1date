@@ -1,4 +1,17 @@
 /* Remaining supplied screens: permission introductions and full-photo stories. */
+.reference-shell {
+  overflow-x: clip;
+}
+.onboarding-name .onboarding-avatar {
+  margin-top: 77px;
+}
+.onboarding-step-1 .form-actions {
+  margin-top: 73px;
+}
+.match-screen .button.secondary {
+  background: #fbeaf5;
+  border-color: #fbeaf5;
+}
 .reference-sheet.match-screen {
   inset: 0;
   height: 100dvh;
