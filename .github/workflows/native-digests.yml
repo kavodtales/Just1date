@@ -1,0 +1,56 @@
+name: Measure native release artifacts
+on:
+  workflow_dispatch:
+    inputs:
+      apk_url:
+        description: Finished Expo APK URL
+        required: true
+        type: string
+      aab_url:
+        description: Finished Expo AAB URL
+        required: true
+        type: string
+permissions:
+  contents: read
+jobs:
+  measure:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Validate exact Expo artifact URLs
+        env:
+          APK_URL: ${{ inputs.apk_url }}
+          AAB_URL: ${{ inputs.aab_url }}
+        run: |
+          python - <<'PY'
+          import os,urllib.parse
+          for kind in ['APK','AAB']:
+            raw=os.environ[kind+'_URL']
+            url=urllib.parse.urlparse(raw)
+            assert url.scheme=='https' and url.hostname=='expo.dev'
+            assert url.path.startswith('/artifacts/eas/') and url.path.endswith('.'+kind.lower())
+            assert not url.username and not url.password and not url.query and not url.fragment
+            assert '\n' not in raw and '\r' not in raw
+          PY
+      - name: Measure APK and AAB independently of the local workstation
+        env:
+          APK_URL: ${{ inputs.apk_url }}
+          AAB_URL: ${{ inputs.aab_url }}
+        run: |
+          curl --fail --location --proto '=https' --proto-redir '=https' --max-filesize 268435456 "$APK_URL" --output app.apk
+          curl --fail --location --proto '=https' --proto-redir '=https' --max-filesize 268435456 "$AAB_URL" --output app.aab
+          python - <<'PY'
+          import hashlib,json,os
+          results={}
+          for kind in ['apk','aab']:
+            digest=hashlib.sha256()
+            with open('app.'+kind,'rb') as file:
+              for block in iter(lambda:file.read(1048576),b''): digest.update(block)
+            results[kind]={'artifact':os.environ[kind.upper()+'_URL'],'sha256':digest.hexdigest(),'bytes':os.path.getsize('app.'+kind)}
+          with open('native-digests.json','w') as file: json.dump(results,file,indent=2)
+          print(json.dumps(results,indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: native-digests
+          path: native-digests.json

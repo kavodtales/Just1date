@@ -4,8 +4,11 @@ import { URL } from "node:url";
 import { createWriteStream, createReadStream } from "node:fs";
 import { mkdir, rename, writeFile, stat } from "node:fs/promises";
 import { pipeline } from "node:stream/promises";
-import { Readable, Transform } from "node:stream";
-const [source, filename] = process.argv.slice(2);
+import { Readable, Transform, Writable } from "node:stream";
+const [source, filename, mode] = process.argv.slice(2);
+if (mode && mode !== "--hash-only")
+  throw new Error("Unsupported download mode.");
+const hashOnly = mode === "--hash-only";
 const url = new URL(source);
 if (
   url.protocol !== "https:" ||
@@ -19,9 +22,11 @@ if (
 await mkdir("releases", { recursive: true });
 try {
   const partial = `releases/${filename}.partial`;
-  const offset = await stat(partial)
-    .then((file) => file.size)
-    .catch(() => 0);
+  const offset = hashOnly
+    ? 0
+    : await stat(partial)
+        .then((file) => file.size)
+        .catch(() => 0);
   const response = await fetch(url, {
     headers: offset ? { Range: `bytes=${offset}-` } : {},
   });
@@ -50,7 +55,13 @@ try {
   await pipeline(
     Readable.fromWeb(response.body),
     check,
-    createWriteStream(partial, { flags: resume ? "a" : "w" }),
+    hashOnly
+      ? new Writable({
+          write(_chunk, _encoding, callback) {
+            callback();
+          },
+        })
+      : createWriteStream(partial, { flags: resume ? "a" : "w" }),
   );
   const result = {
     artifact: url.href,
@@ -58,7 +69,7 @@ try {
     sha256: hash.digest("hex"),
     bytes,
   };
-  await rename(partial, `releases/${filename}`);
+  if (!hashOnly) await rename(partial, `releases/${filename}`);
   await mkdir("releases/evidence", { recursive: true });
   await writeFile(
     `releases/evidence/${filename}.json`,

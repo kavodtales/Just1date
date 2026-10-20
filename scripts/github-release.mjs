@@ -87,6 +87,12 @@ if (command === "release") {
     inputs: { artifact_url: arg, sha256: extra },
   });
   console.log("Google Play bundle verification requested.");
+} else if (command === "dispatch-digests") {
+  await request("/actions/workflows/native-digests.yml/dispatches", "POST", {
+    ref: "main",
+    inputs: { apk_url: arg, aab_url: extra },
+  });
+  console.log("Independent native artifact measurement requested.");
 } else if (command === "publish-candidate") {
   if (!/^\d+$/.test(arg || "") || !/^\d+$/.test(extra || ""))
     throw new Error("Provide successful APK and AAB verification run IDs.");
@@ -136,11 +142,17 @@ if (command === "release") {
       })),
     }),
   );
-} else if (command === "artifacts") {
+} else if (
+  ["artifacts", "bundle-artifacts", "digest-artifacts"].includes(command)
+) {
+  const name =
+    command === "artifacts"
+      ? "android-verification"
+      : command === "bundle-artifacts"
+        ? "google-play-bundle-verification"
+        : "native-digests";
   const result = await request(`/actions/runs/${arg}/artifacts`);
-  const artifact = result.artifacts.find(
-    (a) => a.name === "android-verification" && !a.expired,
-  );
+  const artifact = result.artifacts.find((a) => a.name === name && !a.expired);
   if (!artifact) throw new Error("Android verification artifact is not ready.");
   const response = await fetch(
     `https://api.github.com/repos/${repository}/actions/artifacts/${artifact.id}/zip`,
@@ -155,13 +167,13 @@ if (command === "release") {
     throw new Error(`Artifact download failed (${response.status}).`);
   await mkdir("releases/evidence", { recursive: true });
   await writeFile(
-    "releases/evidence/android-verification.zip",
+    `releases/evidence/${name}.zip`,
     Buffer.from(await response.arrayBuffer()),
   );
   console.log(
     JSON.stringify({
       artifact: artifact.name,
-      file: "releases/evidence/android-verification.zip",
+      file: `releases/evidence/${name}.zip`,
     }),
   );
 } else if (command === "publish") {
