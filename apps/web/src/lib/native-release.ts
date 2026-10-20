@@ -2,8 +2,8 @@
 // The exact APK and AAB are recorded in docs/security/mobile-candidate-2026-10-20.json.
 export const androidPreview = {
   version: "0.1.0",
-  buildId: "3a0263b3-41cf-431e-a47c-c436a46925d6",
-  url: "https://github.com/kavodtales/Just1date/releases/download/v0.1.0-rc.1/just1date-0.1.0-rc.1.apk",
-  sha256: "8c5728076d796ece617afd0876b8d4b93ea18b07f8670e8a6611e1060b304b21",
-  bytes: 158097275,
+  buildId: "5497cd03-5d5a-47b2-8297-ec4edd7e7b3d",
+  url: "https://github.com/kavodtales/Just1date/releases/download/v0.1.0-rc.2/just1date-0.1.0-rc.2.apk",
+  sha256: "bb671e7a1e2e5a1242d9ad106936dc145111d7b23bb3183124696d1ea722a0ce",
+  bytes: 158042075,
 } as const;

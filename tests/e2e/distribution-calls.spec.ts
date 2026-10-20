@@ -28,7 +28,7 @@ test("publishes install metadata and only real native-release links", async ({
     page.getByRole("link", { name: "Download Android APK" }),
   ).toHaveAttribute(
     "href",
-    "https://github.com/kavodtales/Just1date/releases/download/v0.1.0-rc.1/just1date-0.1.0-rc.1.apk",
+    "https://github.com/kavodtales/Just1date/releases/download/v0.1.0-rc.2/just1date-0.1.0-rc.2.apk",
   );
   await expect(
     page.getByText("Android release candidate", {

@@ -38,14 +38,15 @@
     "signing_certificate_sha256": "5ebcd924f715d62b99ab96b1d0f1931f0491946a8dc725186aa91193c0edf7a6",
     "target_android_api": 36,
     "apk_runs": {
+      "Bluechipwhale": 39440896131,
       "kavodtales": 39436362728
     },
     "aab_runs": {
       "Bluechipwhale": 39436359832,
       "kavodtales": 39436359897
     },
-    "publication_runs": {},
-    "owner_apk_verification": "New job pending after runner disk exhaustion; no app assertion failed in the first job"
+    "publication_runs": { "kavodtales": 39441211212 },
+    "owner_apk_verification": "passed with bounded emulator disk allocation after the earlier runner exhausted its disk before app installation"
   },
   "limitations": [
     "Release candidate, not Google Play or App Store approved",

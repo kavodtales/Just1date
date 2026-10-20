@@ -1,4 +1,32 @@
-# Completed reference screen pass — 20 October 2026
+# Coded screens and staff-managed photos — 20 October 2026
+
+Implemented App images in the operations app: ADMIN/SUPER_ADMIN staff can preview,
+publish and restore the three welcome photos. Web and native load the same
+published feed, with original photography as a fallback. Migration 012 and the
+private promotional storage bucket are installed on hosted Supabase. Staff MFA,
+settings permission checks, decoded image validation, metadata removal, revision
+conflicts and audit records protect publication. The named owner's activation is
+deferred until they complete authenticator setup.
+
+Permission artwork and social glyphs are rendered in code. The shared match
+celebration uses actual member photos and a confirmed mutual-like response, from
+both discovery and profile detail. Its Say hi action opens the confirmed
+conversation. No full reference screenshot or pre-composed match image is used
+as an application screen.
+
+Verification: 66 SQL/API/unit tests, 75 member browser tests and eight staff
+browser tests pass; three prepared-account staging tests remain skipped. All ten
+workspace typechecks, lint, web/admin/API builds and both native Hermes exports
+pass. RC2 APK, AAB and iOS simulator artifacts compiled from 60df7fb. Exact
+checksums and independent native verification are tracked in
+security/mobile-candidate-2026-10-20.json. The iOS archive is simulator-only.
+Video media still needs its provider and persistent worker before activation.
+
+See APP_IMAGES.md for the actual editing workflow and source component paths.
+
+---
+
+## Earlier completed reference screen pass
 
 PHASE: Supplied screen completion and authorized repository upload.
 

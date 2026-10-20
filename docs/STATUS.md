@@ -16,9 +16,15 @@ storage failure, staff restrictions and stale-editor cleanup. Ten workspace
 typechecks and production web/admin/API builds pass with bounded local memory.
 Member browser acceptance passes 75 tests across desktop and mobile, with three
 prepared-account staging journeys skipped. Eight staff browser tests pass.
-Both updated native Hermes bundles export successfully. Updated native release
-verification is recorded separately as it completes; these source changes do
-not update an already downloaded RC1 binary.
+Both updated native Hermes bundles export successfully. RC2's code-11 APK passes
+certificate/signature/API/alignment and real emulator navigation checks; its
+code-12 AAB passes signature and Google bundletool validation. The exact APK/AAB
+are published in the public deployment repository. The updated iOS simulator
+archive compiles and passes platform/bundle-ID/privacy-string inspection. APK and
+iOS native bundles contain none of the configured privileged values checked.
+Install RC2 to get the image feed in native; an already downloaded RC1 binary is
+unchanged. The requested owner account is confirmed, and its role activation is
+deferred until the user completes authenticator setup.
 
 ## Completed reference screens — 20 October 2026
 
