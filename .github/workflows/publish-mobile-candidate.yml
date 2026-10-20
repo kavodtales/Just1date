@@ -47,6 +47,8 @@ jobs:
             assert json.load(open(evidence))['sha256']==item['sha256']
             url=urllib.parse.urlparse(item['artifact'])
             assert url.scheme=='https' and url.hostname=='expo.dev' and url.path.startswith('/artifacts/eas/') and url.path.endswith('.'+kind)
+            assert not url.query and not url.fragment and not url.username and not url.password
+            assert '\n' not in item['artifact'] and '\r' not in item['artifact']
             assert re.fullmatch('[a-f0-9]{64}',item['sha256'])
             assert re.fullmatch(r'just1date-[a-zA-Z0-9.-]+\.'+kind,item['filename'])
           with open(os.environ['GITHUB_ENV'],'a') as env:
@@ -68,8 +70,11 @@ jobs:
           gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" || gh release create "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --prerelease --title 'Just1date reference screen release candidate' --notes-file releases/CANDIDATE_NOTES.md
           for FILE in "$APK_FILENAME" "$AAB_FILENAME" SHA256SUMS.txt; do
             if gh api "repos/$GITHUB_REPOSITORY/releases/tags/$RELEASE_TAG" --jq '.assets[].name' | grep -Fxq "$FILE"; then
-              echo "Release asset already exists; refusing to overwrite it: $FILE"
-              exit 1
+              EXISTING=$(gh api "repos/$GITHUB_REPOSITORY/releases/tags/$RELEASE_TAG" --jq ".assets[] | select(.name==\"$FILE\") | .digest")
+              EXPECTED="sha256:$(sha256sum "$FILE" | cut -d' ' -f1)"
+              test "$EXISTING" = "$EXPECTED" || { echo "Refusing to replace an existing release asset."; exit 1; }
+              echo "Exact verified asset is already published: $FILE"
+              continue
             fi
             gh release upload "$RELEASE_TAG" "$FILE" --repo "$GITHUB_REPOSITORY"
           done

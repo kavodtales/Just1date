@@ -7,13 +7,22 @@ const crop = { left: 120, top: 121, width: 390, height: 230 };
 for (const directory of [
   "apps/web/public/images",
   "apps/web/public/icons",
+  "apps/admin/public/images",
   "apps/mobile/assets",
 ])
   await mkdir(directory, { recursive: true });
-for (const directory of ["apps/web/public/images", "apps/mobile/assets"])
+for (const directory of [
+  "apps/web/public/images",
+  "apps/admin/public/images",
+  "apps/mobile/assets",
+])
   await copyFile(source, `${directory}/logo-original.png`);
 const artwork = await sharp(source).extract(crop).png().toBuffer();
-for (const directory of ["apps/web/public/images", "apps/mobile/assets"])
+for (const directory of [
+  "apps/web/public/images",
+  "apps/admin/public/images",
+  "apps/mobile/assets",
+])
   await sharp(artwork).png().toFile(`${directory}/logo.png`);
 await sharp(artwork).png().toFile("apps/mobile/assets/splash.png");
 for (const [path, size, safe] of [

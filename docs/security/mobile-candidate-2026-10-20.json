@@ -1,0 +1,51 @@
+{
+  "tag": "v0.1.0-rc.1",
+  "source_commit": "ab061ce",
+  "package": "com.just1date.app",
+  "version": "0.1.0",
+  "apk": {
+    "artifact": "https://expo.dev/artifacts/eas/vTfbCvgCF0puwPKQ-pnLzEwihYkQSFGZcYTdG5eZHUs.apk",
+    "filename": "just1date-0.1.0-rc.1.apk",
+    "sha256": "8c5728076d796ece617afd0876b8d4b93ea18b07f8670e8a6611e1060b304b21",
+    "bytes": 158097275,
+    "build_id": "3a0263b3-41cf-431e-a47c-c436a46925d6",
+    "version_code": 8
+  },
+  "aab": {
+    "artifact": "https://expo.dev/artifacts/eas/7hUiZGNWe7pHMjOG5RjF5hsYSBr-MWqGmO5GF3fGhoQ.aab",
+    "filename": "just1date-0.1.0-rc.1.aab",
+    "sha256": "5253405034fc4d81840c1bea8ec7b1b5ac90d252792f759adcf37353b9fbf1e5",
+    "bytes": 98211344,
+    "build_id": "5f5b3f9b-dd61-4ac1-89bb-d60963f662da",
+    "version_code": 9
+  },
+  "ios_simulator": {
+    "artifact": "https://expo.dev/artifacts/eas/Nic9HZ5QnJK1Xz9_MuQfTeW7TIb41N0L9MpvLchrJQE.tar.gz",
+    "filename": "just1date-0.1.0-ios-simulator.tar.gz",
+    "sha256": "703ec9c20c02706f1d67e05b2dbb5de66f4edb8a8978ce224adef0b3684e41e2",
+    "bytes": 43739913,
+    "build_id": "7a3e0913-757a-4cf0-ba26-1cae79141660",
+    "device_installable": false
+  },
+  "verification": {
+    "bundletool": "passed",
+    "android_emulator": "passed",
+    "private_values_in_native_bundles": false,
+    "signing_certificate_sha256": "5ebcd924f715d62b99ab96b1d0f1931f0491946a8dc725186aa91193c0edf7a6",
+    "target_android_api": 36,
+    "apk_runs": {
+      "Bluechipwhale": 39395950382,
+      "kavodtales": 39395951178
+    },
+    "aab_runs": {
+      "Bluechipwhale": 39395859358,
+      "kavodtales": 39395950872
+    }
+  },
+  "limitations": [
+    "Release candidate, not Google Play or App Store approved",
+    "iOS archive is simulator-only; Apple device signing remains required",
+    "Calls remain disabled without media provider and persistent worker",
+    "Full account/device/security/legal/product launch gates remain in docs/STATUS.md"
+  ]
+}

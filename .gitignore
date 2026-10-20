@@ -22,3 +22,5 @@ test-results/
 *.log
 *.tsbuildinfo
 .DS_Store
+*.partial
+/releases/*.tar.gz

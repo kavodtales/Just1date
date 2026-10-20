@@ -25,3 +25,4 @@ releases/evidence/
 *.p12
 *.mobileprovision
 **/*.tsbuildinfo
+releases/

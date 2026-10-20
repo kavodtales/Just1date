@@ -23,3 +23,4 @@ releases/evidence
 **/*.mobileprovision
 test-results
 playwright-report
+releases/

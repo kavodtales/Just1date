@@ -24,10 +24,8 @@ const { stdout } = await promisify(execFile)(
   [
     entry,
     ...(process.argv[2]
-      ? ["build:view", process.argv[2]]
-      : ["build:list", "--limit", "5"]),
-    "--json",
-    "--non-interactive",
+      ? ["build:view", process.argv[2], "--json"]
+      : ["build:list", "--limit", "5", "--json", "--non-interactive"]),
   ],
   {
     cwd: resolve(root, "apps/mobile"),

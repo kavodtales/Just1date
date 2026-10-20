@@ -8,7 +8,7 @@ const repository =
 if (!["Bluechipwhale/Just1date", "kavodtales/Just1date"].includes(repository))
   throw new Error("Choose an explicitly authorized Just1date repository.");
 const credential = execFileSync("git", ["credential", "fill"], {
-  input: `protocol=https\nhost=github.com\npath=${repository}.git\n\n`,
+  input: `protocol=https\nhost=github.com\npath=${repository}.git\nusername=Bluechipwhale\n\n`,
   encoding: "utf8",
   env: { ...process.env, GIT_TERMINAL_PROMPT: "0", GCM_INTERACTIVE: "Never" },
 });
