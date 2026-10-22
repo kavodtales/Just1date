@@ -1,5 +1,6 @@
 /* global fetch, AbortSignal, Buffer */
 import { createClient } from "@supabase/supabase-js";
+import { URL } from "node:url";
 import { randomUUID, randomBytes, createHmac } from "node:crypto";
 process.loadEnvFile(".env.local");
 const sites = {
@@ -96,6 +97,24 @@ try {
   if (created.error || !created.data.user)
     throw new Error("TEST_CREATE_FAILED");
   userId = created.data.user.id;
+  for (const [label, redirectTo] of [
+    ["member", `${sites.member}/auth/callback`],
+    ["staff", `${sites.staff}/auth/callback`],
+    ["native", "just1date://auth/callback"],
+  ]) {
+    const link = await admin.auth.admin.generateLink({
+      type: "recovery",
+      email,
+      options: { redirectTo },
+    });
+    const actual = link.data?.properties?.action_link;
+    add(
+      `${label}_auth_callback_allowed`,
+      !link.error &&
+        !!actual &&
+        new URL(actual).searchParams.get("redirect_to") === redirectTo,
+    );
+  }
   const marked = await admin
     .from("users")
     .update({ is_test: true })

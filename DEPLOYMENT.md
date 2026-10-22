@@ -1,5 +1,9 @@
 # Deployment
 
+Current owner-approved hosting is Whaleswealth. See
+[the live deployment and callback status](docs/WHALESWEALTH_DEPLOYMENT.md).
+The earlier kavodtales instructions below are retained for migration history.
+
 For the existing `kavodtales/Just1date` deployment and Vercel hosting, follow
 [the Vercel/Supabase setup guide](docs/VERCEL_SUPABASE_SETUP.md). It includes the
 repeat-safe SQL Editor installer, verification/admin bootstrap SQL, three Vercel

@@ -304,6 +304,7 @@ export function DemoExperience() {
                         aria-label={`View ${p.name}’s profile`}
                       >
                         <Image
+                          unoptimized
                           sizes="(max-width: 767px) 90vw, 35vw"
                           width={1024}
                           height={1536}
@@ -405,6 +406,7 @@ export function DemoExperience() {
                 {connections.map((p) => (
                   <article key={p.id}>
                     <Image
+                      unoptimized
                       sizes="(max-width: 767px) 90vw, 35vw"
                       width={1024}
                       height={1536}
@@ -457,6 +459,7 @@ export function DemoExperience() {
                       onClick={() => setSelected(p.id)}
                     >
                       <Image
+                        unoptimized
                         sizes="(max-width: 767px) 90vw, 35vw"
                         width={1024}
                         height={1536}
@@ -484,6 +487,7 @@ export function DemoExperience() {
                         <ChevronLeft size={20} />
                       </button>
                       <Image
+                        unoptimized
                         sizes="(max-width: 767px) 90vw, 35vw"
                         width={1024}
                         height={1536}
@@ -650,6 +654,7 @@ export function DemoExperience() {
         {details && (
           <div className="demo-profile-details">
             <Image
+              unoptimized
               sizes="(max-width: 767px) 90vw, 35vw"
               width={1024}
               height={1536}
@@ -690,6 +695,7 @@ export function DemoExperience() {
           <div className="demo-match">
             <span className="premium-kicker">A LITTLE SPARK</span>
             <Image
+              unoptimized
               sizes="(max-width: 767px) 90vw, 35vw"
               width={1024}
               height={1536}

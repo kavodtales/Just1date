@@ -37,11 +37,13 @@ real-emulator startup/signup checks. The AAB (code 14) passed Google bundletool
 validation. The new iOS simulator archive passed app-ID, permission, date-code
 and private-value inspection. All new binaries use native source 5f9399f.
 
-The full redesign is not yet on the public Vercel frontend: the current CLI
-account has Whaleswealth access, while the live web/API/admin projects belong
-to kavodtales. Deployment awaits the owner's destination choice or account
-access. New welcome photos already load through the existing live image feed;
-compatibility aliases keep the older demo and staff clients working meanwhile.
+The owner selected Whaleswealth and the full redesign is now live at
+https://just1date.vercel.app, with separate API and staff deployments in the same
+team. All three projects use the correct repository and monorepo roots. The
+hosted demo passes 23 persistence and interaction checks. Confirmation/recovery
+callback URLs still need the Supabase owner setting described in
+[the rollout record](WHALESWEALTH_DEPLOYMENT.md). Compatibility aliases continue
+to support the older demo and staff clients.
 
 Calling already has consent and revocation controls, but live media requires an
 owner-controlled LiveKit provider and running worker. SMTP, social providers,
