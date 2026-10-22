@@ -15,8 +15,8 @@
         "buildType": "apk"
       },
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://just1date-api.vercel.app",
-        "EXPO_PUBLIC_WEB_URL": "https://just1date-vert.vercel.app",
+        "EXPO_PUBLIC_API_URL": "https://just1date-api-whaleswealth.vercel.app",
+        "EXPO_PUBLIC_WEB_URL": "https://just1date.vercel.app",
         "EXPO_PUBLIC_SUPABASE_URL": "https://kyfohngqetzsrqsyabey.supabase.co",
         "EXPO_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_hEZukeYk7NPa7k51M2gkdA_FLns8mCK"
       }
@@ -29,8 +29,8 @@
         "buildType": "apk"
       },
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://just1date-api.vercel.app",
-        "EXPO_PUBLIC_WEB_URL": "https://just1date-vert.vercel.app",
+        "EXPO_PUBLIC_API_URL": "https://just1date-api-whaleswealth.vercel.app",
+        "EXPO_PUBLIC_WEB_URL": "https://just1date.vercel.app",
         "EXPO_PUBLIC_SUPABASE_URL": "https://kyfohngqetzsrqsyabey.supabase.co",
         "EXPO_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_hEZukeYk7NPa7k51M2gkdA_FLns8mCK"
       }
@@ -42,8 +42,8 @@
         "buildType": "app-bundle"
       },
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://just1date-api.vercel.app",
-        "EXPO_PUBLIC_WEB_URL": "https://just1date-vert.vercel.app",
+        "EXPO_PUBLIC_API_URL": "https://just1date-api-whaleswealth.vercel.app",
+        "EXPO_PUBLIC_WEB_URL": "https://just1date.vercel.app",
         "EXPO_PUBLIC_SUPABASE_URL": "https://kyfohngqetzsrqsyabey.supabase.co",
         "EXPO_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_hEZukeYk7NPa7k51M2gkdA_FLns8mCK"
       }
@@ -54,8 +54,8 @@
         "simulator": true
       },
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://just1date-api.vercel.app",
-        "EXPO_PUBLIC_WEB_URL": "https://just1date-vert.vercel.app",
+        "EXPO_PUBLIC_API_URL": "https://just1date-api-whaleswealth.vercel.app",
+        "EXPO_PUBLIC_WEB_URL": "https://just1date.vercel.app",
         "EXPO_PUBLIC_SUPABASE_URL": "https://kyfohngqetzsrqsyabey.supabase.co",
         "EXPO_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_hEZukeYk7NPa7k51M2gkdA_FLns8mCK"
       }

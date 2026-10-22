@@ -14,6 +14,7 @@ const config: ExpoConfig = {
     supportsTablet: true,
     associatedDomains: [
       "applinks:just1date.com",
+      "applinks:just1date.vercel.app",
       "applinks:just1date-vert.vercel.app",
     ],
     infoPlist: {
@@ -43,6 +44,26 @@ const config: ExpoConfig = {
         action: "VIEW",
         autoVerify: true,
         data: [
+          {
+            scheme: "https",
+            host: "just1date.vercel.app",
+            pathPrefix: "/profile/",
+          },
+          {
+            scheme: "https",
+            host: "just1date.vercel.app",
+            pathPrefix: "/messages/",
+          },
+          {
+            scheme: "https",
+            host: "just1date.vercel.app",
+            pathPrefix: "/match/",
+          },
+          {
+            scheme: "https",
+            host: "just1date.vercel.app",
+            pathPrefix: "/conversation/",
+          },
           { scheme: "https", host: "just1date.com", pathPrefix: "/profile/" },
           { scheme: "https", host: "just1date.com", pathPrefix: "/messages/" },
           { scheme: "https", host: "just1date.com", pathPrefix: "/match/" },

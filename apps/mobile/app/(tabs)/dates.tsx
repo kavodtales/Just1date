@@ -265,7 +265,7 @@ export default function Dates() {
             <Button
               onPress={() =>
                 void Linking.openURL(
-                  "https://just1date-vert.vercel.app/demo?view=dates",
+                  `${process.env.EXPO_PUBLIC_WEB_URL || "https://just1date.vercel.app"}/demo?view=dates`,
                 )
               }
             >

@@ -3,9 +3,9 @@ import { createClient } from "@supabase/supabase-js";
 import { randomUUID, randomBytes, createHmac } from "node:crypto";
 process.loadEnvFile(".env.local");
 const sites = {
-  member: "https://just1date-vert.vercel.app",
-  staff: "https://just1date-admin.vercel.app",
-  api: "https://just1date-api.vercel.app",
+  member: "https://just1date.vercel.app",
+  staff: "https://just1date-admin-whaleswealth.vercel.app",
+  api: "https://just1date-api-whaleswealth.vercel.app",
 };
 const admin = createClient(
   process.env.SUPABASE_URL,

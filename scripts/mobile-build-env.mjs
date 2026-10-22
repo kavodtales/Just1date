@@ -27,8 +27,8 @@ if (!key.startsWith("sb_publishable_")) {
 const path = "apps/mobile/eas.json",
   config = JSON.parse(await readFile(path, "utf8"));
 const values = {
-  EXPO_PUBLIC_API_URL: "https://just1date-api.vercel.app",
-  EXPO_PUBLIC_WEB_URL: "https://just1date-vert.vercel.app",
+  EXPO_PUBLIC_API_URL: "https://just1date-api-whaleswealth.vercel.app",
+  EXPO_PUBLIC_WEB_URL: "https://just1date.vercel.app",
   EXPO_PUBLIC_SUPABASE_URL: url.origin,
   EXPO_PUBLIC_SUPABASE_ANON_KEY: key,
 };

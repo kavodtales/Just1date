@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
 const fetch = globalThis.fetch;
-const web = process.env.PROBE_WEB_URL || "https://just1date-vert.vercel.app";
+const web = process.env.PROBE_WEB_URL || "https://just1date.vercel.app";
 let count = 0;
 function check(condition, label) {
   assert.ok(condition, label);
