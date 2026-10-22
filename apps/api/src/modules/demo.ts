@@ -3,6 +3,7 @@ import { Router, type RequestHandler } from "express";
 import { z } from "zod";
 import type { Database } from "@just1date/database";
 import { AppError, ok } from "../lib/http";
+import type { DatePlan } from "@just1date/types";
 
 export type DemoProfile = {
   id: string;
@@ -28,12 +29,14 @@ export type DemoMessage = {
   at: string;
 };
 export type DemoState = {
+  dates: DatePlan[];
   likes: string[];
   passes: string[];
   messages: Record<string, DemoMessage[]>;
   gender: "everyone" | "woman" | "man";
 };
 const empty = (): DemoState => ({
+  dates: [],
   likes: [],
   passes: [],
   messages: {},
@@ -147,6 +150,7 @@ export class DemoService {
           "Your demo session has expired. Start a new preview.",
         );
       const state = row.state;
+      state.dates ??= [];
       if (action) {
         if (action.action === "reset") Object.assign(state, empty());
         else if (action.action === "filter") state.gender = action.gender;
@@ -158,7 +162,93 @@ export class DemoService {
               404,
               "Choose one of the four demo profiles.",
             );
-          if (action.action === "like") {
+          if (action.action === "date-propose") {
+            if (!state.likes.includes(p.id))
+              throw new AppError(
+                "DEMO_MATCH_REQUIRED",
+                409,
+                "Like this fictional profile before trying a date plan.",
+              );
+            const previous = state.dates.find(
+              (d) => d.id === action.operation_id,
+            );
+            if (
+              previous &&
+              (previous.match_id !== p.id ||
+                previous.activity !== action.activity ||
+                previous.venue !== action.venue ||
+                previous.starts_at !== action.starts_at ||
+                previous.note !== action.note)
+            )
+              throw new AppError(
+                "IDEMPOTENCY_CONFLICT",
+                409,
+                "This demo operation was already used.",
+              );
+            if (!previous) {
+              if (state.dates.length >= 20)
+                throw new AppError(
+                  "DEMO_DATE_LIMIT",
+                  429,
+                  "Reset the preview to try more date plans.",
+                );
+              const time = new Date(action.starts_at).getTime();
+              if (
+                time < Date.now() + 15 * 60000 ||
+                time > Date.now() + 90 * 86400000
+              )
+                throw new AppError(
+                  "INVALID_DATE_PLAN",
+                  400,
+                  "Choose a time between 15 minutes and 90 days from now.",
+                );
+              state.dates.push({
+                id: action.operation_id,
+                match_id: p.id,
+                proposer_id: "demo_you",
+                activity: action.activity,
+                venue: action.venue,
+                starts_at: action.starts_at,
+                note: action.note,
+                status: "proposed",
+                revision: 0,
+                created_at: new Date().toISOString(),
+                is_sender: true,
+                other_name: p.name,
+              });
+            }
+          } else if (action.action === "date-respond") {
+            const plan = state.dates.find(
+              (d) => d.id === action.plan_id && d.match_id === p.id,
+            );
+            if (!plan)
+              throw new AppError(
+                "DATE_UNAVAILABLE",
+                404,
+                "Choose an existing demo invitation.",
+              );
+            const target =
+              action.response === "accept"
+                ? "accepted"
+                : action.response === "decline"
+                  ? "declined"
+                  : "cancelled";
+            if (plan.status !== target) {
+              if (
+                plan.revision !== action.revision ||
+                (action.response !== "cancel" && plan.status !== "proposed") ||
+                (action.response === "cancel" &&
+                  !["proposed", "accepted"].includes(plan.status))
+              )
+                throw new AppError(
+                  "DATE_CONFLICT",
+                  409,
+                  "This demo plan has already changed.",
+                );
+              plan.status = target;
+              plan.revision++;
+            }
+          } else if (action.action === "like") {
             if (!state.likes.includes(p.id)) {
               state.likes.push(p.id);
               state.passes = state.passes.filter((id) => id !== p.id);
@@ -253,6 +343,27 @@ export class DemoService {
   }
 }
 const actionSchema = z.discriminatedUnion("action", [
+  z
+    .object({
+      action: z.literal("date-propose"),
+      profile_id: z.uuid(),
+      operation_id: z.uuid(),
+      activity: z.enum(["coffee", "dinner", "gallery", "walk"]),
+      venue: z.string().trim().min(3).max(160),
+      starts_at: z.iso.datetime({ offset: true }),
+      note: z.string().trim().max(500).default(""),
+    })
+    .strict(),
+  z
+    .object({
+      action: z.literal("date-respond"),
+      profile_id: z.uuid(),
+      plan_id: z.uuid(),
+      response: z.enum(["accept", "decline", "cancel"]),
+      revision: z.number().int().nonnegative(),
+      simulated: z.literal(true),
+    })
+    .strict(),
   z.object({ action: z.literal("like"), profile_id: z.uuid() }).strict(),
   z.object({ action: z.literal("pass"), profile_id: z.uuid() }).strict(),
   z

@@ -22,9 +22,9 @@ export function Reactions({
     >
       {(
         [
-          ["passes", "close", "#ff781a", 78, 29],
-          ["likes", "heart", "white", 100, 52],
-          ["super-likes", "star", colors.purple, 78, 31],
+          ["passes", "close", "#b66b50", 64, 27],
+          ["likes", "heart", "white", 88, 43],
+          ["super-likes", "star", colors.purple, 64, 27],
         ] as const
       ).map(([action, icon, color, size, glyph]) => (
         <Pressable

@@ -13,14 +13,14 @@ import { router } from "expo-router";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import type { ReactNode } from "react";
 export const colors = {
-  ink: "#050505",
-  paper: "#ffffff",
-  gold: "#df3594",
-  pink: "#df3594",
-  muted: "#555555",
-  line: "#e8e6ea",
-  soft: "#fbeaf5",
-  purple: "#8f208e",
+  ink: "#291d2d",
+  paper: "#fff9fc",
+  gold: "#bd286d",
+  pink: "#bd286d",
+  muted: "#756675",
+  line: "#eadfe7",
+  soft: "#f9e9f1",
+  purple: "#321c3c",
 };
 export function Screen({
   title,
@@ -57,6 +57,9 @@ export function Screen({
         <View
           style={centered ? { flex: 1, alignItems: "center" } : { flex: 1 }}
         >
+          {!centered && (
+            <Text style={s.eyebrow}>MAKE ROOM FOR POSSIBILITY</Text>
+          )}
           <Text
             accessibilityRole="header"
             style={[s.title, centered && { fontSize: 24 }]}
@@ -179,7 +182,7 @@ export function Status({
 export const s = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.paper },
   header: {
-    paddingHorizontal: 40,
+    paddingHorizontal: 24,
     paddingTop: 20,
     flexDirection: "row",
     justifyContent: "space-between",
@@ -198,7 +201,7 @@ export const s = StyleSheet.create({
     lineHeight: 40,
     letterSpacing: -0.6,
   },
-  content: { paddingHorizontal: 40, paddingBottom: 35, gap: 15 },
+  content: { paddingHorizontal: 24, paddingBottom: 35, gap: 18 },
   square: {
     height: 51,
     width: 51,
@@ -246,7 +249,7 @@ export const s = StyleSheet.create({
   link: { padding: 12, minHeight: 44 },
   card: {
     backgroundColor: "white",
-    borderRadius: 15,
+    borderRadius: 24,
     borderWidth: 1,
     borderColor: colors.line,
     padding: 20,
@@ -254,7 +257,7 @@ export const s = StyleSheet.create({
   },
   label: {
     fontSize: 12,
-    color: "#999",
+    color: colors.muted,
     marginBottom: 8,
     fontFamily: "Poppins",
   },

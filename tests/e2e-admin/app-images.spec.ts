@@ -1,6 +1,12 @@
 import { test, expect } from "@playwright/test";
 import { readFile } from "node:fs/promises";
-const slots = ["welcome_algorithm", "welcome_matches", "welcome_premium"];
+const slots = [
+  "welcome_algorithm",
+  "welcome_matches",
+  "welcome_premium",
+  "landing_hero",
+  "date_venue",
+];
 test("admin previews, publishes and restores welcome photography", async ({
   page,
 }) => {
@@ -32,7 +38,7 @@ test("admin previews, publishes and restores welcome photography", async ({
           ? {
               ...r,
               revision: r.revision + 1,
-              url: reset ? null : "/images/welcome-2.jpg",
+              url: reset ? null : "/images/editorial/tomi.webp",
               alt_text: url.searchParams.get("alt") ?? "",
             }
           : r,
@@ -44,14 +50,12 @@ test("admin previews, publishes and restores welcome photography", async ({
   await page.goto("/");
   await page.getByRole("button", { name: "App images", exact: true }).click();
   const card = page.locator(".app-image-card").first();
-  await expect(page.locator(".app-image-card")).toHaveCount(3);
-  await card
-    .getByLabel("Choose replacement photo")
-    .setInputFiles({
-      name: "portrait.jpg",
-      mimeType: "image/jpeg",
-      buffer: await readFile("apps/web/public/images/welcome-2.jpg"),
-    });
+  await expect(page.locator(".app-image-card")).toHaveCount(5);
+  await card.getByLabel("Choose replacement photo").setInputFiles({
+    name: "portrait.jpg",
+    mimeType: "image/jpeg",
+    buffer: await readFile("tests/fixtures/reference-photo.jpg"),
+  });
   await expect(
     card.getByText("Unpublished preview", { exact: true }),
   ).toBeVisible();

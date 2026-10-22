@@ -40,7 +40,7 @@ const child = spawn(
     "--non-interactive",
     "--no-wait",
     "--message",
-    `Reference screens and owner logo, source ${source}`,
+    `Premium editorial redesign and Just One Date, source ${source}`,
   ],
   {
     cwd: resolve(root, "apps/mobile"),

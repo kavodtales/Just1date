@@ -22,7 +22,7 @@ export default ts.config(
       "@typescript-eslint/no-explicit-any": "off",
       "@typescript-eslint/no-require-imports": [
         "error",
-        { allow: ["\\.(png|jpe?g|ttf)$"] },
+        { allow: ["\\.(png|jpe?g|webp|ttf)$"] },
       ],
       "@typescript-eslint/no-unused-vars": [
         "error",

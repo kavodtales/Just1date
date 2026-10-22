@@ -1,11 +1,14 @@
-# Reference screen review
+# Current rendered screen review
 
-Actual rendered web screens at 375 × 812, plus the desktop staff image editor. Photography, names, matches and messages in these screenshots are browser-test fixtures; they are never seeded as live members. The screens themselves are React components, not screenshot backgrounds. Only photography and the original owner logo are images; titles, controls, permission artwork and the mutual-match composition are code. Native source uses the same visual references; these images are not physical-device screenshots. See [the image editing guide](../../../docs/APP_IMAGES.md) for the functional admin workflow.
+Actual rendered web screens at 375 × 812, plus the desktop staff image editor. Photography, names, matches and messages in these screenshots are browser-test fixtures; they are never seeded as live members. Photography is original AI-created illustrative content. The screens themselves are React components, not screenshot backgrounds. Only photography and the original owner logo are images; titles, controls, permission artwork and the mutual-match composition are code. Native source shares the refreshed identity; these images are not physical-device screenshots. See [the image editing guide](../../../docs/APP_IMAGES.md) for the functional admin workflow.
 
 - [admin-app-images-preview](./admin-app-images-preview.png)
 - [birthday](./birthday.png)
 - [chat](./chat.png)
+- [date-demo](./date-demo.png)
+- [dates](./dates.png)
 - [discover](./discover.png)
+- [editorial-landing](./editorial-landing.png)
 - [enable-notifications](./enable-notifications.png)
 - [filters](./filters.png)
 - [friends](./friends.png)

@@ -69,7 +69,7 @@ export function Welcome() {
                 sizes="(max-width: 767px) 90vw, 35vw"
                 width={1024}
                 height={1536}
-                src="/images/demo/amara.png"
+                src="/images/editorial/amara.webp"
                 alt="Amara, a fictional demo profile"
               />
               <span className="demo-photo-tag">DEMO PROFILE</span>
@@ -93,7 +93,7 @@ export function Welcome() {
                 sizes="(max-width: 767px) 90vw, 35vw"
                 width={1024}
                 height={1536}
-                src="/images/demo/tomi.png"
+                src="/images/editorial/tomi.webp"
                 alt="Tomi, a fictional demo profile"
               />
               <div>

@@ -18,6 +18,9 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { Brand } from "./brand";
+import { DatePlanner } from "./date-planner";
+import { CalendarHeart } from "lucide-react";
+import type { DatePlan } from "@just1date/types";
 type Profile = {
   id: string;
   name: string;
@@ -41,6 +44,7 @@ type Message = {
 type Data = {
   profiles: Profile[];
   state: {
+    dates?: DatePlan[];
     likes: string[];
     passes: string[];
     messages: Record<string, Message[]>;
@@ -51,8 +55,9 @@ const tabs = [
   ["discover", "Discover", Compass],
   ["matches", "Connections", Heart],
   ["messages", "Messages", MessageCircle],
+  ["dates", "Just One Date", CalendarHeart],
 ] as const;
-async function request(input: Record<string, string>): Promise<Data> {
+async function request(input: Record<string, unknown>): Promise<Data> {
   const response = await fetch("/api/demo", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -93,6 +98,8 @@ export function DemoExperience() {
     }
   }
   useEffect(() => {
+    const requested = new URLSearchParams(window.location.search).get("view");
+    if (requested === "dates") setView("dates");
     if (!initialized.current) {
       initialized.current = true;
       void start();
@@ -105,7 +112,7 @@ export function DemoExperience() {
     if (details || match || filters) dialog.current?.showModal();
     else dialog.current?.close();
   }, [details, match, filters]);
-  async function act(input: Record<string, string>) {
+  async function act(input: Record<string, unknown>) {
     setBusy(true);
     setError("");
     try {
@@ -217,7 +224,18 @@ export function DemoExperience() {
           </button>
         </div>
         <main className="premium-main">
-          <div className="premium-page-heading">
+          {data && view === "dates" && (
+            <DatePlanner
+              demoProfiles={connections.map((p) => ({
+                id: p.id,
+                name: p.name,
+              }))}
+              demoPlans={data.state.dates ?? []}
+              onDemoAction={act}
+              onDiscover={() => setView("discover")}
+            />
+          )}
+          <div className="premium-page-heading" hidden={view === "dates"}>
             <div>
               <p className="premium-kicker">
                 {view === "discover"
@@ -286,7 +304,9 @@ export function DemoExperience() {
                           alt={`${p.name}, fictional demo profile`}
                           loading="eager"
                         />
-                        <span className="demo-photo-tag">DEMO</span>
+                        <span className="demo-photo-tag">
+                          AI-CREATED · DEMO
+                        </span>
                         <div className="demo-photo-caption">
                           <h2>
                             {p.name}

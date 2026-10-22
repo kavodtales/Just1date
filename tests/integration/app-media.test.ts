@@ -111,7 +111,7 @@ afterAll(async () => sql?.close());
 it("exposes only published image projections without member authentication", async () => {
   const r = await request(app).get("/v1/app-media");
   expect(r.status).toBe(200);
-  expect(r.body.data).toHaveLength(3);
+  expect(r.body.data).toHaveLength(5);
   expect(
     r.body.data.every(
       (x: any) =>

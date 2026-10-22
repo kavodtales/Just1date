@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { Text, TextInput, View, Pressable } from "react-native";
-import { useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import * as Crypto from "expo-crypto";
 import type { Message } from "@just1date/types";
 import { auth } from "../../lib/auth";
 import { api } from "../../lib/api";
-import { Screen, Status, Button, s } from "../../components/ui";
+import { Screen, Status, Button, colors, s } from "../../components/ui";
 import { StartNativeCall } from "../../components/call-invitation";
 export default function Chat() {
   const { id } = useLocalSearchParams<{ id: string }>(),
@@ -88,7 +88,29 @@ export default function Chat() {
     ...new Map([...(q.data ?? []), ...older].map((m) => [m.id, m])).values(),
   ].sort((a, b) => a.created_at.localeCompare(b.created_at));
   return (
-    <Screen title={match?.profile.display_name ?? "Messages"} headerAction={<StartNativeCall conversationId={id} />}>
+    <Screen
+      title={match?.profile.display_name ?? "Messages"}
+      headerAction={<StartNativeCall conversationId={id} />}
+    >
+      {match && (
+        <Pressable
+          accessibilityRole="button"
+          style={[s.card, { backgroundColor: colors.soft }]}
+          onPress={() =>
+            router.push({
+              pathname: "/(tabs)/dates",
+              params: { match: match.id },
+            })
+          }
+        >
+          <Text style={{ fontFamily: "PoppinsSemiBold", color: colors.pink }}>
+            Just One Date · Make a little plan ↗
+          </Text>
+          <Text style={s.muted}>
+            Coffee, a gallery or a table for two. Both people choose.
+          </Text>
+        </Pressable>
+      )}
       <Status
         pending={q.isPending}
         error={q.error}
@@ -126,17 +148,32 @@ export default function Chat() {
               alignSelf: m.sender_id === ownId ? "flex-end" : "flex-start",
               maxWidth: "90%",
               padding: 15,
-              backgroundColor: m.sender_id === ownId ? "#f3f3f3" : "#fdf0fa",
+              backgroundColor:
+                m.sender_id === ownId ? colors.purple : colors.soft,
               borderWidth: 0,
               borderBottomLeftRadius: m.sender_id === ownId ? 15 : 0,
               borderBottomRightRadius: m.sender_id === ownId ? 0 : 15,
             },
           ]}
         >
-          <Text style={{ fontFamily: "Poppins", fontSize: 14 }}>
+          <Text
+            style={{
+              fontFamily: "Poppins",
+              fontSize: 14,
+              color: m.sender_id === ownId ? "white" : colors.ink,
+            }}
+          >
             {m.deleted_at ? "Message removed" : m.body}
           </Text>
-          <Text style={[s.muted, { fontSize: 11, color: "#999" }]}>
+          <Text
+            style={[
+              s.muted,
+              {
+                fontSize: 11,
+                color: m.sender_id === ownId ? "#e5ccde" : colors.muted,
+              },
+            ]}
+          >
             {new Date(m.created_at).toLocaleTimeString()}
           </Text>
           {m.sender_id === ownId && !m.deleted_at && (
@@ -165,6 +202,31 @@ export default function Chat() {
         placeholder="Your message"
         style={s.input}
       />
+      {!text && (
+        <View style={{ gap: 8 }}>
+          {[
+            "What would your perfect Sunday look like?",
+            "What is one place you would love to explore?",
+          ].map((starter) => (
+            <Pressable
+              key={starter}
+              accessibilityRole="button"
+              onPress={() => setText(starter)}
+              style={[s.card, { padding: 12 }]}
+            >
+              <Text
+                style={{
+                  fontFamily: "Poppins",
+                  color: colors.pink,
+                  fontSize: 12,
+                }}
+              >
+                {starter}
+              </Text>
+            </Pressable>
+          ))}
+        </View>
+      )}
       <Button
         disabled={!text.trim() || send.isPending}
         onPress={() => send.mutate()}

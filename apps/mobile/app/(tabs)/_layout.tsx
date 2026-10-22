@@ -8,6 +8,7 @@ export default function Layout() {
     likes: "heart-outline",
     matches: "heart",
     messages: "chatbubble-ellipses",
+    dates: "calendar-outline",
     profile: "person",
   };
   return (
@@ -17,19 +18,20 @@ export default function Layout() {
         tabBarActiveTintColor: colors.gold,
         tabBarInactiveTintColor: "#aaa8b5",
         tabBarStyle: {
-          backgroundColor: "#f5f5f5",
+          backgroundColor: "#fff9fc",
           borderTopColor: colors.line,
           height: 81,
           paddingBottom: 20,
         },
-        tabBarShowLabel: false,
+        tabBarShowLabel: true,
+        tabBarLabelStyle: { fontSize: 10, fontFamily: "PoppinsSemiBold" },
         tabBarIcon: ({ color, focused }) => (
           <View
             style={{
               borderTopWidth: 2,
               borderTopColor: focused ? colors.pink : "transparent",
-              height: 48,
-              width: 60,
+              height: 36,
+              width: 52,
               alignItems: "center",
               justifyContent: "center",
             }}
@@ -39,16 +41,18 @@ export default function Layout() {
         ),
       })}
     >
-      {["discover", "likes", "matches", "messages", "profile"].map((name) => (
-        <Tabs.Screen
-          key={name}
-          name={name}
-          options={{
-            title: name.charAt(0).toUpperCase() + name.slice(1),
-            ...(name === "likes" ? { href: null } : {}),
-          }}
-        />
-      ))}
+      {["discover", "likes", "matches", "messages", "dates", "profile"].map(
+        (name) => (
+          <Tabs.Screen
+            key={name}
+            name={name}
+            options={{
+              title: name.charAt(0).toUpperCase() + name.slice(1),
+              ...(name === "likes" ? { href: null } : {}),
+            }}
+          />
+        ),
+      )}
     </Tabs>
   );
 }

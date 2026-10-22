@@ -1,23 +1,27 @@
 # Editing Just1date app photography
 
-The screens are React/React Native components. Mockups in `design/references`
-and browser captures in `design/verification` are design and test evidence;
-they are never rendered as full app screens.
+The screens are React/React Native components. Current browser captures in
+`design/verification/current` are test evidence, never full-screen app backgrounds.
+Old uploaded mockup photography has been retired entirely. New illustrative
+photography was generated specifically for Just1Date; prompts and hashes are in
+`design/photography/generation.json`.
 
 ## Staff workflow
 
 1. Sign into the operations app at https://just1date-admin.vercel.app using an
    active ADMIN or SUPER_ADMIN account and complete authenticator verification.
 2. Choose **App images** in the sidebar.
-3. Select a welcome photo for Algorithm, Matches or Premium. A local preview
+3. Select a welcome, landing hero or Just One Date venue photo. A local preview
    appears before anything is uploaded or published.
 4. Add a short description for screen readers and choose **Publish photo**.
-   Use a portrait photograph without captions or app controls. JPEG, PNG and
+   Use a photograph without captions, watermarks or app controls. JPEG, PNG and
    WebP are supported, up to 4 MB and at least 400 × 400 pixels.
 5. Use **Restore original photo**, then **Confirm restore**, to return a slot
-   to its original reference photography.
+   to its original generated illustrative photography.
 
-The web and updated native welcome screens fetch the same published slots.
+The web and updated native welcome/date screens fetch the same published slots.
+The landing hero is also editable. Demo profile portraits remain explicitly
+fictional and separate from real member-owned photographs.
 They refresh every minute while mounted and retain bundled originals when the
 service or an image is unavailable. Updating a published photo does not require
 a new app build. Earlier APKs predating this feature need the updated release.

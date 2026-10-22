@@ -5,6 +5,7 @@ import "../../../web/src/app/globals.css";
 import "../../../web/src/app/reference.css";
 import "../../../web/src/app/reference-refresh.css";
 import "./admin.css";
+import "../../../web/src/app/editorial.css";
 export const metadata = { title: "JUST1DATE — Operations" };
 export default async function Layout({ children }: { children: ReactNode }) {
   await headers();

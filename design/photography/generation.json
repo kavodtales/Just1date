@@ -1,0 +1,61 @@
+{
+  "generated_on": "2026-10-21",
+  "method": "built-in image_gen",
+  "disclosure": "All depicted people and places are fictional AI-created illustrations. None is a verified member or a bookable venue.",
+  "assets": [
+    {
+      "name": "hero",
+      "source_file": "exec-f0867730-025d-4ef4-8ad8-5d6f372287ee.png",
+      "output": "/images/editorial/hero.webp",
+      "prompt": "Use case: photorealistic-natural. Asset type: original Just1Date dating-brand website hero photograph, wide landscape composition. Create a completely new, ultra-realistic editorial lifestyle photograph of a naturally beautiful Nigerian Black woman aged 29 and an elegant Nigerian Black man aged 32 on a relaxed first dinner date at an upscale Lagos rooftop restaurant at golden hour. Candid shared laughter and believable chemistry, contemporary elegant evening clothes in ivory and deep wine, realistic dark skin texture and authentic African facial features, natural body proportions and anatomically correct hands. They are seated across the corner of a small table with tasteful flowers, water glasses and a meal. Subtle Lagos skyline and lush restaurant planting in soft background bokeh. Subjects on the right half, quieter dark plum-toned negative space on the left for separately coded website headings. Warm cinematic natural lighting, refined lifestyle-magazine photography, documentary realism, no excessive retouching. These are fictional adults for illustrative marketing, not real app members. No text, letters, logo, watermark, interface, frame or collage. Do not copy any supplied photo.",
+      "source_sha256": "2837ac574867a59ed755461cb0c0203f5a00a0e6eabda9cabad2f14c97c79dda",
+      "output_sha256": "6233e55b49e30c7088d7015f667d7a8c7f30d7b6806724824a77442d070a8c75",
+      "bytes": 92870
+    },
+    {
+      "name": "amara",
+      "source_file": "exec-35089d93-6222-4db9-98be-168461691954.png",
+      "output": "/images/editorial/amara.webp",
+      "prompt": "Use case: photorealistic-natural. Asset type: original Just1Date fictional demo profile portrait, vertical 3:4 photograph. Primary request: create a new ultra-realistic editorial lifestyle portrait of Amara, a fictional Nigerian Black woman aged 28, a product designer, warm natural smile, medium-deep brown skin with realistic pores, short natural textured hair, refined ivory blouse, minimal gold jewelry, candid seated portrait at a leafy Lagos courtyard cafe in soft morning light. A believable individual with authentic African facial features, natural body proportions, understated styling, realistic eyes and anatomically correct hands if visible. Premium lifestyle photography, 85mm portrait lens, beautiful but natural light and depth of field, upper body and head comfortably inside frame for responsive cropping. A distinct individual, not a celebrity or any supplied reference person. No excessive retouching, no plastic skin, no stereotyped costume, no text, logo, watermark, UI, frame or collage. This adult is fictional demo content, never a verified real member.",
+      "source_sha256": "44c5c9573016f755bdc135d6dee5f1f447f8132ca5cfb60524be11f2a8318c48",
+      "output_sha256": "e9b249001c3e5d14a54251be67119a43368d3c054647f234cd56d40f5287b90a",
+      "bytes": 136020
+    },
+    {
+      "name": "tomi",
+      "source_file": "exec-0fa6bc3d-186f-44a7-82f7-aaf701c4f3b9.png",
+      "output": "/images/editorial/tomi.webp",
+      "prompt": "Use case: photorealistic-natural. Asset type: original Just1Date fictional demo profile portrait, vertical 3:4 photograph. Primary request: create a new ultra-realistic editorial lifestyle portrait of Tomi, a fictional Nigerian Black man aged 31, an architect, dark brown skin with realistic texture, closely cropped hair and subtle beard, linen overshirt over a charcoal shirt, approachable relaxed smile, contemporary Lagos gallery terrace with architectural lines in soft overcast light. A believable individual with authentic African facial features, natural body proportions, understated styling, realistic eyes and anatomically correct hands if visible. Premium lifestyle photography, 85mm portrait lens, beautiful but natural light and depth of field, upper body and head comfortably inside frame for responsive cropping. A distinct individual, not a celebrity or any supplied reference person. No excessive retouching, no plastic skin, no stereotyped costume, no text, logo, watermark, UI, frame or collage. This adult is fictional demo content, never a verified real member.",
+      "source_sha256": "3e52f2100a8e52f061f4247057cb863b610696675545b57800f921ea599200f2",
+      "output_sha256": "0b552087251685a96dcbf2aa1208a78845fa821efcb98b220770941c3215b415",
+      "bytes": 107980
+    },
+    {
+      "name": "zara",
+      "source_file": "exec-78749b1e-f100-41b7-867e-9779377df7b1.png",
+      "output": "/images/editorial/zara.webp",
+      "prompt": "Use case: photorealistic-natural. Asset type: original Just1Date fictional demo profile portrait, vertical 3:4 photograph. Primary request: create a new ultra-realistic editorial lifestyle portrait of Zara, a fictional Nigerian Black woman aged 27, a creative strategist, rich dark skin with natural texture, long neat braids, burgundy evening blouse, radiant spontaneous smile, relaxed waist-up portrait at a stylish Lagos live-music courtyard at blue hour with soft warm background lights. A believable individual with authentic African facial features, natural body proportions, understated styling, realistic eyes and anatomically correct hands if visible. Premium lifestyle photography, 85mm portrait lens, beautiful but natural light and depth of field, upper body and head comfortably inside frame for responsive cropping. A distinct individual, not a celebrity or any supplied reference person. No excessive retouching, no plastic skin, no stereotyped costume, no text, logo, watermark, UI, frame or collage. This adult is fictional demo content, never a verified real member.",
+      "source_sha256": "92008523a537006a4f67925bfe4fcd4d7c2ae8055a257a1651a370e967bc1a8c",
+      "output_sha256": "d0a0a106a364729777c9c2de1f56d2e9b14e60fe4b53fbae7ac00282b2bdf19e",
+      "bytes": 115974
+    },
+    {
+      "name": "daniel",
+      "source_file": "exec-98d88617-c618-473c-8a22-1ad734fe75ea.png",
+      "output": "/images/editorial/daniel.webp",
+      "prompt": "Use case: photorealistic-natural. Asset type: original Just1Date fictional demo profile portrait, vertical 3:4 photograph. Primary request: create a new ultra-realistic editorial lifestyle portrait of Daniel, a fictional Nigerian Black man aged 30, a software engineer, warm brown skin with realistic texture, clean shaven, natural short curls, smart olive casual shirt, candid genuine smile, an upscale waterfront Lagos promenade in soft late-afternoon light. A believable individual with authentic African facial features, natural body proportions, understated styling, realistic eyes and anatomically correct hands if visible. Premium lifestyle photography, 85mm portrait lens, beautiful but natural light and depth of field, upper body and head comfortably inside frame for responsive cropping. A distinct individual, not a celebrity or any supplied reference person. No excessive retouching, no plastic skin, no stereotyped costume, no text, logo, watermark, UI, frame or collage. This adult is fictional demo content, never a verified real member.",
+      "source_sha256": "9e56f5095e7375a1936271ab63980209e1d4d41cef35db2ebbe132f53a796def",
+      "output_sha256": "41bdfe24effbf57ad5c8d825d840e322d912fe4ed7db514ca82d0d4bc54ce2f9",
+      "bytes": 115622
+    },
+    {
+      "name": "venue",
+      "source_file": "exec-c4c61c32-da88-4dcc-a7aa-b955e79262b3.png",
+      "output": "/images/editorial/venue.webp",
+      "prompt": "Use case: photorealistic-natural. Asset type: original Just1Date date-planning editorial photograph, horizontal landscape. A beautiful fictional upscale Lagos restaurant courtyard at blue hour, intimate table for two in the foreground, warm sculptural lamps, lush tropical planting, soft candlelight, elegant table settings and beautiful architectural detail, premium but welcoming atmosphere. Photorealistic architectural lifestyle photography, realistic materials, authentic contemporary African urban design, warm rose and deep plum accents, restrained composition. No identifiable real business, no words, logo, watermark, interface or collage. This is an illustrative date idea, not a claimed bookable venue.",
+      "source_sha256": "81687a893a96685f1fd6359f63313a0aa345c3216868f91e56429f5a849638e1",
+      "output_sha256": "56012ef9f1c49183798f3979d4865892d89e5057ea256c1efb87702108088737",
+      "bytes": 145874
+    }
+  ]
+}

@@ -34,6 +34,9 @@ export function Welcome() {
   const image = media.data?.find((p) => p.slot === appImageSlots[index].slot);
   return (
     <main className={`welcome-screen welcome-${index + 1}`}>
+      <Link href="/" className="welcome-home">
+        Just1Date <span>Meet with intention ↗</span>
+      </Link>
       <div className="welcome-image">
         <img
           key={`${index}-${image?.revision ?? 0}`}
@@ -48,9 +51,13 @@ export function Welcome() {
         />
       </div>
       <div className="welcome-copy" aria-live="polite">
+        <span className="editorial-kicker">YOUR NEXT GOOD STORY</span>
         <h1>{slide.title}</h1>
         <p>{slide.text}</p>
       </div>
+      <small className="welcome-disclosure">
+        Original AI-created illustrative photography
+      </small>
       <div className="carousel-dots" aria-label="Introduction slides">
         {slides.map((s, i) => (
           <button

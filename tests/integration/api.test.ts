@@ -351,6 +351,115 @@ it("executes discovery → reciprocal likes → one match → chat through REST"
     ).status,
   ).toBe(404);
 });
+it("protects date invitations with mutual-match consent, idempotency and revisions", async () => {
+  const match = (
+    await request(app).get("/v1/matches").auth(a, { type: "bearer" })
+  ).body.data[0];
+  const input = {
+    match_id: match.id,
+    operation_id: randomUUID(),
+    activity: "coffee",
+    venue: "A public café in Lagos",
+    starts_at: new Date(Date.now() + 86400000).toISOString(),
+    note: "An hour of good conversation?",
+  };
+  expect((await request(app).get("/v1/dates")).status).toBe(401);
+  expect(
+    (
+      await request(app)
+        .post("/v1/dates")
+        .auth(stranger, { type: "bearer" })
+        .send(input)
+    ).status,
+  ).toBe(404);
+  expect(
+    (
+      await request(app)
+        .post("/v1/dates")
+        .auth(a, { type: "bearer" })
+        .send({ ...input, starts_at: new Date().toISOString() })
+    ).status,
+  ).toBe(400);
+  const send = () =>
+    request(app).post("/v1/dates").auth(a, { type: "bearer" }).send(input);
+  const first = await send();
+  expect(first.status).toBe(201);
+  const plan = first.body.data;
+  expect((await send()).body.data.id).toBe(plan.id);
+  expect(
+    (
+      await request(app)
+        .post("/v1/dates")
+        .auth(a, { type: "bearer" })
+        .send({ ...input, venue: "Different place" })
+    ).status,
+  ).toBe(409);
+  const action = (actor: string, action: string, revision = 0) =>
+    request(app)
+      .post(`/v1/dates/${plan.id}/actions`)
+      .auth(actor, { type: "bearer" })
+      .send({ action, revision });
+  expect((await action(a, "accept")).status).toBe(403);
+  expect((await action(stranger, "accept")).status).toBe(404);
+  expect(
+    (await request(app).get("/v1/dates").auth(stranger, { type: "bearer" }))
+      .body.data,
+  ).toEqual([]);
+  const incoming = (
+    await request(app).get("/v1/dates").auth(b, { type: "bearer" })
+  ).body.data;
+  expect(incoming[0].is_sender).toBe(false);
+  expect(incoming[0].status).toBe("proposed");
+  expect((await action(b, "accept")).body.data.status).toBe("accepted");
+  expect((await action(b, "accept")).body.data.revision).toBe(1);
+  expect((await action(a, "cancel", 0)).status).toBe(409);
+  expect((await action(a, "cancel", 1)).body.data.status).toBe("cancelled");
+  expect((await action(b, "accept", 2)).status).toBe(409);
+  await expect(
+    database.transaction(a, (tx) =>
+      tx
+        .query("set local role authenticated")
+        .then(() => tx.query("select public.rpc_date_plans()")),
+    ),
+  ).rejects.toThrow();
+});
+it("stores date demos only in the private fictional session and requires an explicit simulated response", async () => {
+  const session = (await request(app).post("/v1/demo/session")).body.data,
+    token = session.token,
+    profile_id = session.profiles[0].id;
+  const send = (body: unknown) =>
+    request(app)
+      .post("/v1/demo/action")
+      .set("X-Demo-Session", token)
+      .send(body);
+  const input = {
+    action: "date-propose",
+    profile_id,
+    operation_id: randomUUID(),
+    activity: "gallery",
+    venue: "A fictional public gallery",
+    starts_at: new Date(Date.now() + 86400000).toISOString(),
+    note: "Demo invitation",
+  };
+  expect((await send(input)).status).toBe(409);
+  await send({ action: "like", profile_id });
+  expect((await send(input)).body.data.state.dates).toHaveLength(1);
+  expect((await send(input)).body.data.state.dates).toHaveLength(1);
+  const response = {
+    action: "date-respond",
+    profile_id,
+    plan_id: input.operation_id,
+    response: "accept",
+    revision: 0,
+  };
+  expect((await send(response)).status).toBe(400);
+  expect(
+    (await send({ ...response, simulated: true })).body.data.state.dates[0]
+      .status,
+  ).toBe("accepted");
+  const isolated = (await request(app).post("/v1/demo/session")).body.data;
+  expect(isolated.state.dates).toEqual([]);
+});
 it("returns authorized inbox previews and counts unread messages until acknowledged", async () => {
   const inbox = await request(app)
     .get("/v1/conversations")
@@ -568,6 +677,23 @@ it("fails closed when the media cleanup worker is stale", async () => {
   await sql.exec("update public.call_service_health set heartbeat_at=now()");
 });
 it("reports and blocks through REST, then revokes chat and active video access", async () => {
+  const matched = (
+    await request(app).get("/v1/matches").auth(a, { type: "bearer" })
+  ).body.data[0];
+  expect(
+    (
+      await request(app)
+        .post("/v1/dates")
+        .auth(a, { type: "bearer" })
+        .send({
+          match_id: matched.id,
+          operation_id: randomUUID(),
+          activity: "dinner",
+          venue: "A public restaurant",
+          starts_at: new Date(Date.now() + 86400000).toISOString(),
+        })
+    ).status,
+  ).toBe(201);
   await sql.exec(
     "update public.call_sessions set created_at=now()-interval '31 seconds'",
   );
@@ -607,6 +733,16 @@ it("reports and blocks through REST, then revokes chat and active video access",
   ).toBe(404);
 });
 it("excludes blocked matches, video invitations and message previews from both members' inboxes", async () => {
+  expect(
+    (await request(app).get("/v1/dates").auth(a, { type: "bearer" })).body.data,
+  ).toEqual([]);
+  expect(
+    (
+      await sql.query(
+        "select status from public.date_plans where activity='dinner'",
+      )
+    ).rows,
+  ).toEqual([{ status: "cancelled" }]);
   expect(
     (
       await sql.query<{ status: string }>(

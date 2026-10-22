@@ -10,6 +10,8 @@ const slotSchema = z.enum([
   "welcome_algorithm",
   "welcome_matches",
   "welcome_premium",
+  "landing_hero",
+  "date_venue",
 ]);
 type MediaRow = {
   slot: string;

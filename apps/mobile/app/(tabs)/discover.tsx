@@ -1,6 +1,12 @@
 import { useRef, useState } from "react";
 import * as Crypto from "expo-crypto";
-import { Text, View, Pressable, StyleSheet } from "react-native";
+import {
+  Text,
+  View,
+  Pressable,
+  StyleSheet,
+  useWindowDimensions,
+} from "react-native";
 import { router } from "expo-router";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Image } from "expo-image";
@@ -19,6 +25,11 @@ import { Filters } from "../../components/filters";
 import { Reactions, type Reaction } from "../../components/reactions";
 import { MatchCelebration } from "../../components/match-celebration";
 export default function Discover() {
+  const { height } = useWindowDimensions();
+  const photoStyle = [
+    styles.image,
+    { height: Math.max(310, Math.min(540, height * 0.57)) },
+  ];
   const qc = useQueryClient();
   const [index, setIndex] = useState(0),
     [cursor, setCursor] = useState<string | null>(null),
@@ -162,7 +173,7 @@ export default function Discover() {
                     <Image
                       source={{ uri: next.photos[0] }}
                       cachePolicy="memory"
-                      style={styles.image}
+                      style={photoStyle}
                       contentFit="cover"
                     />
                   )}
@@ -197,13 +208,13 @@ export default function Discover() {
                   {p.photos?.[0] ? (
                     <Image
                       source={{ uri: p.photos[0] }}
-                      style={styles.image}
+                      style={photoStyle}
                       contentFit="cover"
                       cachePolicy="memory"
                       accessibilityLabel="Approved profile photo"
                     />
                   ) : (
-                    <View style={[styles.image, styles.noPhoto]}>
+                    <View style={[...photoStyle, styles.noPhoto]}>
                       <Text>Photo unavailable</Text>
                     </View>
                   )}
@@ -306,7 +317,7 @@ export default function Discover() {
 }
 const styles = StyleSheet.create({
   card: {
-    borderRadius: 15,
+    borderRadius: 26,
     backgroundColor: "white",
     borderWidth: 0,
     overflow: "hidden",
@@ -323,9 +334,9 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     minHeight: 84,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: "#000000cf",
+    paddingHorizontal: 22,
+    paddingVertical: 18,
+    backgroundColor: "#29132fe8",
     gap: 2,
   },
   summary: { padding: 20, paddingTop: 0, gap: 12 },

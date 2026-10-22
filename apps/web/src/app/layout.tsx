@@ -9,6 +9,7 @@ import "./reference-demo.css";
 import "./reference-extras.css";
 import "./calls.css";
 import "./distribution.css";
+import "./editorial.css";
 import { PwaRegistration } from "../components/install-app";
 export const metadata: Metadata = {
   title: "JUST1DATE — Meet someone worth choosing.",

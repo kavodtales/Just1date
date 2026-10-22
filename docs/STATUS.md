@@ -1,5 +1,39 @@
 # Implementation and verification status
 
+## Premium transformation — 22 October 2026
+
+The current creative brief supersedes the earlier screenshot lock. A shared
+plum/rose editorial system now covers landing, authentication, onboarding,
+discovery, profiles, matches, conversations, settings, safety and download views.
+Native screens share the refreshed palette, accessible navigation and responsive
+discovery controls. The original owner logo is retained.
+
+Six new photographs were generated specifically for Just1Date, optimized to
+WebP and recorded with prompts and hashes in design/photography/generation.json.
+Screenshot-derived photos, previous demo portraits and obsolete photo captures
+were removed. Fictional demo adults and simulated replies remain clearly labeled.
+Staff can preview/publish/restore welcome, landing hero and date-venue images.
+
+Just One Date now supports activity, public place, local date/time and a note.
+The existing date_plans table is extended without discarding legacy plans.
+Real invitations require an active mutual match; only recipients accept or
+decline, either participant can cancel, and ending a match cancels open plans.
+Retries are idempotent and updates check revisions. Private demo sessions have
+an explicitly simulated version. Neither flow makes restaurant reservations.
+
+Verification: 68 SQL/API/unit tests, 87 applicable member-browser tests across
+three viewport sizes, and eight staff-browser tests pass. Three prepared-account
+staging journeys are skipped. Workspace typechecks, lint and production builds
+passed; updated Android and iOS Hermes bundles exported. Migration 013 is applied
+to the hosted database. Native artifact publication and hosted rollout are
+tracked separately; older RC2 downloads do not contain this redesign.
+
+Remaining integrations retain honest unavailable states: production video calls
+need LiveKit plus a persistent cleanup worker and two-person acceptance; public
+email delivery needs the verified sender; billing and final legal/store review
+remain launch gates. Owner staff-role activation is deferred until the user
+completes verified MFA. No store approval or production-scale claim is made.
+
 ## Coded UI and editable app images — 20 October 2026
 
 Promotional welcome photography now has an authenticated, MFA-protected App images

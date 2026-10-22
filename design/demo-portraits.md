@@ -1,5 +1,11 @@
 # Fictional demo portraits
 
+**Superseded on 21 October 2026.** The older PNGs described below have been removed.
+Current original photographs, prompts, hashes and optimized sizes are recorded in
+[photography/generation.json](photography/generation.json). Current assets use
+`/images/editorial/{amara,tomi,zara,daniel}.webp`. No fictional profile is a real
+or verified member. The historical prompts below are retained only as a record.
+
 Generated with the built-in image generation tool (photorealistic-natural). All four adults are fictional. Every demo profile is labeled in the product; sample replies are scripted.
 
 Assets are saved in `apps/web/public/images/demo/` and mirrored in `apps/admin/public/images/demo/`. Next.js serves resized image variants; the generated originals are preserved.

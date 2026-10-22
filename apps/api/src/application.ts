@@ -18,6 +18,7 @@ import { safetyRoutes } from "./modules/safety";
 import { accountRoutes } from "./modules/account";
 import { adminRoutes } from "./modules/admin";
 import { publicAppMediaRoutes } from "./modules/app-media";
+import { dateRoutes } from "./modules/dates";
 import { aiRoutes } from "./modules/ai";
 import { openapi } from "./openapi";
 import { DemoService, demoRoutes } from "./modules/demo";
@@ -127,6 +128,7 @@ export function createApp(deps: {
   app.use("/v1", deps.authenticate ?? authenticate(deps.auth));
   app.use("/v1", apiLimiter);
   app.use("/v1/profiles", profilesRoutes(repo, deps.auth));
+  app.use("/v1/dates", dateRoutes(repo));
   app.use(
     "/v1",
     socialRoutes(repo, deps.auth, () => calls.cleanup()),

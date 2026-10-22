@@ -4,7 +4,7 @@ const profiles = ["Amara", "Tomi", "Zara", "Daniel"].map((name, i) => ({
   name,
   age: [28, 31, 27, 30][i],
   city: i === 1 ? "Abuja" : "Lagos",
-  image: `/images/demo/${name.toLowerCase()}.png`,
+  image: `/images/editorial/${name.toLowerCase()}.webp`,
   removed_at: null as string | null,
 }));
 test("admin can review, remove and restore exactly the four demos", async ({

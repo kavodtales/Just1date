@@ -10,6 +10,7 @@ export const brand = {
   },
 };
 export { appImageSlots, type AppImage } from "./app-media";
+export { dateActivities } from "./date-activities";
 export { legalDocuments } from "./legal";
 export const defaultWeights = {
   goals: 25,

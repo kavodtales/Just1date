@@ -63,6 +63,23 @@ export function ok(res: Response, data: unknown, status = 200) {
   return res.status(status).json({ data, request_id: res.req.requestId });
 }
 const domain: Record<string, [number, string]> = {
+  INVALID_DATE_PLAN: [
+    400,
+    "Choose an activity, a public meeting place and a time between 15 minutes and 90 days from now.",
+  ],
+  DATE_LIMIT: [
+    429,
+    "You have reached the invitation limit. Review your existing plans before proposing another date.",
+  ],
+  DATE_UNAVAILABLE: [404, "This date invitation is unavailable."],
+  DATE_FORBIDDEN: [
+    403,
+    "Only the invited member can accept or decline this invitation.",
+  ],
+  DATE_CONFLICT: [
+    409,
+    "This plan has changed or its time has passed. Refresh to see its latest status.",
+  ],
   MEDIA_CONFLICT: [
     409,
     "Another admin changed this image. Reload the latest version before publishing.",

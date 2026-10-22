@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import { ManagedPhoto } from "./managed-photo";
 import { usePathname } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
 import { Brand } from "./brand";
@@ -15,11 +16,13 @@ import {
   Sparkles,
   ChevronLeft,
   SlidersHorizontal,
+  CalendarHeart,
 } from "lucide-react";
 const primary = [
   ["Discover", "/discover", Copy],
   ["Matches", "/matches", Heart],
   ["Messages", "/messages", MessageCircle],
+  ["Dates", "/dates", CalendarHeart],
   ["Profile", "/profile", UserRound],
 ] as const;
 const secondary = [
@@ -83,6 +86,14 @@ export function Shell({
           ))}
         </nav>
         <div className="sidebar-bottom">
+          <Link className="sidebar-date-card" href="/dates">
+            <ManagedPhoto slot="date_venue" loading="lazy" />
+            <strong>
+              One good date.
+              <br />A little possibility.
+            </strong>
+            <span>Make a plan ↗</span>
+          </Link>
           <Link className="button" href="/preferences">
             Your preferences
           </Link>
@@ -110,6 +121,13 @@ export function Shell({
               </Link>
             )}
             <div>
+              <p className="shell-kicker">
+                {variant === "chat"
+                  ? "A BETTER KIND OF HELLO"
+                  : discovery
+                    ? "A LITTLE POSSIBILITY"
+                    : "YOUR JUST1DATE"}
+              </p>
               <h1>
                 {variant === "chat" ? (
                   <Link href="/messages" aria-label="All conversations">
@@ -141,6 +159,28 @@ export function Shell({
               ))}
           </header>
           <div className="page-content">{children}</div>
+          {discovery && (
+            <aside className="discovery-insight">
+              <ManagedPhoto slot="date_venue" loading="lazy" />
+              <span className="editorial-kicker">BEYOND THE FIRST HELLO</span>
+              <h2>
+                Give a spark
+                <br />
+                somewhere to go.
+              </h2>
+              <p>
+                When the interest is mutual, choose a little time for each
+                other. Coffee, a gallery, or a table for two.
+              </p>
+              <Link href="/dates" className="button">
+                Explore Just One Date ↗
+              </Link>
+              <small>
+                Illustrative setting. Plans need both people’s consent; no
+                booking is made.
+              </small>
+            </aside>
+          )}
         </main>
       </div>
       <nav className="mobile-nav" aria-label="Mobile navigation">
@@ -156,7 +196,7 @@ export function Shell({
               size={23}
               fill={href !== "/discover" ? "currentColor" : "none"}
             />
-            <span className="sr-only">{label}</span>
+            <span>{label}</span>
           </Link>
         ))}
       </nav>

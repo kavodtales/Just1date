@@ -2,7 +2,15 @@
 import Link from "next/link";
 import { Fragment, useEffect, useRef, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Send, Heart, Trash2, Flag, Reply, MoreHorizontal } from "lucide-react";
+import {
+  Send,
+  Heart,
+  Trash2,
+  Flag,
+  Reply,
+  MoreHorizontal,
+  CalendarHeart,
+} from "lucide-react";
 import type { Message } from "@just1date/types";
 import { Button, State } from "@just1date/ui";
 import { Shell } from "./shell";
@@ -151,6 +159,15 @@ export function Chat({ id }: { id: string }) {
         {match && (
           <Link
             className="square-control"
+            href={`/dates?match=${match.id}`}
+            aria-label="Invite your match on a date"
+          >
+            <CalendarHeart size={21} />
+          </Link>
+        )}
+        {match && (
+          <Link
+            className="square-control"
             aria-label="Report a concern"
             href={`/report?target=${match.profile.user_id}`}
           >
@@ -286,6 +303,25 @@ export function Chat({ id }: { id: string }) {
             <div className="reply-banner">
               Replying to: {reply.body?.slice(0, 80)}{" "}
               <button onClick={() => setReply(null)}>Cancel</button>
+            </div>
+          )}
+          {!text && (
+            <div
+              className="conversation-starters"
+              aria-label="Conversation starters"
+            >
+              {[
+                "What would your perfect Sunday look like?",
+                "What is one place you would love to explore?",
+              ].map((starter) => (
+                <button
+                  key={starter}
+                  type="button"
+                  onClick={() => setText(starter)}
+                >
+                  {starter}
+                </button>
+              ))}
             </div>
           )}
           <form

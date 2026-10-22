@@ -82,3 +82,17 @@ export type CallCredentials = {
   server_url: string;
   expires_in: number;
 };
+export type DatePlan = {
+  id: string;
+  match_id: string;
+  proposer_id: string;
+  activity: "coffee" | "dinner" | "gallery" | "walk";
+  venue: string;
+  starts_at: string;
+  note: string;
+  status: "proposed" | "accepted" | "declined" | "cancelled";
+  revision: number;
+  created_at: string;
+  is_sender: boolean;
+  other_name: string;
+};

@@ -2,20 +2,32 @@ export const appImageSlots = [
   {
     slot: "welcome_algorithm",
     title: "Algorithm",
-    fallback: "/images/welcome-1.jpg",
-    alt: "A smiling woman wearing glasses",
+    fallback: "/images/editorial/amara.webp",
+    alt: "Original AI-created portrait of a fictional Nigerian adult",
   },
   {
     slot: "welcome_matches",
     title: "Matches",
-    fallback: "/images/welcome-2.jpg",
-    alt: "A woman enjoying a break after exercise",
+    fallback: "/images/editorial/tomi.webp",
+    alt: "Original AI-created portrait of a fictional Nigerian man",
   },
   {
     slot: "welcome_premium",
     title: "Premium",
-    fallback: "/images/welcome-3.jpg",
-    alt: "A woman outdoors in the sunshine",
+    fallback: "/images/editorial/venue.webp",
+    alt: "Original AI-created illustrative Lagos-inspired date setting",
+  },
+  {
+    slot: "landing_hero",
+    title: "Landing · Rooftop dinner",
+    fallback: "/images/editorial/hero.webp",
+    alt: "AI-created illustrative rooftop dinner with fictional adults",
+  },
+  {
+    slot: "date_venue",
+    title: "Just One Date · Venue",
+    fallback: "/images/editorial/venue.webp",
+    alt: "AI-created illustrative restaurant courtyard",
   },
 ] as const;
 export type AppImage = {

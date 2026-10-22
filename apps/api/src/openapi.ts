@@ -14,6 +14,7 @@ import {
   moderationSchema,
 } from "@just1date/validation";
 import { passwordSchema } from "./modules/account";
+import { dateProposalSchema } from "./modules/dates";
 const routes: [string, string, z.ZodType?, boolean?][] = [
   ["post", "/auth/register", registerSchema, true],
   ["post", "/auth/login", loginSchema, true],
@@ -47,6 +48,18 @@ const routes: [string, string, z.ZodType?, boolean?][] = [
   ["post", "/passes", interactionSchema],
   ["post", "/super-likes", interactionSchema],
   ["get", "/matches"],
+  ["get", "/dates"],
+  ["post", "/dates", dateProposalSchema],
+  [
+    "post",
+    "/dates/{id}/actions",
+    z
+      .object({
+        action: z.enum(["accept", "decline", "cancel"]),
+        revision: z.number().int().nonnegative(),
+      })
+      .strict(),
+  ],
   ["delete", "/matches/{id}"],
   ["get", "/conversations"],
   ["get", "/conversations/{id}/messages"],

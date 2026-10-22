@@ -1,6 +1,19 @@
-# Reference design lock — 19 October 2026
+# Current creative direction — 22 October 2026
 
-The owner's supplied white/pink screens and Downloads/Just1date.png are the visual
+The owner's premium transformation request supersedes the 19 October screen lock.
+The existing Just1Date product, original logo, working services and safety rules
+remain. Use the new plum/rose editorial system, responsive five-item navigation,
+and original generated photography with clear fictional-demo labeling.
+
+Old screenshot-derived images are retired, never cropped to disguise watermarks.
+See [photography provenance](photography/generation.json) and the current rendered
+evidence in `design/verification/current`. All interactions and match compositions
+are implemented in code. Preserve real consent, access control and truthful
+integration states throughout the redesign.
+
+## Superseded historical brief
+
+The owner's supplied white/pink screens and Downloads/Just1date.png were the visual
 source of truth. The previous ivory/sage/serif website is superseded. Preserve
 the working service-connected architecture and native distribution work.
 

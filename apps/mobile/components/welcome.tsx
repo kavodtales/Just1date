@@ -18,19 +18,19 @@ import { router } from "expo-router";
 import { Button, colors } from "./ui";
 const slides = [
   {
-    title: "Algorithm",
+    title: "A little curiosity.",
     text: "Your intentions and preferences help us find connections worth exploring.",
-    image: require("../assets/welcome/1.jpg"),
+    image: require("../assets/editorial/amara.webp"),
   },
   {
-    title: "Matches",
-    text: "We match you with people that have a large array of similar interests.",
-    image: require("../assets/welcome/2.jpg"),
+    title: "A better hello.",
+    text: "Shared interests. Mutual intention. A conversation worth making time for.",
+    image: require("../assets/editorial/tomi.webp"),
   },
   {
-    title: "Premium",
-    text: "Make room for more possibilities with premium benefits.",
-    image: require("../assets/welcome/3.jpg"),
+    title: "Just one date.",
+    text: "Turn a spark into a plan you both choose. Your next good story could start here.",
+    image: require("../assets/editorial/venue.webp"),
   },
 ];
 export function Welcome() {
@@ -83,12 +83,26 @@ export function Welcome() {
               : appImageSlots[index].alt
           }
         />
-        <View style={[st.copy, index === 2 && { paddingTop: 32, height: 153 }]}>
+        <View style={st.copy}>
+          <Text
+            style={{
+              fontSize: 9,
+              letterSpacing: 1.5,
+              color: colors.pink,
+              fontFamily: "PoppinsSemiBold",
+              marginBottom: 8,
+            }}
+          >
+            MAKE ROOM FOR POSSIBILITY
+          </Text>
           <Text accessibilityRole="header" style={st.title}>
             {slides[index].title}
           </Text>
           <Text style={st.description}>{slides[index].text}</Text>
         </View>
+        <Text style={st.disclosure}>
+          AI-created illustrative photography · Fictional adults, not members
+        </Text>
         <View style={st.dots}>
           {slides.map((slide, i) => (
             <Pressable
@@ -130,30 +144,30 @@ export function Welcome() {
   );
 }
 const st = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: "white" },
+  screen: { flex: 1, backgroundColor: colors.paper },
   container: {
     maxWidth: 500,
     width: "100%",
     alignSelf: "center",
     paddingBottom: 20,
   },
-  photo: { height: 417, marginHorizontal: 15, marginTop: 0 },
+  photo: { height: 417, marginHorizontal: 18, marginTop: 12, borderRadius: 28 },
   copy: {
     paddingHorizontal: 40,
-    paddingTop: 20,
-    height: 123,
+    paddingTop: 24,
+    minHeight: 150,
     alignItems: "center",
   },
   title: {
     fontSize: 24,
-    color: colors.pink,
+    color: colors.purple,
     fontFamily: "PoppinsBold",
     marginBottom: 12,
   },
   description: {
     fontSize: 14,
     lineHeight: 21,
-    color: "#333557",
+    color: colors.muted,
     textAlign: "center",
     fontFamily: "Poppins",
   },
@@ -173,4 +187,12 @@ const st = StyleSheet.create({
     justifyContent: "center",
   },
   account: { fontSize: 14, color: "#555", fontFamily: "Poppins" },
+  disclosure: {
+    textAlign: "center",
+    fontSize: 10,
+    color: colors.muted,
+    paddingHorizontal: 25,
+    marginTop: 8,
+    fontFamily: "Poppins",
+  },
 });

@@ -229,10 +229,12 @@ export function AppImages() {
   });
   return (
     <section className="app-images">
-      <h2>Welcome photos</h2>
+      <h2>App photography</h2>
       <p>
-        Preview a replacement, then publish it to the welcome carousel on web,
-        Android and iOS. Changes are recorded in the staff audit trail.
+        Preview and publish welcome, landing and date-planning photos. The
+        welcome carousel updates on web, Android and iOS; date and landing
+        images update wherever used. Changes are recorded in the staff audit
+        trail.
       </p>
       <QueryState pending={q.isPending} error={q.error} retry={q.refetch} />
       <div className="app-images-grid">
