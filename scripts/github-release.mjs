@@ -41,7 +41,7 @@ async function request(path, method = "GET", body, binary = false) {
     throw new Error(`GitHub ${method} failed (${response.status}).`);
   return response.status === 204 ? {} : response.json();
 }
-const [command, arg, extra] = process.argv.slice(2);
+const [command, arg, extra, emulatorApi = "36"] = process.argv.slice(2);
 if (command === "release") {
   if (!/^v[0-9]+\.[0-9]+\.[0-9]+(?:-[a-zA-Z0-9.-]+)?$/.test(arg || ""))
     throw new Error("Provide a release tag.");
@@ -103,9 +103,13 @@ if (command === "release") {
     await request(`/actions/runs/${arg}/cancel`, "POST");
   console.log("Superseded workflow run is stopped or already completed.");
 } else if (command === "dispatch") {
+  if (!["35", "36"].includes(emulatorApi))
+    throw new Error(
+      "Choose Android runtime API 35 or 36. The APK target remains API 36.",
+    );
   await request("/actions/workflows/android-artifact.yml/dispatches", "POST", {
     ref: "main",
-    inputs: { artifact_url: arg, sha256: extra },
+    inputs: { artifact_url: arg, sha256: extra, emulator_api: emulatorApi },
   });
   console.log("Android artifact verification requested.");
 } else if (command === "dispatch-bundle") {
