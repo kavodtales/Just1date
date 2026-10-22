@@ -141,6 +141,28 @@ test("date proposals validate time, persist and require recipient consent", asyn
       () => document.documentElement.scrollWidth <= innerWidth,
     ),
   ).toBe(true);
+  if (page.viewportSize()!.width < 768) {
+    const nav = page.getByRole("navigation", {
+      name: "Mobile navigation",
+      exact: true,
+    });
+    const controls = await nav.getByRole("link").evaluateAll((nodes) =>
+      nodes.map((n) => {
+        const r = n.getBoundingClientRect();
+        return { top: r.top, bottom: r.bottom, height: r.height };
+      }),
+    );
+    expect(controls).toHaveLength(5);
+    expect(
+      Math.max(...controls.map((c) => c.top)) -
+        Math.min(...controls.map((c) => c.top)),
+    ).toBeLessThanOrEqual(1);
+    expect(
+      controls.every(
+        (c) => c.height >= 44 && c.bottom <= page.viewportSize()!.height,
+      ),
+    ).toBe(true);
+  }
   await page.screenshot({
     path: test.info().outputPath("dates.png"),
     fullPage: true,

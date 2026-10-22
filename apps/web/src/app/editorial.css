@@ -1831,6 +1831,7 @@ textarea {
     gap: 20px;
   }
   .mobile-nav {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
     height: 83px;
     background: #fffbfdf5;
     border-top: 1px solid #eadfe7;
@@ -2050,7 +2051,7 @@ textarea {
   .date-form-card label input,
   .date-form-card label select,
   .date-form-card label textarea {
-    font-size: 13px;
+    font-size: 16px;
   }
   .date-form-card h3,
   .date-agenda > h3 {

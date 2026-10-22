@@ -1,5 +1,6 @@
 "use client";
 import Image from "next/image";
+import { editorialDemoPhoto } from "@just1date/config";
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
@@ -66,7 +67,13 @@ async function request(input: Record<string, unknown>): Promise<Data> {
   const result = await response.json();
   if (!response.ok)
     throw new Error(result.error?.message || "Please try again.");
-  return result.data;
+  return {
+    ...result.data,
+    profiles: result.data.profiles.map((p: Profile) => ({
+      ...p,
+      image: editorialDemoPhoto(p.image),
+    })),
+  };
 }
 export function DemoExperience() {
   const [data, setData] = useState<Data>(),

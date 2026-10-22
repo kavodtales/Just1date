@@ -21,16 +21,27 @@ service workflows remain.
 
 ## Verification and practical limits
 
-The SQL/API/unit suite passes 68 tests. Member-browser acceptance passes 87
+The SQL/API/unit suite passes 72 tests. Member-browser acceptance passes 87
 applicable tests at desktop, Pixel and 375-pixel sizes; eight staff-browser tests
 pass. Three staging journeys need prepared real-member credentials and are
 skipped. Production web/admin/API builds, lint and workspace typechecks pass;
 both native Hermes bundles export. Current browser evidence uses explicit
 test-only fictional fixtures, never seeded live members.
 
-The hosted schema has migration 013. The updated source and any newly verified
+The hosted schema has migration 014. The updated source and any newly verified
 native release are tracked separately from deployment and store publication.
 See STATUS.md and the native release manifest for their exact status.
+
+The updated APK (code 13) passed signing, API 36, native 16 KiB alignment and
+real-emulator startup/signup checks. The AAB (code 14) passed Google bundletool
+validation. The new iOS simulator archive passed app-ID, permission, date-code
+and private-value inspection. All new binaries use native source 5f9399f.
+
+The full redesign is not yet on the public Vercel frontend: the current CLI
+account has Whaleswealth access, while the live web/API/admin projects belong
+to kavodtales. Deployment awaits the owner's destination choice or account
+access. New welcome photos already load through the existing live image feed;
+compatibility aliases keep the older demo and staff clients working meanwhile.
 
 Calling already has consent and revocation controls, but live media requires an
 owner-controlled LiveKit provider and running worker. SMTP, social providers,

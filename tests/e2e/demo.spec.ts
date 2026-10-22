@@ -8,7 +8,7 @@ const profiles = [
     gender: "woman",
     city: "Lagos",
     profession: "Designer",
-    image: "/images/editorial/amara.webp",
+    image: "/images/demo/amara.png", // Prior API alias; the client must render the fresh WebP.
   },
   {
     id: "d2222222-2222-4222-8222-222222222222",
@@ -146,6 +146,17 @@ test("four labeled profiles support details, filtering, passing, matching, chat 
   await expect(
     page.getByRole("img", { name: "Amara, fictional demo profile" }),
   ).toBeVisible();
+  await expect
+    .poll(() =>
+      page
+        .getByRole("img", { name: "Amara, fictional demo profile" })
+        .evaluate(
+          (node) =>
+            (node as HTMLImageElement).complete &&
+            (node as HTMLImageElement).naturalWidth > 0,
+        ),
+    )
+    .toBe(true);
   await page.getByRole("button", { name: "Preferences", exact: true }).click();
   await page.getByRole("button", { name: "Women", exact: true }).click();
   await expect(page.locator(".demo-profile-card")).toHaveCount(2);

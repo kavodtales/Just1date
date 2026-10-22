@@ -23,7 +23,17 @@ test("admin previews, publishes and restores welcome photography", async ({
       path = url.pathname.split("/api/service/")[1];
     let data: unknown = [];
     if (path === "admin/me") data = { role: "ADMIN" };
-    if (path === "admin/app-media") data = rows;
+    if (path === "admin/app-media")
+      data = [
+        ...rows,
+        {
+          slot: "future_slot",
+          revision: 0,
+          url: null,
+          alt_text: "",
+          updated_at: "2026-10-22T00:00:00Z",
+        },
+      ];
     if (path.startsWith("admin/app-media/")) {
       const slot = path.split("/")[2],
         reset = path.endsWith("/reset");

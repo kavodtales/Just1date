@@ -19,7 +19,15 @@ async function proxy(req: NextRequest) {
         { error: { message: "This request is too large." } },
         { status: 413 },
       );
-    const input = payload ? JSON.parse(payload) : {};
+    let input;
+    try {
+      input = payload ? JSON.parse(payload) : {};
+    } catch {
+      return NextResponse.json(
+        { error: { message: "Please send a valid request." } },
+        { status: 400 },
+      );
+    }
     if (!input || typeof input !== "object" || Array.isArray(input))
       return NextResponse.json(
         { error: { message: "Please send a valid request." } },
@@ -70,17 +78,14 @@ async function proxy(req: NextRequest) {
     if (upstream.status === 401 || upstream.status === 410)
       response.cookies.set(cookie, "", { maxAge: 0, path: "/" });
     return response;
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       {
         error: {
-          message:
-            error instanceof SyntaxError
-              ? "Please send a valid request."
-              : "We couldn’t connect. Please try again.",
+          message: "We couldn’t connect. Please try again.",
         },
       },
-      { status: error instanceof SyntaxError ? 400 : 503 },
+      { status: 503 },
     );
   }
 }

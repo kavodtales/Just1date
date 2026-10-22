@@ -21,12 +21,23 @@ decline, either participant can cancel, and ending a match cancels open plans.
 Retries are idempotent and updates check revisions. Private demo sessions have
 an explicitly simulated version. Neither flow makes restaurant reservations.
 
-Verification: 68 SQL/API/unit tests, 87 applicable member-browser tests across
+Verification: 72 SQL/API/unit tests, 87 applicable member-browser tests across
 three viewport sizes, and eight staff-browser tests pass. Three prepared-account
 staging journeys are skipped. Workspace typechecks, lint and production builds
-passed; updated Android and iOS Hermes bundles exported. Migration 013 is applied
+passed; updated Android and iOS Hermes bundles exported. Migration 014 is applied
 to the hosted database. Native artifact publication and hosted rollout are
 tracked separately; older RC2 downloads do not contain this redesign.
+
+Independent GitHub verification passed for source 5f9399f (run 39727587328 in
+the deployment repository), including full browser tests and native exports.
+Twenty-two checks also passed through the actual local production frontend/API
+against the hosted database, covering private persisted fictional sessions,
+chat, date proposals, simulated acceptance/cancellation, isolation and reset.
+All eight hosted Supabase checks passed after migration 013; the compatibility
+migration 014 additionally keeps older staff clients on their three known slots.
+The new API uses a five-slot projection. New clients map legacy demo aliases to
+fresh WebPs, and the new original welcome photos are published through the
+existing private image feed while the frontend rollout is pending.
 
 Remaining integrations retain honest unavailable states: production video calls
 need LiveKit plus a persistent cleanup worker and two-person acceptance; public

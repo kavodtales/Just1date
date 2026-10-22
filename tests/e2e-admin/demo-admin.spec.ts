@@ -4,7 +4,7 @@ const profiles = ["Amara", "Tomi", "Zara", "Daniel"].map((name, i) => ({
   name,
   age: [28, 31, 27, 30][i],
   city: i === 1 ? "Abuja" : "Lagos",
-  image: `/images/editorial/${name.toLowerCase()}.webp`,
+  image: `/images/demo/${name.toLowerCase()}.png`,
   removed_at: null as string | null,
 }));
 test("admin can review, remove and restore exactly the four demos", async ({
@@ -42,6 +42,19 @@ test("admin can review, remove and restore exactly the four demos", async ({
     .getByRole("button", { name: "Demo profiles", exact: true })
     .click();
   await expect(page.locator(".admin-demo-card")).toHaveCount(4);
+  await expect
+    .poll(() =>
+      page
+        .locator(".admin-demo-card img")
+        .evaluateAll((images) =>
+          images.every(
+            (node) =>
+              (node as HTMLImageElement).complete &&
+              (node as HTMLImageElement).naturalWidth > 0,
+          ),
+        ),
+    )
+    .toBe(true);
   await page
     .getByRole("button", { name: "Remove all 4 demo profiles", exact: true })
     .click();

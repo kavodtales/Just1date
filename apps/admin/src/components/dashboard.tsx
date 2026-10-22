@@ -12,7 +12,7 @@ import {
   Users,
 } from "lucide-react";
 import { Brand } from "../../../web/src/components/brand";
-import { can, type AdminRole } from "@just1date/config";
+import { can, editorialDemoPhoto, type AdminRole } from "@just1date/config";
 import { Button } from "@just1date/ui";
 import { api, json, ClientError } from "../../../web/src/lib/client";
 import { QueryState } from "../../../web/src/components/query-state";
@@ -369,7 +369,7 @@ export function Dashboard() {
                           sizes="(max-width: 767px) 90vw, 35vw"
                           width={1024}
                           height={1536}
-                          src={p.image}
+                          src={editorialDemoPhoto(p.image)}
                           alt={`${p.name}, fictional demo profile`}
                         />
                         <div>

@@ -119,6 +119,37 @@ it("exposes only published image projections without member authentication", asy
     ),
   ).toBe(true);
 });
+it("keeps legacy staff clients on three slots while the updated API exposes five", async () => {
+  await sql.transaction(async (tx) => {
+    await tx.query("select set_config('request.jwt.claims',$1,true)", [
+      JSON.stringify({ sub: admin }),
+    ]);
+    await tx.exec("set local role service_role");
+    expect(
+      (
+        await tx.query<{ data: unknown[] }>(
+          "select public.rpc_admin_app_media() data",
+        )
+      ).rows[0].data,
+    ).toHaveLength(3);
+    expect(
+      (
+        await tx.query<{ data: unknown[] }>(
+          "select public.rpc_admin_app_media_v2() data",
+        )
+      ).rows[0].data,
+    ).toHaveLength(5);
+  });
+  for (const role of ["anon", "authenticated"])
+    expect(
+      (
+        await sql.query<{ allowed: boolean }>(
+          "select has_function_privilege($1,'public.rpc_admin_app_media_v2()','execute') allowed",
+          [role],
+        )
+      ).rows[0].allowed,
+    ).toBe(false);
+});
 it("denies unauthenticated, non-settings staff and AAL1 uploads before storage writes", async () => {
   const before = uploads;
   for (const actor of [undefined, member, moderator]) {

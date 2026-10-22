@@ -1062,4 +1062,34 @@ $j1d_source$;
 end
 $j1d_apply$;
 
+-- 202610220014_media_rollout_compatibility.sql
+do $j1d_apply$
+declare previous text;
+begin
+  select checksum into previous from public.schema_migrations where name='202610220014_media_rollout_compatibility.sql';
+  if found then
+    if previous <> '796c2c8208c18ac4b5012fb90c9145d3525b28183426c6e96201a56883be8f9e' then
+      raise exception 'Applied migration checksum mismatch: 202610220014_media_rollout_compatibility.sql';
+    end if;
+  else
+    execute $j1d_source$-- Keep already deployed staff clients on their three known slots during rollout.
+-- The updated API explicitly calls v2; authorization remains identical.
+create or replace function public.rpc_admin_app_media() returns jsonb language plpgsql security definer set search_path=public,pg_temp as $$
+begin
+ perform public.require_admin('settings');
+ return (select jsonb_agg(to_jsonb(s) order by slot) from public.app_media_slots s where slot in('welcome_algorithm','welcome_matches','welcome_premium'));
+end $$;
+create function public.rpc_admin_app_media_v2() returns jsonb language plpgsql security definer set search_path=public,pg_temp as $$
+begin
+ perform public.require_admin('settings');
+ return (select jsonb_agg(to_jsonb(s) order by slot) from public.app_media_slots s);
+end $$;
+revoke all on function public.rpc_admin_app_media_v2() from public,anon,authenticated;
+grant execute on function public.rpc_admin_app_media_v2() to service_role;
+$j1d_source$;
+    insert into public.schema_migrations(name,checksum) values('202610220014_media_rollout_compatibility.sql','796c2c8208c18ac4b5012fb90c9145d3525b28183426c6e96201a56883be8f9e');
+  end if;
+end
+$j1d_apply$;
+
 commit;

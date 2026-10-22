@@ -238,9 +238,13 @@ export function AppImages() {
       </p>
       <QueryState pending={q.isPending} error={q.error} retry={q.refetch} />
       <div className="app-images-grid">
-        {q.data?.map((row) => (
-          <ImageEditor key={row.slot} row={row} />
-        ))}
+        {q.data
+          ?.filter((row) =>
+            appImageSlots.some((config) => config.slot === row.slot),
+          )
+          .map((row) => (
+            <ImageEditor key={row.slot} row={row} />
+          ))}
       </div>
     </section>
   );

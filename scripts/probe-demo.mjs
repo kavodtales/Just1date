@@ -86,11 +86,65 @@ check(
   second.data.data.state.likes.length === 0,
   "a separate visitor has isolated demo state",
 );
+const dateProposal = {
+  action: "date-propose",
+  profile_id: id,
+  operation_id: randomUUID(),
+  activity: "coffee",
+  venue: "Fictional public café · test plan",
+  starts_at: new Date(Date.now() + 86400000).toISOString(),
+  note: "Fictional integration check; no invitation or booking.",
+};
+const proposed = await call(cookie, dateProposal);
+check(
+  proposed.status === 200 && proposed.data.data.state.dates.length === 1,
+  "fictional date plan persists through the real service",
+);
+check(
+  (await call(cookie, dateProposal)).data.data.state.dates.length === 1,
+  "retrying a date proposal is idempotent",
+);
+const response = {
+  action: "date-respond",
+  profile_id: id,
+  plan_id: dateProposal.operation_id,
+  response: "accept",
+  revision: 0,
+};
+check(
+  (await call(cookie, response)).status === 400,
+  "demo response cannot omit the explicit simulation flag",
+);
+check(
+  (await call(cookie, { ...response, simulated: true })).data.data.state
+    .dates[0].status === "accepted",
+  "explicitly simulated acceptance persists",
+);
+check(
+  (await call(cookie)).data.data.state.dates[0].status === "accepted",
+  "date plan survives a subsequent request",
+);
+check(
+  (await call(second.cookie.split(";")[0])).data.data.state.dates.length === 0,
+  "date plans remain isolated between visitors",
+);
+check(
+  (
+    await call(cookie, {
+      ...response,
+      response: "cancel",
+      revision: 1,
+      simulated: true,
+    })
+  ).data.data.state.dates[0].status === "cancelled",
+  "fictional date can be cancelled",
+);
 const filtered = await call(cookie, { action: "filter", gender: "woman" });
 check(filtered.data.data.state.gender === "woman", "preferences are saved");
 const reset = await call(cookie, { action: "reset" });
 check(
   reset.data.data.state.likes.length === 0 &&
+    reset.data.data.state.dates.length === 0 &&
     Object.keys(reset.data.data.state.messages).length === 0,
   "reset clears only this visitor’s demo activity",
 );

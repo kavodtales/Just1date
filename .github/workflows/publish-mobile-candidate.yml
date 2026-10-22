@@ -38,7 +38,7 @@ jobs:
           gh run download "$AAB_RUN" --repo "$GITHUB_REPOSITORY" --name google-play-bundle-verification --dir evidence/aab
           python - <<'PY'
           import json,os,re,urllib.parse
-          release=json.load(open('docs/security/mobile-candidate-2026-10-20.json'))
+          release=json.load(open('docs/security/mobile-candidate-2026-10-22.json'))
           assert re.fullmatch(r'v[0-9]+\.[0-9]+\.[0-9]+-rc\.[0-9]+',release['tag'])
           for kind,name,evidence in [('apk','Verify signed Android artifact','evidence/apk/apk-verification.json'),('aab','Verify signed Google Play bundle','evidence/aab/native-verification.json')]:
             run=json.load(open(kind+'-run.json'))
@@ -67,7 +67,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" || gh release create "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --prerelease --title 'Just1date reference screen release candidate' --notes-file releases/CANDIDATE_NOTES.md
+          gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" || gh release create "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --prerelease --title 'Just1Date premium app release candidate' --notes-file releases/CANDIDATE_NOTES.md
           for FILE in "$APK_FILENAME" "$AAB_FILENAME" SHA256SUMS.txt; do
             if gh api "repos/$GITHUB_REPOSITORY/releases/tags/$RELEASE_TAG" --jq '.assets[].name' | grep -Fxq "$FILE"; then
               EXISTING=$(gh api "repos/$GITHUB_REPOSITORY/releases/tags/$RELEASE_TAG" --jq ".assets[] | select(.name==\"$FILE\") | .digest")

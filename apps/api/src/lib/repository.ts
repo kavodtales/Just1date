@@ -26,7 +26,7 @@ const functions = {
   datePlans: "rpc_date_plans",
   datePropose: "rpc_date_propose",
   dateAction: "rpc_date_action",
-  adminAppMedia: "rpc_admin_app_media",
+  adminAppMedia: "rpc_admin_app_media_v2",
   adminPublishMedia: "rpc_admin_publish_media",
   adminMetrics: "rpc_admin_metrics",
   adminQueue: "rpc_admin_queue",
