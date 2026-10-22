@@ -1,5 +1,12 @@
 # API contract
 
+Date planning: `GET /v1/dates`, `POST /v1/dates`, and
+`POST /v1/dates/:id/actions`. Proposals use `match_id`, `operation_id`, `activity`,
+`venue`, `starts_at` and optional `note`. Actions use `action` and `revision`.
+An active mutual match is required; only the recipient can accept or decline,
+either participant can cancel, and ending a match cancels open plans. Times are
+15 minutes to 90 days ahead. This flow does not make venue reservations.
+
 REST `/v1`, JSON request/response, bearer Supabase access token, HTTPS in production. Browser sessions use Supabase SSR cookies in the Next BFF; the API does not accept cookie authentication. Mutating BFF routes require same-origin checks. Mobile uses SecureStore and bearer tokens. UUID operation keys for likes and messages are reused across retries. Payments require `Idempotency-Key`. Lists use bounded cursors. All error responses contain `{ error: { code, message, status, request_id } }`; success is `{ data, request_id }`.
 
 OpenAPI is generated at `/openapi.json`. Public endpoints: health, readiness, signup, password login, recovery, verification and catalogs. Supabase handles password hashing, verification/OTP, token refresh and recovery proof. Session endpoints and profile/interaction/chat/safety/billing/AI require a validated member identity. Admin routes require a database role, active admin record, and role-specific permission. Production admin MFA is a launch requirement.

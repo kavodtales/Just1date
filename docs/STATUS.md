@@ -39,6 +39,15 @@ The new API uses a five-slot projection. New clients map legacy demo aliases to
 fresh WebPs, and the new original welcome photos are published through the
 existing private image feed while the frontend rollout is pending.
 
+RC3 is published in the public deployment repository with independently matched
+APK/AAB hashes. The exact code-13 APK passed real Android 16 and Android 15
+emulator acceptance; the code-14 AAB passed Google bundletool. The duplicate
+Android 16 owner run exhausted runner disk before installing the app; its safe
+replacement adds Android 15 coverage without deleting preinstalled runner SDKs.
+The updated iOS simulator archive passed identity, permission, date-code and
+private-value checks. It is not an iPhone-installable build. Both native source
+and exact artifact metadata are recorded in mobile-candidate-2026-10-22.json.
+
 Remaining integrations retain honest unavailable states: production video calls
 need LiveKit plus a persistent cleanup worker and two-person acceptance; public
 email delivery needs the verified sender; billing and final legal/store review

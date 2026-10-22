@@ -1,13 +1,23 @@
 # JUST1DATE
 
-The white/pink reference redesign is documented in [design/README.md](design/README.md).
-Start its introduction at `/welcome`; the member application starts at `/discover`.
+The premium transformation is documented in [the delivery report](docs/TRANSFORMATION_2026-10-22.md).
+Start at `/` for the new editorial landing, `/demo` for the fictional interactive
+preview, or `/discover` for the real member application.
 
 Meet someone worth choosing.
 
 This repository contains a real service-connected implementation in progress. **Public production launch remains blocked by the release gates in docs/STATUS.md.** Real Supabase credentials and the database connection are configured privately; the hosted schema, Auth/Storage/Realtime and production API runtime have selected live verification. Member and staff apps are deployed to Vercel. Expo/EAS is configured and an actual signed Android preview has passed independent signature, API 36, 16 KB alignment and emulator boot checks. Paystack/AI/live video remain disabled without their required setup. Four explicitly fictional preview profiles are isolated in demo sessions; they are never represented as real members or real matches. No payment or subscription outcome is fabricated.
 
-The completed reference screens are live in the [web app](https://just1date-vert.vercel.app). The verified [Android APK and Google Play upload bundle](https://github.com/kavodtales/Just1date/releases/tag/v0.1.0-rc.1) and [checksums](releases/RC_SHA256SUMS.txt) are available. Both authorized repositories contain this release. Review the [23 rendered screens](design/verification/current/README.md), [artifact evidence](docs/security/mobile-candidate-2026-10-20.json) and [video operation](docs/VIDEO_CALLS.md). The iOS simulator app also compiled; an iPhone-installable build still requires Apple Developer signing. No store approval or complete public launch is claimed.
+The updated source is uploaded to both authorized repositories. The [verified
+RC3 Android APK and Google Play bundle](https://github.com/kavodtales/Just1date/releases/tag/v0.1.0-rc.3)
+and checksums are available as a prerelease. The full redesign's Vercel rollout
+awaits account access or the owner's destination choice; the current live site
+still runs the prior frontend, with the new welcome photos served through its
+existing image feed. Review the [27 rendered screens](design/verification/current/README.md),
+[artifact evidence](docs/security/mobile-candidate-2026-10-22.json) and [video operation](docs/VIDEO_CALLS.md).
+The updated iOS simulator app compiled and was inspected; an iPhone-installable
+build still requires Apple Developer signing. No store approval or complete
+public launch is claimed.
 
 ## Start
 
@@ -18,7 +28,7 @@ The completed reference screens are live in the [web app](https://just1date-vert
 5. Start separate terminals: `npm run dev:api`, `npm run dev:web`, `npm run dev:admin`, `npm run dev:mobile`. Web is 3000, admin 3001, API 4000. Native WebRTC requires a custom development build; Expo Go cannot load it. Inside `apps/mobile`, `npx expo start --dev-client` runs the installed development client. EAS profiles provide preview APK, production Android AAB and iOS builds; device signing/store setup is separate.
 6. For local test accounts only, set `NODE_ENV=development`, a local Supabase URL and `TEST_SEED_PASSWORD`, then `npm run seed:dev`. Test accounts are explicitly labeled and must never be created in production.
 
-An account becomes discoverable after confirmed email, a complete profile and an approved photo. Bootstrap the first staff account through a reviewed database administration process: create a verified adult Auth user, then insert an active `admin_users` record. Staff permissions are enforced in PostgreSQL; production requires AAL2 MFA. Photo review does not grant a selfie identity badge.
+An account becomes discoverable after confirmed email, a complete profile and an approved photo. Bootstrap staff through `supabase/setup/bootstrap-admin.sql`, which requires a confirmed adult account and verified authenticator before granting access. Staff permissions are enforced in PostgreSQL; production requires AAL2 MFA. Photo review does not grant a selfie identity badge.
 
 ## Verify
 

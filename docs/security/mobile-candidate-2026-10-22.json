@@ -30,7 +30,7 @@
   },
   "verification": {
     "bundletool": "passed",
-    "android_emulator": "passed in public release repository",
+    "android_emulator": "passed on Android 15 and Android 16",
     "independent_digest_run": 39729549021,
     "privileged_values_in_scanned_bundles": {
       "apk": false,
@@ -40,8 +40,14 @@
     "target_android_api": 36,
     "native_64bit_libraries": 52,
     "elf_16k_alignment": true,
-    "apk_runs": { "Bluechipwhale": 39729804959, "kavodtales": 39729811054 },
-    "aab_runs": { "Bluechipwhale": 39729810959, "kavodtales": 39729810457 }
+    "apk_runs": { "Bluechipwhale": 39731641207, "kavodtales": 39729811054 },
+    "aab_runs": { "Bluechipwhale": 39729810959, "kavodtales": 39729810457 },
+    "emulator_runtime_api": { "Bluechipwhale": 35, "kavodtales": 36 },
+    "superseded_owner_attempt": {
+      "run": 39729804959,
+      "reason": "hosted runner exhausted disk before app installation"
+    },
+    "public_release": "https://github.com/kavodtales/Just1date/releases/tag/v0.1.0-rc.3"
   },
   "rollout": {
     "backend_migrations": 14,
