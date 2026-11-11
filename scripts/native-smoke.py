@@ -47,10 +47,13 @@ def tap(label):
         bounds = [int(x) for x in re.findall(r"\d+", scrollable.attrib.get("bounds", ""))]
         if len(bounds) != 4 or bounds[3] - bounds[1] < 100:
             break
-        center = str((bounds[0] + bounds[2]) // 2)
-        adb("shell", "input", "swipe", center, str(bounds[3] - 30),
-            center, str(bounds[1] + 30), "350")
+        # Start in the observed scroll container's padding, away from form
+        # buttons/text inputs that can consume a gesture on small displays.
+        gesture_x = str(bounds[2] - 10)
+        adb("shell", "input", "swipe", gesture_x, str(bounds[3] - 30),
+            gesture_x, str(bounds[1] + 30), "350")
         time.sleep(0.4)
+    capture("android-control-failure")
     raise AssertionError("Native control is missing or outside the scrollable screen: " + label)
 
 

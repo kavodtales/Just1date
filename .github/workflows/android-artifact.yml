@@ -94,6 +94,8 @@ jobs:
             android-welcome.png
             android-signup.png
             android-registration-validation.png
+            android-recovery-validation.png
+            android-control-failure.png
             android-phone-validation.png
             android-*.xml
             android-logcat.txt
