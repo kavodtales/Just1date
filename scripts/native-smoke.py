@@ -28,17 +28,30 @@ def expect_text(text):
 
 
 def tap(label):
-    root = snapshot()
-    candidates = [n for n in root.iter("node")
-                  if label in (n.attrib.get("text"), n.attrib.get("content-desc"))]
-    assert candidates, "Native control is missing: " + label
-    for node in candidates:
-        bounds = [int(x) for x in re.findall(r"\d+", node.attrib.get("bounds", ""))]
-        if len(bounds) == 4 and bounds[2] > bounds[0] and bounds[3] > bounds[1]:
-            adb("shell", "input", "tap", str((bounds[0] + bounds[2]) // 2),
-                str((bounds[1] + bounds[3]) // 2))
-            return
-    raise AssertionError("Native control is outside the visible screen: " + label)
+    # Small devices may put the recovery link below the registration form.
+    # Scroll only inside bounds observed in the current emulator hierarchy.
+    for _ in range(5):
+        root = snapshot()
+        candidates = [n for n in root.iter("node")
+                      if label in (n.attrib.get("text"), n.attrib.get("content-desc"))]
+        for node in candidates:
+            bounds = [int(x) for x in re.findall(r"\d+", node.attrib.get("bounds", ""))]
+            if len(bounds) == 4 and bounds[2] > bounds[0] and bounds[3] > bounds[1]:
+                adb("shell", "input", "tap", str((bounds[0] + bounds[2]) // 2),
+                    str((bounds[1] + bounds[3]) // 2))
+                return
+        scrollable = next((n for n in root.iter("node")
+                           if n.attrib.get("scrollable") == "true"), None)
+        if scrollable is None:
+            break
+        bounds = [int(x) for x in re.findall(r"\d+", scrollable.attrib.get("bounds", ""))]
+        if len(bounds) != 4 or bounds[3] - bounds[1] < 100:
+            break
+        center = str((bounds[0] + bounds[2]) // 2)
+        adb("shell", "input", "swipe", center, str(bounds[3] - 30),
+            center, str(bounds[1] + 30), "350")
+        time.sleep(0.4)
+    raise AssertionError("Native control is missing or outside the scrollable screen: " + label)
 
 
 def capture(name):
