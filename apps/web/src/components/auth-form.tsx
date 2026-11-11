@@ -131,6 +131,7 @@ export function AuthForm({
                 Password
                 <input
                   type={showPassword ? "text" : "password"}
+                  aria-label="Password"
                   autoComplete={
                     isRegister || isReset ? "new-password" : "current-password"
                   }

@@ -15,14 +15,18 @@ test("missing birthdays explain what is required without sending a registration"
   await page
     .getByRole("button", { name: "Create account", exact: true })
     .click();
-  await expect(page.getByRole("alert")).toContainText("Choose your birthday");
+  await expect(page.locator(".auth-form-panel [role=alert]")).toContainText(
+    "Choose your birthday",
+  );
   expect(posted).toBe(false);
 });
 test("expired links and non-JSON account failures provide useful feedback", async ({
   page,
 }) => {
   await page.goto("/auth/login?expired=true");
-  await expect(page.getByRole("alert")).toContainText("invalid or expired");
+  await expect(page.locator(".auth-form-panel [role=alert]")).toContainText(
+    "invalid or expired",
+  );
   await page.route("**/api/auth", (route) =>
     route.fulfill({
       status: 503,
@@ -33,7 +37,7 @@ test("expired links and non-JSON account failures provide useful feedback", asyn
   await page.getByLabel("Email address").fill("fictional@example.com");
   await page.getByLabel("Password", { exact: true }).fill("sample-password");
   await page.getByRole("button", { name: "Sign in", exact: true }).click();
-  await expect(page.getByRole("alert")).toContainText(
+  await expect(page.locator(".auth-form-panel [role=alert]")).toContainText(
     "temporarily unavailable",
   );
 });
