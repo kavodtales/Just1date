@@ -21,6 +21,8 @@ with zipfile.ZipFile(path) as archive:
     bundle = archive.read(prefix + "assets/index.android.bundle")
     if b"https://just1date-api-whaleswealth.vercel.app" not in bundle:
         raise SystemExit("Production API origin is absent from the native bundle.")
+    if b"Too many recovery attempts. Please wait before trying again." not in bundle:
+        raise SystemExit("Updated recovery handling is absent from the native bundle.")
     if b"http://localhost:4000" in bundle:
         raise SystemExit("Refusing a native bundle pointed at the developer's computer.")
     libraries = []

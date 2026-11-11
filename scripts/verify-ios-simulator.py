@@ -19,4 +19,5 @@ with tarfile.open(sys.argv[1]) as archive:
     bundle = archive.extractfile(bundles[0]).read()
     assert b'Just One Date' in bundle, 'Updated date-planning screen is missing'
     assert b'https://just1date-api-whaleswealth.vercel.app' in bundle, 'Approved production API origin is missing'
+    assert b'Too many recovery attempts. Please wait before trying again.' in bundle, 'Updated recovery handling is missing'
     print(json.dumps({'bundle_id': info['CFBundleIdentifier'], 'platform': 'iPhoneSimulator', 'version': info['CFBundleShortVersionString'], 'permissions_present': True, 'date_planning_copy_present': True, 'device_installable': False}))
