@@ -178,6 +178,32 @@ export function DemoExperience() {
     chatEnd.current?.scrollIntoView({ block: "nearest", behavior: "smooth" });
   }, [data, selected, view]);
   useEffect(() => {
+    if (!device) return;
+    const timeout = window.setTimeout(
+      () => {
+        try {
+          window.sessionStorage.removeItem(deviceDemoKey);
+        } catch {
+          /* Storage may be disabled. */
+        }
+        setData(undefined);
+        setDevice(false);
+        setSelected(undefined);
+        setBody("");
+        setMatch(undefined);
+        setDetails(undefined);
+        setFilters(false);
+        pendingMessage.current = null;
+        setCanUseDevice(false);
+        setError(
+          "This device preview expired. Choose Try again to start a new preview.",
+        );
+      },
+      Math.max(0, deviceExpires.current - Date.now()),
+    );
+    return () => window.clearTimeout(timeout);
+  }, [device]);
+  useEffect(() => {
     if (details || match || filters) dialog.current?.showModal();
     else dialog.current?.close();
   }, [details, match, filters]);

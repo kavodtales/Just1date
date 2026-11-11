@@ -308,6 +308,34 @@ test("a service outage offers an explicit isolated device demo with working mess
   ).toBeVisible();
   await expect(page.locator(".demo-profile-card")).toHaveCount(0);
 });
+
+test("device preview expires and removes visible activity in an open tab", async ({
+  page,
+}) => {
+  await page.clock.install();
+  await page.route("**/api/demo", (route) =>
+    route.fulfill({
+      status: 503,
+      json: { error: { message: "Service unavailable for this test" } },
+    }),
+  );
+  await page.goto("/demo");
+  await page.getByRole("button", { name: "Try a device-only demo" }).click();
+  await expect(page.locator(".demo-profile-card")).toHaveCount(4);
+  await page.clock.fastForward("24:00:01");
+  await expect(
+    page.getByText(
+      "This device preview expired. Choose Try again to start a new preview.",
+      { exact: true },
+    ),
+  ).toBeVisible();
+  await expect(page.locator(".demo-profile-card")).toHaveCount(0);
+  expect(
+    await page.evaluate(() =>
+      sessionStorage.getItem("just1date:fictional-device-demo:v1"),
+    ),
+  ).toBeNull();
+});
 test("date demo requires a connection and labels every simulated response", async ({
   page,
 }) => {
