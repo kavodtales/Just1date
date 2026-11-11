@@ -312,6 +312,7 @@ export function Dashboard() {
                       }}
                     >
                       <Image
+                        unoptimized
                         sizes="(max-width: 767px) 90vw, 35vw"
                         width={1024}
                         height={1536}
@@ -366,6 +367,7 @@ export function Dashboard() {
                     {demos.data.profiles.map((p) => (
                       <article className="admin-demo-card" key={p.id}>
                         <Image
+                          unoptimized
                           sizes="(max-width: 767px) 90vw, 35vw"
                           width={1024}
                           height={1536}

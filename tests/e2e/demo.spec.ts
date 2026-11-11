@@ -251,6 +251,18 @@ test("a service outage offers an explicit isolated device demo with working mess
   await page.goto("/demo");
   await expect(page.locator(".demo-profile-card")).toHaveCount(0);
   await page.getByRole("button", { name: "Try a device-only demo" }).click();
+  if ((page.viewportSize()?.width ?? 1280) < 768) {
+    const logo = await page
+      .locator(".mobile-brand .reference-logo img")
+      .boundingBox();
+    const header = await page.locator(".premium-app-header").boundingBox();
+    expect(
+      logo &&
+        header &&
+        logo.y >= header.y &&
+        logo.y + logo.height <= header.y + header.height,
+    ).toBeTruthy();
+  }
   await expect(
     page.getByText("DEVICE-ONLY PREVIEW", { exact: true }),
   ).toBeVisible();

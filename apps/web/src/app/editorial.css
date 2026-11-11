@@ -1083,6 +1083,13 @@ textarea {
   background: #fffdfd;
   border-bottom: 1px solid var(--line);
 }
+.demo-compat .mobile-brand .reference-logo img {
+  width: 100px;
+  height: 52px;
+}
+.demo-compat .header-join {
+  min-height: 44px;
+}
 .demo-compat .premium-main {
   padding: 38px 40px;
 }
