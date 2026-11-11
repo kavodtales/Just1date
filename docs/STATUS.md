@@ -1,5 +1,16 @@
 # Implementation and verification status
 
+## Current audit — 11 November 2026
+
+See [the repair report](AUDIT_2026-11-11.md) and
+[read-only live evidence](security/audit-live-2026-11-11.json).
+The redesign is deployed to Whaleswealth. Supabase currently has no DNS response,
+so live account/data operations remain unavailable until the owner restores it.
+The owner deferred that action and the Auth callback settings. A separately
+labeled, opt-in device-only demo remains usable during service outages.
+Historical verification below describes the earlier working service and is not
+evidence that today's production backend is healthy.
+
 ## Premium transformation — 22 October 2026
 
 The current creative brief supersedes the earlier screenshot lock. A shared

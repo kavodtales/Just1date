@@ -1,0 +1,148 @@
+{
+  "assessed_date": "2026-11-11",
+  "member": "https://just1date.vercel.app",
+  "api": "https://just1date-api-whaleswealth.vercel.app",
+  "staff": "https://just1date-admin-whaleswealth.vercel.app",
+  "supabase_project": "kyfohngqetzsrqsyabey",
+  "checks": [
+    {
+      "service": "web",
+      "url": "https://just1date.vercel.app/",
+      "status": 200,
+      "expected": 200,
+      "passed": true
+    },
+    {
+      "service": "web",
+      "url": "https://just1date.vercel.app/welcome",
+      "status": 200,
+      "expected": 200,
+      "passed": true
+    },
+    {
+      "service": "web",
+      "url": "https://just1date.vercel.app/auth/register",
+      "status": 200,
+      "expected": 200,
+      "passed": true
+    },
+    {
+      "service": "web",
+      "url": "https://just1date.vercel.app/demo",
+      "status": 200,
+      "expected": 200,
+      "passed": true
+    },
+    {
+      "service": "web",
+      "url": "https://just1date.vercel.app/download",
+      "status": 200,
+      "expected": 200,
+      "passed": true
+    },
+    {
+      "service": "web",
+      "url": "https://just1date.vercel.app/manifest.webmanifest",
+      "status": 200,
+      "expected": 200,
+      "passed": true
+    },
+    {
+      "service": "web",
+      "url": "https://just1date.vercel.app/sw.js",
+      "status": 200,
+      "expected": 200,
+      "passed": true
+    },
+    {
+      "service": "web",
+      "url": "https://just1date.vercel.app/icons/icon-192.png",
+      "status": 200,
+      "expected": 200,
+      "passed": true
+    },
+    {
+      "service": "web",
+      "url": "https://just1date.vercel.app/images/editorial/hero.webp",
+      "status": 200,
+      "expected": 200,
+      "passed": true
+    },
+    {
+      "service": "web",
+      "url": "https://just1date.vercel.app/images/editorial/amara.webp",
+      "status": 200,
+      "expected": 200,
+      "passed": true
+    },
+    {
+      "service": "web",
+      "url": "https://just1date.vercel.app/images/editorial/tomi.webp",
+      "status": 200,
+      "expected": 200,
+      "passed": true
+    },
+    {
+      "service": "web",
+      "url": "https://just1date.vercel.app/images/editorial/zara.webp",
+      "status": 200,
+      "expected": 200,
+      "passed": true
+    },
+    {
+      "service": "web",
+      "url": "https://just1date.vercel.app/images/editorial/daniel.webp",
+      "status": 200,
+      "expected": 200,
+      "passed": true
+    },
+    {
+      "service": "web",
+      "url": "https://just1date.vercel.app/images/editorial/venue.webp",
+      "status": 200,
+      "expected": 200,
+      "passed": true
+    },
+    {
+      "service": "member_identity_boundary",
+      "url": "https://just1date.vercel.app/api/service/profiles/me",
+      "status": 401,
+      "expected": 401,
+      "passed": true
+    },
+    {
+      "service": "staff_login",
+      "url": "https://just1date-admin-whaleswealth.vercel.app/auth/login",
+      "status": 200,
+      "expected": 200,
+      "passed": true
+    },
+    {
+      "service": "staff_identity_boundary",
+      "url": "https://just1date-admin-whaleswealth.vercel.app/api/service/admin/me",
+      "status": 401,
+      "expected": 401,
+      "passed": true
+    },
+    {
+      "service": "api_liveness",
+      "url": "https://just1date-api-whaleswealth.vercel.app/health",
+      "status": 503,
+      "expected": 200,
+      "passed": false
+    },
+    {
+      "service": "database_readiness",
+      "url": "https://just1date-api-whaleswealth.vercel.app/ready",
+      "status": 503,
+      "expected": 200,
+      "passed": false
+    },
+    {
+      "service": "supabase_auth",
+      "url": "https://kyfohngqetzsrqsyabey.supabase.co/auth/v1/health",
+      "passed": false,
+      "error": "ENOTFOUND"
+    }
+  ]
+}

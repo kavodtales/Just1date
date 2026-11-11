@@ -1,5 +1,11 @@
 # JUST1DATE
 
+Current repair/availability report: [11 November audit](docs/AUDIT_2026-11-11.md).
+The redesigned web app is live at https://just1date.vercel.app. Supabase currently
+needs owner restoration; live accounts and messaging are unavailable until then.
+The explicitly labeled device-only demo supports fictional interactions during
+the outage. Do not treat historical verification below as current live health.
+
 The premium transformation is documented in [the delivery report](docs/TRANSFORMATION_2026-10-22.md).
 Start at `/` for the new editorial landing, `/demo` for the fictional interactive
 preview, or `/discover` for the real member application.

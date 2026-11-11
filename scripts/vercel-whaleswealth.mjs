@@ -1,7 +1,6 @@
-/* global fetch, AbortSignal */
 // Deploy only the three explicitly authorized Just1date projects. Secrets travel
-// to Vercel over TLS, never shell arguments or logs. Reuse the CLI's existing
-// authenticated session in memory; never export or print its credential.
+// to the official Vercel CLI over stdin, never shell arguments or logs.
+// Let the CLI manage its own login, credential storage and token refresh.
 import { spawn, execFileSync } from "node:child_process";
 import { readFile, mkdir, writeFile, copyFile, rm } from "node:fs/promises";
 import { resolve, join } from "node:path";
@@ -74,34 +73,34 @@ async function run(args, input, live = false, env = {}, cwd = root) {
   });
 }
 async function api(path, method = "GET", body) {
+  if (Array.isArray(body)) {
+    // The CLI input reader expects a JSON object. Upsert each named variable
+    // idempotently instead of relying on internal credential-file locations.
+    const results = [];
+    for (const item of body) results.push(await api(path, method, item));
+    return results;
+  }
   const separator = path.includes("?") ? "&" : "?";
-  const auth = JSON.parse(
-    await readFile(
-      join(process.env.APPDATA, "com.vercel.cli/Data/auth.json"),
-      "utf8",
-    ),
-  );
-  if (!auth.token) throw new Error("Vercel CLI authentication is unavailable.");
-  const response = await fetch(
-    `https://api.vercel.com${path}${separator}teamId=${team}`,
-    {
-      method,
-      headers: {
-        Authorization: `Bearer ${auth.token}`,
-        "Content-Type": "application/json",
-      },
-      body: body === undefined ? undefined : JSON.stringify(body),
-      signal: AbortSignal.timeout(60000),
-    },
-  );
-  const result = response.status === 204 ? {} : await response.json();
-  if (!response.ok)
-    throw new Error(
-      `Vercel ${method} failed (${response.status}, ${result.error?.code || "unknown"}).`,
-    );
-  return result;
+  const args = [
+    "api",
+    `${path}${separator}teamId=${team}`,
+    "--scope",
+    "whaleswealth",
+    "--method",
+    method,
+    "--raw",
+  ];
+  if (body !== undefined) args.push("--input", "-");
+  if (method === "DELETE") args.push("--dangerously-skip-permissions");
+  const output = await run(args, body);
+  return output.trim() ? JSON.parse(output) : {};
 }
-const all = await api("/v9/projects?limit=100");
+const all = await api("/v9/projects?limit=100").catch(() => {
+  console.error(
+    "Vercel project access is unavailable. Complete `vercel login` with Whaleswealth access, then retry. Git-connected deployments can still run without a local CLI login.",
+  );
+  process.exit(1);
+});
 for (const target of Object.values(projects)) {
   const existing = all.projects.find((p) => p.name === target.name);
   if (target.id && existing?.id !== target.id)

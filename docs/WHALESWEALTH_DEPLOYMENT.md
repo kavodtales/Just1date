@@ -1,5 +1,8 @@
 # Whaleswealth deployment — 22 October 2026
 
+Current availability: see [the 11 November audit](AUDIT_2026-11-11.md).
+Supabase restoration and Auth URL changes were explicitly deferred by the owner.
+
 The owner explicitly selected the existing Whaleswealth `just1date` project.
 The redesign is deployed at these public production aliases:
 
@@ -33,8 +36,9 @@ node scripts/vercel-whaleswealth.mjs deploy admin
 The helper checks project ownership and identities, and uploads only an
 allowlisted source tree (about 2.4 MB compressed). It excludes environment files,
 Git history, credentials, signing keys, local caches and native binaries. Private
-values are read in memory and sent to the intended service over verified TLS;
-they are not printed. The `environment` command updates only named Just1date
+values travel through the official CLI's stdin to the intended service over
+verified TLS; they are not printed. CLI login/refresh is managed by Vercel rather
+than a hard-coded credential file. The `environment` command updates only named Just1date
 keys. Existing unrelated settings are preserved: automatic approval review
 rejected bulk deletion because it could lose existing secrets.
 

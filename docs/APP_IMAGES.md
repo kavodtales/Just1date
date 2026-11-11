@@ -8,7 +8,7 @@ photography was generated specifically for Just1Date; prompts and hashes are in
 
 ## Staff workflow
 
-1. Sign into the operations app at https://just1date-admin.vercel.app using an
+1. Sign into the operations app at https://just1date-admin-whaleswealth.vercel.app using an
    active ADMIN or SUPER_ADMIN account and complete authenticator verification.
 2. Choose **App images** in the sidebar.
 3. Select a welcome, landing hero or Just One Date venue photo. A local preview
