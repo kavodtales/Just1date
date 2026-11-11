@@ -1,16 +1,18 @@
 import { useState } from "react";
-import { ZodError } from "zod";
+import { z, ZodError } from "zod";
 import { Text, TextInput, Pressable } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { useForm, Controller } from "react-hook-form";
-import { isAdult, registerSchema } from "@just1date/validation";
+import { isAdult, registerSchema, loginSchema } from "@just1date/validation";
 import { auth } from "../lib/auth";
 import { Screen, Button, s } from "../components/ui";
 import { BirthdayPicker } from "../components/birthday-picker";
 export default function Auth() {
   const params = useLocalSearchParams<{ mode?: string }>();
   const [mode, setMode] = useState<"login" | "register" | "recovery">(
-      params.mode === "register" ? "register" : "login",
+      params.mode === "register" || params.mode === "recovery"
+        ? params.mode
+        : "login",
     ),
     [error, setError] = useState(""),
     [message, setMessage] = useState("");
@@ -73,12 +75,25 @@ export default function Auth() {
         disabled={isSubmitting}
         onPress={handleSubmit(async (p) => {
           setError("");
+          setMessage("");
           try {
             if (!auth) throw new Error("Supabase is not configured yet.");
             if (mode === "recovery") {
-              await auth.auth.resetPasswordForEmail(p.email, {
+              const email = z.email().max(254).parse(p.email.trim());
+              const recovery = await auth.auth.resetPasswordForEmail(email, {
                 redirectTo: "just1date://auth/callback?next=/auth/reset",
               });
+              if (
+                recovery.error &&
+                (!recovery.error.status || recovery.error.status >= 500)
+              )
+                throw new Error(
+                  "Recovery services are temporarily unavailable. Please try again later.",
+                );
+              if (recovery.error?.status === 429)
+                throw new Error(
+                  "Too many recovery attempts. Please wait before trying again.",
+                );
               setMessage(
                 "If the account exists, check your email for a recovery link.",
               );
@@ -100,21 +115,29 @@ export default function Auth() {
                     });
                   })()
                 : await auth.auth.signInWithPassword({
-                    email: p.email,
-                    password: p.password,
+                    ...loginSchema.parse({
+                      email: p.email.trim(),
+                      password: p.password,
+                    }),
                   });
             if (result.error)
               throw new Error(
-                mode === "login"
-                  ? "Check your credentials and verify your email."
-                  : "The account could not be created. Check your details.",
+                !result.error.status || result.error.status >= 500
+                  ? "Account services are temporarily unavailable. Please try again later."
+                  : mode === "login"
+                    ? "Check your credentials and verify your email."
+                    : "The account could not be created. Check your details.",
               );
             if (result.data.session) router.replace("/(tabs)/discover");
             else setMessage("Check your email to confirm your account.");
           } catch (e) {
             setError(
               e instanceof ZodError
-                ? "Enter a valid email address, a password with 12–128 characters, and your birthday."
+                ? mode === "register"
+                  ? "Enter a valid email address, a password with 12–128 characters, and your birthday."
+                  : mode === "recovery"
+                    ? "Enter a valid email address."
+                    : "Enter a valid email address and password."
                 : (e as Error).message,
             );
           }

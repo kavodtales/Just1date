@@ -227,10 +227,74 @@ test("service failures offer a recovery path without fake profiles", async ({
   );
   await expect(page.locator(".demo-profile-card")).toHaveCount(0);
   await expect(
+    page.getByRole("button", { name: "Try a device-only demo" }),
+  ).toHaveCount(0);
+  await expect(
     page
       .locator(".premium-error[role=alert]")
       .getByRole("link", { name: "Create an account" }),
   ).toHaveAttribute("href", "/auth/register");
+});
+
+test("a service outage offers an explicit isolated device demo with working messages and dates", async ({
+  page,
+  context,
+}) => {
+  let requests = 0;
+  await context.route("**/api/demo", (route) => {
+    requests++;
+    return route.fulfill({
+      status: 503,
+      json: { error: { message: "Service unavailable for this test" } },
+    });
+  });
+  await page.goto("/demo");
+  await expect(page.locator(".demo-profile-card")).toHaveCount(0);
+  await page.getByRole("button", { name: "Try a device-only demo" }).click();
+  await expect(
+    page.getByText("DEVICE-ONLY PREVIEW", { exact: true }),
+  ).toBeVisible();
+  await expect(page.locator(".demo-banner")).toContainText(
+    "No real messages or invitations",
+  );
+  await expect(page.locator(".demo-profile-card")).toHaveCount(4);
+  await page.getByRole("button", { name: "Like Amara", exact: true }).click();
+  await page.getByRole("button", { name: "Say hello", exact: true }).click();
+  await page
+    .getByLabel("Your demo message")
+    .fill("A fictional coffee date sounds good.");
+  await page.getByRole("button", { name: "Send demo message" }).click();
+  await expect(page.getByRole("log")).toContainText("This reply is scripted");
+  await nav(page, "Just One Date");
+  await page.getByLabel("Public meeting place").fill("Fictional public café");
+  const date = new Date(Date.now() + 86400000);
+  date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
+  await page.getByLabel("Date & time").fill(date.toISOString().slice(0, 16));
+  await page
+    .getByRole("button", { name: "Create demo invitation", exact: true })
+    .click();
+  await page
+    .getByRole("button", { name: "Simulate acceptance", exact: true })
+    .click();
+  await expect(page.getByText("accepted", { exact: true })).toBeVisible();
+  await page.reload();
+  await expect(
+    page.getByText("DEVICE-ONLY PREVIEW", { exact: true }),
+  ).toBeVisible();
+  await expect(page.locator(".demo-profile-card")).toHaveCount(3);
+  expect(requests).toBe(1);
+  const anotherTab = await context.newPage();
+  await anotherTab.goto("/demo");
+  await expect(
+    anotherTab.getByRole("button", { name: "Try a device-only demo" }),
+  ).toBeVisible();
+  await expect(anotherTab.locator(".demo-profile-card")).toHaveCount(0);
+  await anotherTab.close();
+  await page.getByRole("button", { name: "Exit device preview" }).click();
+  await expect(
+    page.getByRole("button", { name: "Try a device-only demo" }),
+  ).toBeVisible();
+  await expect(page.locator(".demo-profile-card")).toHaveCount(0);
 });
 test("date demo requires a connection and labels every simulated response", async ({
   page,

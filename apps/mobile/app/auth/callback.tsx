@@ -14,12 +14,33 @@ export default function Callback() {
       setMessage("Open a valid confirmation link from your email.");
       return;
     }
-    auth?.auth.exchangeCodeForSession(code).then(({ error }) => {
-      if (error)
-        setMessage("This link is invalid or expired. Request a new one.");
-      else
-        router.replace(next === "/auth/reset" ? "/auth/reset" : "/onboarding");
-    });
+    if (!auth) {
+      setMessage(
+        "Account services are not configured. Return to sign in and try again later.",
+      );
+      return;
+    }
+    let active = true;
+    auth.auth
+      .exchangeCodeForSession(code)
+      .then(({ error }) => {
+        if (!active) return;
+        if (error)
+          setMessage("This link is invalid or expired. Request a new one.");
+        else
+          router.replace(
+            next === "/auth/reset" ? "/auth/reset" : "/onboarding",
+          );
+      })
+      .catch(() => {
+        if (active)
+          setMessage(
+            "Account services are temporarily unavailable. Please try the link again later.",
+          );
+      });
+    return () => {
+      active = false;
+    };
   }, [code, next]);
   return (
     <Screen title="Your next chapter">

@@ -38,9 +38,31 @@ export async function POST(req: NextRequest) {
       });
     } else if (mode === "recovery") {
       const { email } = z.object({ email: z.email() }).parse(input);
-      await auth.auth.resetPasswordForEmail(email, {
+      const recovery = await auth.auth.resetPasswordForEmail(email, {
         redirectTo: `${req.nextUrl.origin}/auth/callback?next=/auth/reset`,
       });
+      // Avoid account enumeration, while reporting an actual provider outage.
+      if (
+        recovery.error &&
+        (recovery.error.status === 0 ||
+          !recovery.error.status ||
+          recovery.error.status >= 500)
+      )
+        return NextResponse.json(
+          {
+            error:
+              "Recovery services are temporarily unavailable. Please try again later.",
+          },
+          { status: 503 },
+        );
+      if (recovery.error?.status === 429)
+        return NextResponse.json(
+          {
+            error:
+              "Too many recovery attempts. Please wait before trying again.",
+          },
+          { status: 429 },
+        );
       return NextResponse.json({
         message:
           "If the account exists, check your email for recovery instructions.",
@@ -84,11 +106,16 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         {
           error:
-            mode === "login"
-              ? "Check your credentials and email verification."
-              : "This action could not finish. Check your details and try again.",
+            !result.error.status || result.error.status >= 500
+              ? "Account services are temporarily unavailable. Please try again later."
+              : mode === "login"
+                ? "Check your credentials and email verification."
+                : "This action could not finish. Check your details and try again.",
         },
-        { status: 400 },
+        {
+          status:
+            !result.error.status || result.error.status >= 500 ? 503 : 400,
+        },
       );
     return NextResponse.json({
       message:

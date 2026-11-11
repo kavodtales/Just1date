@@ -1092,6 +1092,21 @@ textarea {
   color: #80556e;
   font-size: 10px;
 }
+.demo-compat .demo-banner > button {
+  min-height: 44px;
+}
+.demo-compat .demo-banner.device-demo-banner {
+  flex-wrap: wrap;
+  font-size: 11px;
+  line-height: 1.6;
+}
+.demo-compat .demo-banner.device-demo-banner > span:nth-child(2) {
+  flex: 1 1 240px;
+  font-size: 11px;
+}
+.demo-compat .device-demo-banner .demo-label {
+  font-size: 9px;
+}
 .demo-compat .premium-page-heading h1 {
   font:
     400 42px Georgia,

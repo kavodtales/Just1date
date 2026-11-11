@@ -30,7 +30,13 @@ export async function api<T = any>(
       0,
     );
   }
-  const value = await response.json();
+  const value = await response.json().catch(() => null);
+  if (!value || typeof value !== "object")
+    throw new ClientError(
+      "We couldn’t reach the service. Please try again in a moment.",
+      "SERVICE_UNAVAILABLE",
+      503,
+    );
   if (!response.ok)
     throw new ClientError(
       value.error?.message ?? "This action could not finish. Try again.",

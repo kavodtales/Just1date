@@ -5,23 +5,26 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Button } from "@just1date/ui";
 import { BirthdayPicker } from "./birthday-picker";
+import { isAdult } from "@just1date/validation";
 export function AuthForm({
   mode,
   staff = false,
+  initialNotice = "",
 }: {
   mode: string;
   staff?: boolean;
+  initialNotice?: string;
 }) {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState(""),
+  const [error, setError] = useState(initialNotice),
     [message, setMessage] = useState("");
   const {
     register,
     watch,
     setValue,
     handleSubmit,
-    formState: { isSubmitting },
+    formState: { isSubmitting, errors },
   } = useForm<{ email: string; password: string; date_of_birth: string }>();
   const isRegister = mode === "register",
     isRecovery = mode === "recovery",
@@ -88,11 +91,16 @@ export function AuthForm({
                   headers: { "Content-Type": "application/json" },
                   body: JSON.stringify(input),
                 });
-                const result = await r.json();
+                const result = await r.json().catch(() => null);
                 if (!r.ok) {
-                  setError(result.error);
+                  setError(
+                    typeof result?.error === "string"
+                      ? result.error
+                      : "Account services are temporarily unavailable. Please try again.",
+                  );
                   return;
                 }
+                if (!result) throw new Error("Invalid service response");
                 setMessage(result.message);
                 if (mode === "login") {
                   router.push(staff ? "/auth/mfa" : "/discover");
@@ -113,6 +121,7 @@ export function AuthForm({
                   type="email"
                   autoComplete="email"
                   required
+                  maxLength={254}
                   {...register("email")}
                 />
               </label>
@@ -126,6 +135,7 @@ export function AuthForm({
                     isRegister || isReset ? "new-password" : "current-password"
                   }
                   minLength={mode === "login" ? 1 : 12}
+                  maxLength={128}
                   required
                   {...register("password")}
                 />
@@ -147,8 +157,17 @@ export function AuthForm({
                 <p>Date of birth</p>
                 <input
                   type="hidden"
-                  {...register("date_of_birth", { required: true })}
+                  {...register("date_of_birth", {
+                    required: "Choose your birthday to continue.",
+                    validate: (value) =>
+                      isAdult(value) || "You must be at least 18 to join.",
+                  })}
                 />
+                {errors.date_of_birth && (
+                  <p role="alert" className="error-inline">
+                    {errors.date_of_birth.message}
+                  </p>
+                )}
                 <BirthdayPicker
                   value={watch("date_of_birth") || ""}
                   onChange={(v) =>

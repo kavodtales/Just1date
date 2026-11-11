@@ -109,8 +109,8 @@ export default function DownloadPage() {
         </div>
         <div className="download-principles">
           <p>
-            <ShieldCheck /> Private sessions. No offline storage of
-            conversations.
+            <ShieldCheck /> Private sessions. Real conversations are never
+            cached offline.
           </p>
           <p>
             <Video /> Video dates between consenting matched members when the

@@ -22,6 +22,14 @@ import { Brand } from "./brand";
 import { DatePlanner } from "./date-planner";
 import { CalendarHeart } from "lucide-react";
 import type { DatePlan } from "@just1date/types";
+import {
+  deviceDemoKey,
+  deviceDemoExpiry,
+  newDeviceDemo,
+  readDeviceDemo,
+  writeDeviceDemo,
+  updateDeviceDemo,
+} from "../lib/device-demo";
 type Profile = {
   id: string;
   name: string;
@@ -63,10 +71,19 @@ async function request(input: Record<string, unknown>): Promise<Data> {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(input),
+    signal: AbortSignal.timeout(25000),
   });
-  const result = await response.json();
+  const result = await response.json().catch(() => null);
   if (!response.ok)
-    throw new Error(result.error?.message || "Please try again.");
+    throw new DemoRequestError(
+      result?.error?.message || "The preview is temporarily unavailable.",
+      response.status,
+    );
+  if (!Array.isArray(result?.data?.profiles) || !result?.data?.state)
+    throw new DemoRequestError(
+      "The preview could not load. Please try again.",
+      503,
+    );
   return {
     ...result.data,
     profiles: result.data.profiles.map((p: Profile) => ({
@@ -74,6 +91,14 @@ async function request(input: Record<string, unknown>): Promise<Data> {
       image: editorialDemoPhoto(p.image),
     })),
   };
+}
+class DemoRequestError extends Error {
+  constructor(
+    message: string,
+    readonly status: number,
+  ) {
+    super(message);
+  }
 }
 export function DemoExperience() {
   const [data, setData] = useState<Data>(),
@@ -84,7 +109,28 @@ export function DemoExperience() {
     [filters, setFilters] = useState(false),
     [details, setDetails] = useState<Profile>(),
     [match, setMatch] = useState<Profile>(),
-    [body, setBody] = useState("");
+    [body, setBody] = useState(""),
+    [device, setDevice] = useState(false),
+    [canUseDevice, setCanUseDevice] = useState(false);
+  const deviceExpires = useRef(0);
+  function saveDevice(next: Data) {
+    setData(next);
+    try {
+      window.sessionStorage.setItem(
+        deviceDemoKey,
+        writeDeviceDemo(next, deviceExpires.current),
+      );
+    } catch {
+      /* The explicit demo still works in memory when storage is blocked. */
+    }
+  }
+  function startDevice() {
+    deviceExpires.current = deviceDemoExpiry();
+    setDevice(true);
+    setError("");
+    setCanUseDevice(false);
+    saveDevice(newDeviceDemo());
+  }
   const initialized = useRef(false),
     pendingMessage = useRef<{
       profile: string;
@@ -95,11 +141,13 @@ export function DemoExperience() {
     dialog = useRef<HTMLDialogElement>(null);
   async function start() {
     setError("");
+    setCanUseDevice(false);
     setBusy(true);
     try {
       setData(await request({ action: "start" }));
     } catch (e) {
       setError((e as Error).message);
+      setCanUseDevice(!(e instanceof DemoRequestError) || e.status >= 500);
     } finally {
       setBusy(false);
     }
@@ -109,6 +157,20 @@ export function DemoExperience() {
     if (requested === "dates") setView("dates");
     if (!initialized.current) {
       initialized.current = true;
+      try {
+        const stored = readDeviceDemo(
+          window.sessionStorage.getItem(deviceDemoKey),
+        );
+        if (stored) {
+          deviceExpires.current = stored.expires;
+          setDevice(true);
+          setData(stored.data);
+          return;
+        }
+        window.sessionStorage.removeItem(deviceDemoKey);
+      } catch {
+        /* Private browsing may disable storage. */
+      }
       void start();
     }
   }, []);
@@ -123,7 +185,11 @@ export function DemoExperience() {
     setBusy(true);
     setError("");
     try {
-      const next = await request(input);
+      if (device && Date.now() >= deviceExpires.current)
+        throw new Error("This device preview expired. Exit it to start again.");
+      const next =
+        device && data ? updateDeviceDemo(data, input) : await request(input);
+      if (device) saveDevice(next);
       setData(next);
       return true;
     } catch (e) {
@@ -210,12 +276,34 @@ export function DemoExperience() {
             Join Just1date <ArrowUpRight size={16} />
           </Link>
         </header>
-        <div className="demo-banner">
-          <span className="demo-label">INTERACTIVE PREVIEW</span>
-          <span>
-            4 fictional profiles · Sample matches & scripted replies · Changes
-            saved for 24 hours
+        <div className={`demo-banner${device ? " device-demo-banner" : ""}`}>
+          <span className="demo-label">
+            {device ? "DEVICE-ONLY PREVIEW" : "INTERACTIVE PREVIEW"}
           </span>
+          <span>
+            {device
+              ? "4 fictional adults · Scripted replies · Only in this tab, up to 24 hours. No real messages or invitations. Avoid personal details."
+              : "4 fictional profiles · Sample matches & scripted replies · Changes saved for 24 hours"}
+          </span>
+          {device && (
+            <button
+              onClick={() => {
+                try {
+                  window.sessionStorage.removeItem(deviceDemoKey);
+                } catch {
+                  /* Storage may be disabled. */
+                }
+                setDevice(false);
+                setData(undefined);
+                setSelected(undefined);
+                closeDialog();
+                void start();
+              }}
+              disabled={busy}
+            >
+              Exit device preview
+            </button>
+          )}
           <button
             onClick={async () => {
               if (await act({ action: "reset" })) {
@@ -282,6 +370,11 @@ export function DemoExperience() {
               <button onClick={start} disabled={busy}>
                 Try again
               </button>
+              {canUseDevice && !data && (
+                <button onClick={startDevice} disabled={busy}>
+                  Try a device-only demo
+                </button>
+              )}
               <Link href="/auth/register">Create an account</Link>
             </div>
           )}

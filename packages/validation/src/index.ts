@@ -134,3 +134,5 @@ export const moderationSchema = z
     report_id: uuid.optional(),
   })
   .strict();
+
+export { demoActionSchema } from "./demo";
