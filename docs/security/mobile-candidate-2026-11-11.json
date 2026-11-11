@@ -90,5 +90,11 @@
     "Email confirmation and recovery redirects require the deferred Auth URL settings.",
     "Browser device-only demo is fictional, tab-local and explicitly opted in.",
     "iOS simulator archive is not an iPhone-installable IPA."
-  ]
+  ],
+  "publication": {
+    "Bluechipwhale": 42988631192,
+    "kavodtales": 42988639242,
+    "public_release": "https://github.com/kavodtales/Just1date/releases/tag/v0.1.0-rc.4",
+    "assets_verified_against_github_digests": true
+  }
 }
