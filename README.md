@@ -14,16 +14,13 @@ Meet someone worth choosing.
 
 This repository contains a real service-connected implementation in progress. **Public production launch remains blocked by the release gates in docs/STATUS.md.** Real Supabase credentials and the database connection are configured privately; the hosted schema, Auth/Storage/Realtime and production API runtime have selected live verification. Member and staff apps are deployed to Vercel. Expo/EAS is configured and an actual signed Android preview has passed independent signature, API 36, 16 KB alignment and emulator boot checks. Paystack/AI/live video remain disabled without their required setup. Four explicitly fictional preview profiles are isolated in demo sessions; they are never represented as real members or real matches. No payment or subscription outcome is fabricated.
 
-The updated source is uploaded to both authorized repositories. The [verified
-RC3 Android APK and Google Play bundle](https://github.com/kavodtales/Just1date/releases/tag/v0.1.0-rc.3)
-and checksums are available as a prerelease. The full redesign's Vercel rollout
-awaits account access or the owner's destination choice; the current live site
-still runs the prior frontend, with the new welcome photos served through its
-existing image feed. Review the [27 rendered screens](design/verification/current/README.md),
-[artifact evidence](docs/security/mobile-candidate-2026-10-22.json) and [video operation](docs/VIDEO_CALLS.md).
-The updated iOS simulator app compiled and was inspected; an iPhone-installable
-build still requires Apple Developer signing. No store approval or complete
-public launch is claimed.
+The source is uploaded to both authorized repositories and the redesigned web,
+API and staff apps are deployed under Whaleswealth. Supabase restoration and
+Auth URL changes are still required for live member services. The latest native
+release evidence is recorded with the [audit](docs/AUDIT_2026-11-11.md). Original
+photo prompts and hashes remain in `design/photography/generation.json`.
+The iOS simulator archive is not an iPhone-installable IPA; Apple signing and
+store publication remain separate. No public launch approval is claimed.
 
 ## Start
 

@@ -1,0 +1,94 @@
+{
+  "tag": "v0.1.0-rc.4",
+  "source_commit": "efe7877f109a86f90f65180db651a0489f68e9ec",
+  "package": "com.just1date.app",
+  "version": "0.1.0",
+  "apk": {
+    "artifact": "https://expo.dev/artifacts/eas/J_eeM1gbuVlDtTRpPg4N5Ad5q61kc8KpQzjeAC3WP7s.apk",
+    "filename": "just1date-0.1.0-rc.4.apk",
+    "sha256": "46b83a62bda5ac210290f55b693fd50254fc98343afa0f14fb520a869e724461",
+    "bytes": 158301646,
+    "build_id": "9318e854-9b1f-4b39-abec-2a9c0b80c6d2",
+    "version_code": 17
+  },
+  "aab": {
+    "artifact": "https://expo.dev/artifacts/eas/N0FEAFF9ZVraRaJRhZRzJtjnbvPqczZM8fu5OCM6oHE.aab",
+    "filename": "just1date-0.1.0-rc.4.aab",
+    "sha256": "3d000fb7605448f48173e403c995a8b235180d76e7cea8dcf5dcb55d9746f1ec",
+    "bytes": 98405633,
+    "build_id": "9a635838-603d-471a-8cb0-7435bff76d79",
+    "version_code": 18
+  },
+  "ios_simulator": {
+    "artifact": "https://expo.dev/artifacts/eas/b_533Aq2J_XwsqILO0ijawuv8cXVQkCTd2_g5qMgYvg.tar.gz",
+    "filename": "just1date-0.1.0-rc.4-ios-simulator.tar.gz",
+    "sha256": "cb6ff8331efe1ae4435a446b1b6a5bb5341f9fb30a9ade904a11e92b0bf178b1",
+    "bytes": 43914455,
+    "build_id": "b658f841-7b6b-4e84-9d51-56cc99110804",
+    "device_installable": false,
+    "identity_permissions_date_and_recovery_inspection": "passed",
+    "privileged_values_in_scanned_bundle": false
+  },
+  "verification": {
+    "independent_digest_run": 42984127305,
+    "bundletool": "passed",
+    "aab_runs": {
+      "Bluechipwhale": 42984469099,
+      "kavodtales": 42984498505
+    },
+    "apk_emulator": "passed on Android 15 and Android 16",
+    "signing_certificate_sha256": "5ebcd924f715d62b99ab96b1d0f1931f0491946a8dc725186aa91193c0edf7a6",
+    "target_android_api": 36,
+    "native_64bit_libraries": 52,
+    "elf_16k_alignment": true,
+    "privileged_values_in_scanned_bundles": {
+      "apk": false,
+      "ios_simulator": false
+    },
+    "private_values_checked_per_bundle": 2,
+    "apk_runs": {
+      "Bluechipwhale": 42987784912,
+      "kavodtales": 42987794823
+    },
+    "emulator_runtime_api": {
+      "Bluechipwhale": 35,
+      "kavodtales": 36
+    },
+    "superseded_emulator_runs": {
+      "Bluechipwhale": [
+        42984458738,
+        42985411796,
+        42986799975
+      ],
+      "kavodtales": [
+        42984478988,
+        42985422322,
+        42986808354
+      ],
+      "reason": "Acceptance harness needed safe scrolling to an offscreen recovery control; the same APK was subsequently tested with corrected gestures."
+    },
+    "source_ci": {
+      "commit": "c64f6958c58a32c4d247f0b671501ba1e1f3ca70",
+      "Bluechipwhale": 42986231823,
+      "kavodtales": 42986248960
+    },
+    "browser_scenarios_passed": 109,
+    "unit_api_sql_tests_passed": 85
+  },
+  "rollout": {
+    "web": "https://just1date.vercel.app",
+    "api": "https://just1date-api-whaleswealth.vercel.app",
+    "admin": "https://just1date-admin-whaleswealth.vercel.app",
+    "backend_status": "Supabase DNS unavailable; owner deferred restoration",
+    "auth_callback_settings": "owner deferred",
+    "live_video": "disabled pending LiveKit and persistent worker",
+    "ios_device_build": "requires Apple signing",
+    "store_approval": false
+  },
+  "limitations": [
+    "Live accounts and member data cannot work until Supabase is restored.",
+    "Email confirmation and recovery redirects require the deferred Auth URL settings.",
+    "Browser device-only demo is fictional, tab-local and explicitly opted in.",
+    "iOS simulator archive is not an iPhone-installable IPA."
+  ]
+}

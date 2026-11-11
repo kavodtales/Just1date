@@ -38,7 +38,7 @@ jobs:
           gh run download "$AAB_RUN" --repo "$GITHUB_REPOSITORY" --name google-play-bundle-verification --dir evidence/aab
           python - <<'PY'
           import json,os,re,urllib.parse
-          release=json.load(open('docs/security/mobile-candidate-2026-10-22.json'))
+          release=json.load(open('docs/security/mobile-candidate-2026-11-11.json'))
           assert re.fullmatch(r'v[0-9]+\.[0-9]+\.[0-9]+-rc\.[0-9]+',release['tag'])
           for kind,name,evidence in [('apk','Verify signed Android artifact','evidence/apk/apk-verification.json'),('aab','Verify signed Google Play bundle','evidence/aab/native-verification.json')]:
             run=json.load(open(kind+'-run.json'))
@@ -51,24 +51,35 @@ jobs:
             assert '\n' not in item['artifact'] and '\r' not in item['artifact']
             assert re.fullmatch('[a-f0-9]{64}',item['sha256'])
             assert re.fullmatch(r'just1date-[a-zA-Z0-9.-]+\.'+kind,item['filename'])
+          simulator=release['ios_simulator']
+          url=urllib.parse.urlparse(simulator['artifact'])
+          assert simulator['device_installable'] is False
+          assert url.scheme=='https' and url.hostname=='expo.dev' and url.path.startswith('/artifacts/eas/') and url.path.endswith('.tar.gz')
+          assert not url.query and not url.fragment and not url.username and not url.password
+          assert '\n' not in simulator['artifact'] and '\r' not in simulator['artifact']
+          assert re.fullmatch('[a-f0-9]{64}',simulator['sha256'])
+          assert re.fullmatch(r'just1date-[a-zA-Z0-9.-]+-ios-simulator\.tar\.gz',simulator['filename'])
           with open(os.environ['GITHUB_ENV'],'a') as env:
             env.write('RELEASE_TAG='+release['tag']+'\n')
             for kind in ['apk','aab']:
               for key,value in release[kind].items():
                 if key in ['artifact','filename','sha256']: env.write(kind.upper()+'_'+key.upper()+'='+value+'\n')
+            for key in ['artifact','filename','sha256']: env.write('IOS_'+key.upper()+'='+simulator[key]+'\n')
           PY
       - name: Download the exact signed releases
         run: |
           curl --fail --location --proto '=https' --proto-redir '=https' --max-filesize 268435456 "$APK_ARTIFACT" --output "$APK_FILENAME"
           curl --fail --location --proto '=https' --proto-redir '=https' --max-filesize 268435456 "$AAB_ARTIFACT" --output "$AAB_FILENAME"
-          printf '%s  %s\n%s  %s\n' "$APK_SHA256" "$APK_FILENAME" "$AAB_SHA256" "$AAB_FILENAME" > SHA256SUMS.txt
+          curl --fail --location --proto '=https' --proto-redir '=https' --max-filesize 268435456 "$IOS_ARTIFACT" --output "$IOS_FILENAME"
+          printf '%s  %s\n%s  %s\n%s  %s\n' "$APK_SHA256" "$APK_FILENAME" "$AAB_SHA256" "$AAB_FILENAME" "$IOS_SHA256" "$IOS_FILENAME" > SHA256SUMS.txt
           sha256sum --check SHA256SUMS.txt
+          python scripts/verify-ios-simulator.py "$IOS_FILENAME"
       - name: Publish immutable prerelease assets
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" || gh release create "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --prerelease --title 'Just1Date premium app release candidate' --notes-file releases/CANDIDATE_NOTES.md
-          for FILE in "$APK_FILENAME" "$AAB_FILENAME" SHA256SUMS.txt; do
+          for FILE in "$APK_FILENAME" "$AAB_FILENAME" "$IOS_FILENAME" SHA256SUMS.txt; do
             if gh api "repos/$GITHUB_REPOSITORY/releases/tags/$RELEASE_TAG" --jq '.assets[].name' | grep -Fxq "$FILE"; then
               EXISTING=$(gh api "repos/$GITHUB_REPOSITORY/releases/tags/$RELEASE_TAG" --jq ".assets[] | select(.name==\"$FILE\") | .digest")
               EXPECTED="sha256:$(sha256sum "$FILE" | cut -d' ' -f1)"
