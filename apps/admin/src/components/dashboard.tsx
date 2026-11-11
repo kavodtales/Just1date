@@ -92,6 +92,7 @@ export function Dashboard() {
           <button
             key={key}
             className={section === key ? "selected" : ""}
+            disabled={identity.isPending}
             onClick={() => setSection(key)}
           >
             <Icon size={19} />
