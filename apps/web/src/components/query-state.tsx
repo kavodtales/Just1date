@@ -74,6 +74,13 @@ export function QueryState({
           <Link className="text-link" href="/auth/login">
             Sign in
           </Link>
+          {!staff &&
+            error instanceof ClientError &&
+            (error.status === 0 || error.status >= 500) && (
+              <Link className="text-link" href="/demo">
+                Explore a fictional preview while the service recovers
+              </Link>
+            )}
         </div>
       </State>
     );
